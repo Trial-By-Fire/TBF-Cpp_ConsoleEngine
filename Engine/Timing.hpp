@@ -10,27 +10,27 @@
 
 
 
-// Aliases (Typedefs)
-
-typedef struct TimingData_Def TimingData;
-
-
-
-// Structures
-
-struct TimingData_Def
+namespace Timing
 {
-	LARGE_INTEGER TimeSnapshot_Initial;
-	LARGE_INTEGER TimeSnapshot_End    ;
-	LARGE_INTEGER TimeFrequency       ;
-	sInt64        Cycle_TicksElapsed  ;
-	float64       Cycle_Microseconds  ;
-	float64       DeltaTime           ;
-};
+	// Aliases (Typedefs)
 
 
 
-// Constants
+	// Structures
+
+	struct Data
+	{
+		LARGE_INTEGER TimeSnapshot_Initial;
+		LARGE_INTEGER TimeSnapshot_End    ;
+		LARGE_INTEGER TimeFrequency       ;
+		sInt64        Cycle_TicksElapsed  ;
+		float64       Cycle_Microseconds  ;
+		float64       DeltaTime           ;
+	};
+
+
+
+	// Constants
 
 #define TickToMicroseconds \
 	1000000
@@ -39,49 +39,48 @@ struct TimingData_Def
 	10000000
 
 #define SizeOf_TimeData \
-	sizeof(TimingData)
+	sizeof(Data)
 
 
 
-// Functions
+	// Functions
 
-//fn returns(void) Timing_MakeTimer parameters(void);
+	//fn returns(void) Timing_MakeTimer parameters(void);
 
-const TimingData* Timing_GetContext(void);
+	const Data* GetContext(void);
 
-void Timing_LoadModule(void);
+	void LoadModule(void);
 
-void Timing_TakeInitialSnapshot(void);
+	void TakeInitialSnapshot(void);
 
-void Timing_TakeEndingSnapshot(void);
+	void TakeEndingSnapshot(void);
 
-void Timing_Update(void);
-
-
-
-// Timer Class
-
-// Aliases (Typedefs)
-
-typedef struct TimerData_Def TimerData;
+	void Update(void);
 
 
 
-// Structs
+	// Timer Class
 
-struct TimerData_Def
-{
-	float64 Elapsed;
-	float64 EndTime;
-};
+	// Aliases (Typedefs)
 
 
 
-// Functions
 
-bool Timer_Ended(TimerData* _timer);
+	// Structs
 
-void Timer_Reset(TimerData* _timer);
+	struct TimerData
+	{
+		float64 Elapsed;
+		float64 EndTime;
+	};
 
-void Timer_Tick(TimerData* _timer);
 
+
+	// Functions
+
+	bool Timer_Ended(TimerData* _timer);
+
+	void Timer_Reset(TimerData* _timer);
+
+	void Timer_Tick(TimerData* _timer);
+}

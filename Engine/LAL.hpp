@@ -11,6 +11,7 @@ Language Abstraction Layer
 
 
 #include "C_STL.hpp"
+#include "Cpp_STL.hpp"
 
 
 
@@ -96,21 +97,21 @@ static
 
 // Aliases (Typedefs) ------------------------------------------------------------------------------
 
-typedef char Byte;
+using Byte = char; 
 
-typedef signed           short sInt16;
-typedef signed long long int   sInt64;
+using sInt16 = signed          short;
+using sInt64 = signed long long int;
 
-typedef unsigned           int uInt  ;
-typedef unsigned long long int uInt64;
+using uInt   = unsigned           int;
+using uInt64 = unsigned long long int;
 
-typedef signed int sInt;
+using sInt = signed int;
 
-typedef char Key;
+using Key = char;
 
-typedef float  float32;
-typedef double float64;
+using float32 = float;
+using float64 = double;
 
-typedef void (Void_Function)(void);
+using Void_Function = void();
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////

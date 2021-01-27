@@ -11,74 +11,79 @@
 
 
 
-// Static Data
 
-// Private
-
-bool Exist;   // Sentinel value use to exist core engine loop.
-
-
-
-// Functions
-
-// Public
-
-void Cycler_Lapse(void)
+namespace Cycler
 {
-	Exist = false;
-}
+	// Static Data
 
-void Cycler_Initialize(void)
-{
-	while (Exist == true)
+	// Private
+
+	bool Exist;   // Sentinel value use to exist core engine loop.
+
+
+
+				  // Functions
+
+				  // Public
+
+	void Lapse(void)
 	{
-		Timing_TakeInitialSnapshot();
+		Exist = false;
+	}
 
-		// Update Input
+	void Initialize(void)
+	{
+		while (Exist == true)
+		{
+			Timing::TakeInitialSnapshot();
 
-		Input_Update();
+			// Update Input
 
-		// Update State
+			Input::Update();
 
-		State_Update();
-		
-		// Update Renderer
+			// Update State
 
-		//Stack()
+			State::Update();
 
-			//ro Ptr(InputData   ) inputContext    = Input_GetContext   ();
-			//ro Ptr(RendererData) rendererContext = Renderer_GetContext();
-			//ro Ptr(TimingData  ) timingContext   = Timing_GetContext  ();
+			// Update Renderer
 
-		//Renderer_WriteToPersistentSection(1, L"Tick Elapsed        : %llu" , timingContext  ->Cycle_TicksElapsed);
-		//Renderer_WriteToPersistentSection(2, L"Timer      (Seconds): %.7Lf", rendererContext->RefeshTimer       );
-		//Renderer_WriteToPersistentSection(3, L"Delta Time (Seconds): %.7Lf", timingContext  ->DeltaTime         );
+			//Stack()
 
-		Renderer_Update();
+			//ro Ptr(Data   ) inputContext    = Input_GetContext   ();
+			//ro Ptr(Data) rendererContext = GetContext();
+			//ro Ptr(Data  ) timingContext   = GetContext  ();
 
-		// Update Timing
+			//WriteToPersistentSection(1, L"Tick Elapsed        : %llu" , timingContext  ->Cycle_TicksElapsed);
+			//WriteToPersistentSection(2, L"Timer      (Seconds): %.7Lf", rendererContext->RefeshTimer       );
+			//WriteToPersistentSection(3, L"Delta Time (Seconds): %.7Lf", timingContext  ->DeltaTime         );
 
-		Timing_TakeEndingSnapshot();
+			Renderer::Update();
 
-		Timing_Update();
+			// Update Timing
+
+			Timing::TakeEndingSnapshot();
+
+			Timing::Update();
+		}
+	}
+
+	void LoadModule(void)
+	{
+		Exist = true;
+	}
+
+	void Quit(void)
+	{
+		Exist = false;
+	}
+
+
+
+	// Private
+
+	bool ShouldQuit(void)
+	{
+		return false;
 	}
 }
 
-void Cycler_LoadModule(void)
-{
-	Exist = true;
-}
-
-void Cycler_Quit(void)
-{
-	Exist = false;
-}
-
-
-
-// Private
-
-bool ShouldQuit(void)
-{
-	return false;
-}

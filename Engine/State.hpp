@@ -8,33 +8,33 @@
 
 
 
-// Aliases (Typedefs)
-
-typedef struct StateObj_Def StateObj;
-
-
-
 // Structs
 
-struct StateObj_Def
+struct StateObj
 {
-	Void_Function* Load  ;
-	Void_Function* Unload; 
+	Void_Function* Load;
+	Void_Function* Unload;
 	Void_Function* Update;
 	Void_Function* Render;
 };
 
 
 
-// Functions
+namespace State
+{
+	// Aliases (Typedefs)
 
-void State_LoadModule(void);
 
-void State_SetState(StateObj* _state);
 
-void State_Update(void);
+	// Functions
 
-void State_Render(void);
+	void LoadModule(void);
 
-void State_LoadGame(void);
+	void SetState(StateObj* _state);
 
+	void Update(void);
+
+	void Render(void);
+
+	void LoadGame(void);
+}

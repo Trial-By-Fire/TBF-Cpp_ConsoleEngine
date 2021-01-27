@@ -9,18 +9,16 @@
 
 
 
-// Functions
+namespace Cycler
+{
+	// Functions
 
-void Cycler_Initialize(void);
+	void Initialize(void);
 
-void Cycler_Lapse(void);
+	void Lapse(void);
 
-void Cycler_LoadModule(void);
+	void LoadModule(void);
 
-void Cycler_Quit(void);
-
-
-
-
-
+	void Quit(void);
+}
 

@@ -12,7 +12,11 @@
 
 
 
-// Functions
 
-// Game must implement this function.
-StateObj* LoadGame(void);
+namespace Engine
+{
+	// Functions
+
+	// Game must implement this function.
+	StateObj* LoadGame(void);
+}

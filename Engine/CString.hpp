@@ -1,6 +1,7 @@
 #pragma once
 
 
+
 // Includes
 
 #include "LAL.hpp"
@@ -10,36 +11,16 @@
 
 // Aliases (Typedefs)
 
-typedef struct CString_Def CString;
-
-typedef char CString_13[13];
-
-typedef char CTS_CString[];
-
-typedef wchar_t WideChar;
-
-typedef wchar_t CTS_CWString[];
+using CString_13   = char[13];
+using CTS_CString  = char[];
+using WideChar     = wchar_t;
+using CTS_CWString = wchar_t[];
 
 
 
-// Structures
-
-struct CString_Def
+namespace CString
 {
-	char* Array;
+	// Functions
 
-	uInt64 Length;
-};
-
-
-
-// Constants
-
-#define SizeOf_CString \
-	sizeof(CString)
-
-
-
-// Functions
-
-void CString_LoadModule(void);
+	void LoadModule(void);
+}

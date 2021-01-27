@@ -8,15 +8,14 @@
 
 // Aliases (Typedefs)
 
-typedef enum ExecFlags_Def ExecFlags;
 
 
 
 // Enumerators
 
-enum ExecFlags_Def
+enum ExecFlags
 {
-	ExecFlags_Sucess = 0,
+	ExecFlags_Sucess = EXIT_SUCCESS,
 };
 
 

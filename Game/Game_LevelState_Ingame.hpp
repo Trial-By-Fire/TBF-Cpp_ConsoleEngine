@@ -8,6 +8,10 @@
 
 
 
-StateObj* GetIngameState(void);
+namespace Game
+{
+	StateObj* GetIngameState(void);
 
-void Ingame_Reload(void);
+	void Ingame_Reload(void);
+}
+

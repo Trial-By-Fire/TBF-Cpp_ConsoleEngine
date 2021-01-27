@@ -11,21 +11,26 @@
 
 // Macros
 
-// Aliases (Typedefs)
 
 
 
-// Private
-
-// Static Data
-
-
-
-// Functions
-
-// Public
-
-void CString_LoadModule(void)
+namespace CString
 {
-	return;
+	// Aliases (Typedefs)
+
+	// Private
+
+	// Static Data
+
+
+
+	// Functions
+
+	// Public
+
+	void LoadModule(void)
+	{
+		return;
+	}
 }
+

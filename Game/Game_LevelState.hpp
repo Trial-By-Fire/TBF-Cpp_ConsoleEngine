@@ -7,8 +7,12 @@
 
 
 
-// Functions
+namespace Game
+{
+	// Functions
 
-StateObj* GetLevelState(void);
+	StateObj* GetLevelState(void);
 
-void LevelState_SetSubstate(StateObj* _state);
+	void LevelState_SetSubstate(StateObj* _state);
+}
+

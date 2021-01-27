@@ -11,71 +11,75 @@
 
 
 
-// Static Data
-
-// Private
-
-StateObj LevelState;
-
-StateObj* LevelState_CurrentSubstate = NULL;
-
-
-
-// Functions
-
-// Class Public
-
-void Load_Level(void)
+namespace Game
 {
-	LevelState_SetSubstate(GetIngameState());
-}
+	// Static Data
 
-void Unload_Level(void)
-{
-	LevelState_CurrentSubstate->Unload();
+	// Private
 
-	LevelState_CurrentSubstate = NULL;
-}
+	StateObj LevelState;
 
-void Update_Level(void)
-{
-	LevelState_CurrentSubstate->Update();
-}
-
-void Render_Level(void)
-{
-	LevelState_CurrentSubstate->Render();
-}
+	StateObj* LevelState_CurrentSubstate = NULL;
 
 
 
-// Public
+	// Functions
 
-StateObj* GetLevelState(void)
-{
-	static bool stateConstructed = false;
+	// Class Public
 
-	if (! stateConstructed)
+	void Load_Level(void)
 	{
-		LevelState.Load   = &Load_Level  ;
-		LevelState.Unload = &Unload_Level;
-		LevelState.Update = &Update_Level;
-		LevelState.Render = &Render_Level;
-
-		stateConstructed = true;
+		LevelState_SetSubstate(GetIngameState());
 	}
 
-	return &LevelState;
-}
-
-void LevelState_SetSubstate(StateObj* _state)
-{
-	if (LevelState_CurrentSubstate != NULL)
+	void Unload_Level(void)
 	{
 		LevelState_CurrentSubstate->Unload();
+
+		LevelState_CurrentSubstate = NULL;
 	}
 
-	LevelState_CurrentSubstate = _state;
+	void Update_Level(void)
+	{
+		LevelState_CurrentSubstate->Update();
+	}
 
-	LevelState_CurrentSubstate->Load();
+	void Render_Level(void)
+	{
+		LevelState_CurrentSubstate->Render();
+	}
+
+
+
+	// Public
+
+	StateObj* GetLevelState(void)
+	{
+		static bool stateConstructed = false;
+
+		if (! stateConstructed)
+		{
+			LevelState.Load   = &Load_Level  ;
+			LevelState.Unload = &Unload_Level;
+			LevelState.Update = &Update_Level;
+			LevelState.Render = &Render_Level;
+
+			stateConstructed = true;
+		}
+
+		return &LevelState;
+	}
+
+	void LevelState_SetSubstate(StateObj* _state)
+	{
+		if (LevelState_CurrentSubstate != NULL)
+		{
+			LevelState_CurrentSubstate->Unload();
+		}
+
+		LevelState_CurrentSubstate = _state;
+
+		LevelState_CurrentSubstate->Load();
+	}
 }
+

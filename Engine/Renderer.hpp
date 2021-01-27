@@ -11,122 +11,116 @@
 
 
 
-// Enums
 
-enum ERenderer
+namespace Renderer
 {
-	ERenderer_Width                 = 80,
+	// Enums
 
-#ifdef Debug
-	ERenderer_Height                = 48,
+	enum ERenderer
+	{
+		ERenderer_Width                 = 80,
 
-	ERenderer_BorderLine            = 24,
+	#ifdef Debug
+		ERenderer_Height                = 48,
 
-	ERenderer_DebugStart            = 25,
-	ERenderer_DebugLogSize          = 18,
+		ERenderer_BorderLine            = 24,
 
-	ERenderer_DebugPersistentStart  = 44,
-	ERenderer_PersistentSectionSize = 4 ,
-#else
-	ERenderer_Height                = 24,
-#endif
+		ERenderer_DebugStart            = 25,
+		ERenderer_DebugLogSize          = 18,
 
-	ERenderer_GameEnd               = 23,	
-};
+		ERenderer_DebugPersistentStart  = 44,
+		ERenderer_PersistentSectionSize = 4 ,
+	#else
+		ERenderer_Height                = 24,
+	#endif
 
-
-
-// Aliases (Typedefs)
-
-typedef CONSOLE_SCREEN_BUFFER_INFO CSBI;
-
-typedef CHAR_INFO Cell;
-
-typedef Cell Line[ERenderer_Width];
-
-typedef struct RendererData_Def RendererData;
-typedef struct ScreenInfo_Def   ScreenInfo;
-
-
-typedef struct Vec2D_Int_Def Vec2D_Int;
+		ERenderer_GameEnd               = 23,	
+	};
 
 
 
-// Structures
+	// Aliases (Typedefs)
 
-struct Vec2D_Int_Def { sInt X, Y; };
-
-struct RendererData_Def
-{
-	// Console Data
-
-	HWND   Window_Handle;
-	HANDLE Output_Handle;
-
-	DWORD      CharactersWritten;
-	COORD      CoordSize;
-	CSBI       CSBI_Instance;
-	DWORD      BufferSize;
-	SMALL_RECT Size;
-
-	CONSOLE_CURSOR_INFO CursorSettings;
-
-	Vec2D_Int ScreenPosition;
-
-	// Render Timing
-
-	float64 RefeshTimer   ;
-	float64 RefeshInterval;
-};
-
-struct ScreenInfo_Def
-{
-	Vec2D_Int Center;
-};
+	using CSBI = CONSOLE_SCREEN_BUFFER_INFO;
+	using Cell = CHAR_INFO;
+	using Line = Cell[ERenderer_Width];
 
 
 
-// Constants
+	// Structures
 
-#define SizeOf_Renderer \
-	sizeof(RendererData)
+	struct Vec2D_Int { sInt X, Y; };
 
+	struct Data
+	{
+		// Console Data
 
+		HWND   Window_Handle;
+		HANDLE Output_Handle;
 
-// Functions
+		DWORD      CharactersWritten;
+		COORD      CoordSize;
+		CSBI       CSBI_Instance;
+		DWORD      BufferSize;
+		SMALL_RECT Size;
 
-void Renderer_Clear(void);
+		CONSOLE_CURSOR_INFO CursorSettings;
 
-bool Renderer_FillCellsWithWhitespace(void);
+		Vec2D_Int ScreenPosition;
 
-bool Renderer_FormatCells(void);
+		// Render Timing
 
-const RendererData* Renderer_GetContext(void);
+		float64 RefeshTimer   ;
+		float64 RefeshInterval;
+	};
 
-void Renderer_LoadModule(void);
-
-void Renderer_ProcessTiming(float64 _deltaTime);
-
-void Renderer_RenderFrame(void);
-
-void Renderer_ResetDrawPosition(void);
-
-void Renderer_UnloadModule(void);
-
-void Renderer_Update(void);
-
-void Renderer_WriteToBufferCells(Cell* _cells, COORD _initalCell, COORD _finalCell);
-
-// BS Fix for now:
-typedef wchar_t WideChar;   // From C_String.h
-
-void Renderer_WriteToLog(WideChar* _logString);
-
-void Renderer_WriteToPersistentSection(sInt _row, WideChar* _lineformat, ...);
-
-void Renderer_Logs_ScrollUp(void);
-
-void Renderer_Logs_ScrollDown(void);
+	struct ScreenInfo
+	{
+		Vec2D_Int Center;
+	};
 
 
+
+	// Constants
+
+	#define SizeOf_Renderer \
+		sizeof(Data)
+
+
+
+	// Functions
+
+	void Clear(void);
+
+	bool FillCellsWithWhitespace(void);
+
+	bool FormatCells(void);
+
+	const Data* GetContext(void);
+
+	void LoadModule(void);
+
+	void ProcessTiming(float64 _deltaTime);
+
+	void RenderFrame(void);
+
+	void ResetDrawPosition(void);
+
+	void UnloadModule(void);
+
+	void Update(void);
+
+	void WriteToBufferCells(Cell* _cells, COORD _initalCell, COORD _finalCell);
+
+	// BS Fix for now:
+	typedef wchar_t WideChar;   // From C_String.h
+
+	void WriteToLog(WideChar* _logString);
+
+	void WriteToPersistentSection(sInt _row, WideChar* _lineformat, ...);
+
+	void Logs_ScrollUp(void);
+
+	void Logs_ScrollDown(void);
+}
 

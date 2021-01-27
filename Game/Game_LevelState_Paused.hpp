@@ -8,4 +8,8 @@
 
 
 
-StateObj* GetPausedState(void);
+namespace Game
+{
+	StateObj* GetPausedState(void);
+}
+

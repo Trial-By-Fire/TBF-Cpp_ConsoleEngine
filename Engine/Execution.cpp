@@ -19,26 +19,26 @@
 
 void PrepareModules(void)
 {
-	Cycler_LoadModule  ();
-	CString_LoadModule ();
-	Timing_LoadModule  ();
-	Input_LoadModule   ();
-	Renderer_LoadModule();
-	State_LoadModule   ();
+	Cycler  ::LoadModule();
+	CString ::LoadModule();
+	Timing  ::LoadModule();
+	Input   ::LoadModule();
+	Renderer::LoadModule();
+	State   ::LoadModule();
 }
 
 void PrintStartMessage(void)
 {
-	Renderer_WriteToLog((WideChar*)L"TBF C Engine");
+	Renderer::WriteToLog((WideChar*)L"TBF C Engine");
 
-	Renderer_WriteToLog((WideChar*)L"");
+	Renderer::WriteToLog((WideChar*)L"");
 
-	Renderer_WriteToLog((WideChar*)L"Version: Phase 14");
+	Renderer::WriteToLog((WideChar*)L"Version: Phase 14");
 }
 
 void UnloadModules(void)
 {
-	Renderer_UnloadModule();
+	Renderer::UnloadModule();
 }
 
 // Entry Point
@@ -53,11 +53,11 @@ ExecFlags EntryPoint(void)
 
 	// Core Engine Loop
 
-	Cycler_Initialize();
+	Cycler::Initialize();
 	
 	UnloadModules();
 
-	GlobalDeallocate();
+	Memory::GlobalDeallocate();
 
 	return ExecFlags_Sucess;
 }

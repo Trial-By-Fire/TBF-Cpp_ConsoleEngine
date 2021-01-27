@@ -9,137 +9,151 @@
 #include "Engine.hpp"
 
 
-enum 
+
+namespace State
 {
-	 EFocusState_Game,
-	 EFocusState_Logs
-};
+	using Input::EInput_Pressed;
+
+	using Renderer::Logs_ScrollUp;
+	using Renderer::Logs_ScrollDown;
 
 
 
-
-// State
-
-StateObj* CurrentState = NULL;
-
-uInt FocusState = EFocusState_Game;
-
-
-
-// Functions
-
-// Public
-
-void State_OnKeyArrowUp(EInputState _state)
-{
-	switch (_state)
+	enum 
 	{
-		case EInput_Pressed:
+		EFocusState_Game,
+		EFocusState_Logs
+	};
+
+
+
+
+	// State
+
+	StateObj* CurrentState = NULL;
+
+	uInt FocusState = EFocusState_Game;
+
+
+
+	// Functions
+
+	// Public
+
+	void State_OnKeyArrowUp(Input::EState _state)
+	{
+		switch (_state)
 		{
-			switch (FocusState)
+			case EInput_Pressed:
 			{
-				case EFocusState_Logs:
+				switch (FocusState)
 				{
-					Renderer_Logs_ScrollUp();
+					case EFocusState_Logs:
+					{
+						Logs_ScrollUp();
 
-					break;
+						break;
+					}
 				}
-			}
 
-			break;
+				break;
+			}
 		}
 	}
-}
 
-void State_OnKeyArrowDown(EInputState _state)
-{
-	switch (_state)
+	void State_OnKeyArrowDown(Input::EState _state)
 	{
-		case EInput_Pressed:
+		switch (_state)
 		{
-			switch (FocusState)
+			case EInput_Pressed:
 			{
-				case EFocusState_Logs:
+				switch (FocusState)
 				{
-					Renderer_Logs_ScrollDown();
+					case EFocusState_Logs:
+					{
+						Logs_ScrollDown();
 
-					break;
+						break;
+					}
 				}
-			}
 
-			break;
+				break;
+			}
 		}
 	}
-}
 
-void State_OnKeyTab(EInputState _state)
-{
-	switch (_state)
+	void State_OnKeyTab(Input::EState _state)
 	{
-		case EInput_Pressed:
+		switch (_state)
 		{
-			switch (FocusState)
+			case EInput_Pressed:
 			{
-				case EFocusState_Game:
+				switch (FocusState)
 				{
-					FocusState = EFocusState_Logs;
+					case EFocusState_Game:
+					{
+						FocusState = EFocusState_Logs;
 
-					break;
-				}
-				case EFocusState_Logs:
-				{
-					FocusState = EFocusState_Game;
+						break;
+					}
+					case EFocusState_Logs:
+					{
+						FocusState = EFocusState_Game;
 
-					break;
+						break;
+					}
 				}
+
+				break;
 			}
-
-			break;
 		}
 	}
-}
 
 
-void State_LoadModule(void)
-{
-	CurrentState = GetIntroState();
-
-	CurrentState->Load();
-
-	Input_SubscribeTo(Key_Arrow_Up  , &State_OnKeyArrowUp  );
-	Input_SubscribeTo(Key_Arrow_Down, &State_OnKeyArrowDown);
-	Input_SubscribeTo(Key_Tab       , &State_OnKeyTab      );
-}
-
-void State_SetState(StateObj* _state)
-{
-	if (CurrentState != NULL)
+	void LoadModule(void)
 	{
-		CurrentState->Unload();
+		using OSPlatform::EKeyCode;
+
+		CurrentState = Intro::GetState();
+
+		CurrentState->Load();
+
+		Input::SubscribeTo(EKeyCode::Key_Arrow_Up  , &State_OnKeyArrowUp  );
+		Input::SubscribeTo(EKeyCode::Key_Arrow_Down, &State_OnKeyArrowDown);
+		Input::SubscribeTo(EKeyCode::Key_Enter     , &State_OnKeyTab      );
 	}
 
-	CurrentState = _state;
-
-	CurrentState->Load();
-}
-
-void State_Update(void)
-{
-	if (CurrentState != NULL)
+	void SetState(StateObj* _state)
 	{
-		CurrentState->Update();
+		if (CurrentState != NULL)
+		{
+			CurrentState->Unload();
+		}
+
+		CurrentState = _state;
+
+		CurrentState->Load();
+	}
+
+	void Update(void)
+	{
+		if (CurrentState != NULL)
+		{
+			CurrentState->Update();
+		}
+	}
+
+	void Render(void)
+	{
+		if (CurrentState != NULL)
+		{
+			CurrentState->Render();
+		}
+	}
+
+	void LoadGame(void)
+	{
+		SetState(Engine::LoadGame());
 	}
 }
 
-void State_Render(void)
-{
-	if (CurrentState != NULL)
-	{
-		CurrentState->Render();
-	}
-}
-
-void State_LoadGame(void)
-{
-	State_SetState(LoadGame());
-}

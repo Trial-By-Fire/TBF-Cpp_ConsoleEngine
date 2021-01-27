@@ -8,6 +8,10 @@
 
 
 
-// Functions
+namespace Intro
+{
+	// Functions
 
-StateObj* GetIntroState(void);
+	StateObj* GetState(void);
+}
+

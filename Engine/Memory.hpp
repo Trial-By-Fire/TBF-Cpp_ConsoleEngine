@@ -11,99 +11,88 @@
 
 
 
-// Public
-
-
-
-// Aliases (Typedefs)
-
-typedef void* Address;
-
-typedef struct MemoryBlock_Def MemoryBlock;
-
-typedef struct MemoryBlockArray_Def MemoryBlockArray;
-
-
-
-// Structures
-
-struct MemoryBlock_Def
+namespace Memory
 {
-	Address Location;
-
-	size_t Size;
-};
-
-struct MemoryBlockArray_Def
-{
-	MemoryBlock** Array;
-
-	size_t Length;
-};
+	// Public
 
 
 
-// Constant 
+	// Aliases (Typedefs)
 
-#define SizeOf_AllModules \
-	sizeof(bool) + SizeOf_CString + SizeOf_InputSystem + SizeOf_Renderer + SizeOf_TimeData 
-
-
-
-// Static Data
+	using Address = void*;
 
 
 
-// Functions
+	// Structures
 
-// C-API
+	struct Block
+	{
+		Address Location;
 
-void* AllocateMemory(size_t _amountToAllocate  );
-void  Deallocate    (void*    _memoryToDeallocate);
+		size_t Size;
+	};
 
-void* Internal_Memory_FormatByFill(void* _memoryAddress,       sInt  _fillValue,  size_t _sizeOfData);
-void* Memory_FormatWithData       (void* _memoryAddress, const void* _dataSource, size_t _sizeOfData);
+	struct BlockArray
+	{
+		Block** Array;
 
-// Memory Allocation Array
-
-void         MemoryBlockArray_Add       (MemoryBlockArray* _memoryArray, MemoryBlock* _memoryAllocation);
-MemoryBlock* MemoryBlockArray_LastEntry (MemoryBlockArray* _memoryArray                                );
-void         MemoryBlockArray_Deallocate(MemoryBlockArray* _memoryArray                                );
-
-// Memory Management
-
-Address Internal_ScopedAllocate(MemoryBlockArray* _scopedAllocations, size_t _sizeOfAllocation);
-void    ScopedDeallocate       (MemoryBlockArray* _scopedAllocations                            );
-
-Address Internal_GlobalAllocate  (                   size_t _sizeOfAllocation   );
-Address Internal_GlobalReallocate(Address _location, size_t _sizeForReallocation);
-void    GlobalDeallocate         (void                                            );
+		size_t Length;
+	};
 
 
 
-// Macros
+	// Functions
 
-#define GlobalAllocate(_type, _numberToAllocate) \
-Internal_GlobalAllocate(sizeof(_type) * _numberToAllocate)
+	// C-API
 
-#define GlobalReallocate(_type, _address, _numberToReallocate) \
-Internal_GlobalReallocate(_address, sizeof(_type) * _numberToReallocate);
+	void* AllocateMemory(size_t _amountToAllocate  );
+	void  Deallocate    (void*  _memoryToDeallocate);
 
-#define ScopedAllocate(_type, _numberToAllocate)  \
-Internal_ScopedAllocate(&scopedMemory, sizeof(_type) * _numberToAllocate)
+	void* Internal_FormatByFill(void* _memoryAddress,       sInt  _fillValue,  size_t _sizeOfData);
+	void* FormatWithData       (void* _memoryAddress, const void* _dataSource, size_t _sizeOfData);
 
-#define Memory_FormatByFill(_type, _memoryAddress, _fillValue, _sizeOfAllocation) \
-Internal_Memory_FormatByFill(_memoryAddress, _fillValue, sizeof(_type) * _sizeOfAllocation);
+	// Memory Allocation Array
 
-#define SmartScope                  \
-{					                \
-	MemoryBlockArray scopedMemory = \
-	{ NULL, 0U };
+	void   BlockArray_Add       (BlockArray* _memoryArray, Block* _memoryAllocation);
+	Block* BlockArray_LastEntry (BlockArray* _memoryArray                          );
+	void   BlockArray_Deallocate(BlockArray* _memoryArray                          );
+
+	// Memory Management
+
+	Address Internal_ScopedAllocate(BlockArray* _scopedAllocations, size_t _sizeOfAllocation);
+	void    ScopedDeallocate       (BlockArray* _scopedAllocations                          );
+
+	Address Internal_GlobalAllocate  (                   size_t _sizeOfAllocation   );
+	Address Internal_GlobalReallocate(Address _location, size_t _sizeForReallocation);
+	void    GlobalDeallocate         (void                                          );
 
 
-#define SmartScope_End                              \
-	if (scopedMemory.Array != NULL)                 \
-	{								                \
-		ScopedDeallocate(&scopedMemory); \
-	}												\
+
+	// Macros
+
+	#define GlobalAllocate(_type, _numberToAllocate) \
+	Memory::Internal_GlobalAllocate(sizeof(_type) * _numberToAllocate)
+
+	#define GlobalReallocate(_type, _address, _numberToReallocate) \
+	Memory::Internal_GlobalReallocate(_address, sizeof(_type) * _numberToReallocate);
+
+	#define ScopedAllocate(_type, _numberToAllocate)  \
+	Memory::Internal_ScopedAllocate(&scopedMemory, sizeof(_type) * _numberToAllocate)
+
+	#define Memory_FormatByFill(_type, _memoryAddress, _fillValue, _sizeOfAllocation) \
+	Memory::Internal_FormatByFill(_memoryAddress, _fillValue, sizeof(_type) * _sizeOfAllocation);
+
+	#define SmartScope                    \
+	{					                  \
+		Memory::BlockArray scopedMemory = \
+		{ NULL, 0U };
+
+
+	#define SmartScope_End                           \
+		if (scopedMemory.Array != NULL)              \
+		{								             \
+			Memory::ScopedDeallocate(&scopedMemory); \
+		}											 \
+	}
 }
+

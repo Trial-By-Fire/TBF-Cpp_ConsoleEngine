@@ -10,40 +10,44 @@
 
 // Structs
 
-class State
+class AState
 {
 public:
+	~AState() {};
+	
+	unbound AState* GetEngineState();
 
-	struct Callbacks
-	{
-		Void_Function* Load;
-		Void_Function* Unload;
-		Void_Function* Update;
-		Void_Function* Render;
-	};
+	unbound void SetEngineState(AState* _state);
 
+	virtual void Load  (void) = NULL;
+	virtual void Unload(void) = NULL;
+	virtual void Update(void) = NULL;
+	virtual void Render(void) = NULL;
+};
+
+
+
+class State : public AState
+{
+	friend void PrepareModules(void);
+
+public:
+
+	void Set(AState* _state);
+
+	override void Load  (void);
+	override void Unload(void);
+	override void Update(void);
+	override void Render(void);
+
+private:
 
 	// Functions
 
 	unbound void LoadModule(void);
 
-	unbound void LoadGame(void);
 
-	unbound ro State* GetEngineState();
-
-	unbound void SetEngineState(Callbacks* _state);
-
-	void Set(Callbacks* _state);
-
-	void Unload(void) ro;
-
-	void Update(void) ro;
-
-	void Render(void) ro;
-
-private:
-
-	Callbacks* data;
+	AState* CurrentState = nullptr;
 };
 
 

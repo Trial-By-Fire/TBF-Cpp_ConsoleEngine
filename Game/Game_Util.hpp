@@ -57,8 +57,8 @@ namespace Game
 
 	struct Vector2D
 	{
-		float32 X;
-		float32 Y;
+		float32 X = 0;
+		float32 Y = 0;
 	};
 
 	// Level
@@ -85,29 +85,35 @@ namespace Game
 	{
 		// Functions
 
-		bool AtFinish(Level* _level);
+		bool AtFinish(Level& _level);
 
-		bool IsGrounded(Level* _level);
+		bool IsGrounded(Level& _level);
 
 		void Load();
 
-		void Update(Level* _level);
+		void Update(Level& _level);
 
 		void Render();
 
 
 		// Variables
 
-		Cell Sprite;
+		Cell Sprite = 
+		{ 
+			0, 
+			BACKGROUND_INTENSITY | BACKGROUND_RED | BACKGROUND_GREEN | BACKGROUND_BLUE 
+		};
 
-		Vector2D Position;
+		Vector2D Position = { -0.975f, 0.075f };
 
-		float32 VerticalVelocity;
+		float32 VerticalVelocity = 0.0f;
 
-		bool ShouldJump, Fell;
+		bool 
+			ShouldJump = false, 
+			Fell       = false ;
 
-		ECharacter_Move Active_MoveState;
-		ECharacter_Move MoveState;
+		ECharacter_Move Active_MoveState = ECharacter_Move::Dont;
+		ECharacter_Move MoveState        = ECharacter_Move::Dont;
 	};
 
 	// UI
@@ -125,13 +131,13 @@ namespace Game
 		void Render();
 
 
-		WideChar* Content;
+		WideChar* Content = nullptr;
 
-		size_t Length;
+		uIntDM Length = 0;
 
-		Cell* RenderCells;
+		Cell* RenderCells = nullptr;
 
-		COORD StartingCell, EndingCell;
+		COORD StartingCell { 0, 0}, EndingCell { 0, 0 };
 	};
 
 	struct UI_Button
@@ -142,7 +148,7 @@ namespace Game
 			   COORD          _startingCell, 
 			   COORD          _endingCell, 
 			   bool           _shouldCenter,
-			   Void_Function* _callback
+			   Void_Function& _callback
 		);
 
 		void Press ();
@@ -151,7 +157,7 @@ namespace Game
 
 		UI_Text Text;
 
-		Void_Function* Callback;
+		Void_Function* Callback = nullptr;
 	};
 
 	struct UI_Grid
@@ -162,7 +168,7 @@ namespace Game
 			   COORD          _startingCell, 
 			   COORD          _endingCell, 
 			   bool           _shouldCenter,
-			   Void_Function* _callback
+			   Void_Function& _callback
 		);
 
 		void MoveUp  ();
@@ -171,11 +177,11 @@ namespace Game
 		void Render  ();
 
 
-		UI_Button* Buttons;
+		UI_Button* Buttons = nullptr;
 
-		size_t Num;
+		uIntDM Num = 0;
 
-		size_t CurrentIndex;
+		uIntDM CurrentIndex = 0;
 	};
 
 	struct UI_Widget
@@ -194,7 +200,7 @@ namespace Game
 			   COORD          _startingCell,
 			   COORD          _endingCell,
 			   bool           _shouldCenter,
-			   Void_Function* _callback
+			   Void_Function& _callback
 		);
 
 		void MoveUp  ();
@@ -203,9 +209,9 @@ namespace Game
 		void Render  ();
 
 
-		UI_Text* TextUIs;
+		UI_Text* TextUIs = nullptr;
 
-		size_t Num_TextUIs;
+		uIntDM Num_TextUIs = 0;
 
 		//Ptr(UI_Grid) Grids;
 

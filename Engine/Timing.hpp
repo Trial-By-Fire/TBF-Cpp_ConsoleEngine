@@ -18,12 +18,12 @@ public:
 
 	struct Data
 	{
-		LARGE_INTEGER TimeSnapshot_Initial;
-		LARGE_INTEGER TimeSnapshot_End;
-		LARGE_INTEGER TimeFrequency;
-		sInt64        Cycle_TicksElapsed;
-		float64       Cycle_Microseconds;
-		float64       DeltaTime;
+		LARGE_INTEGER TimeSnapshot_Initial {};
+		LARGE_INTEGER TimeSnapshot_End     {};
+		LARGE_INTEGER TimeFrequency        {};
+		sInt64        Cycle_TicksElapsed   = 0;
+		float64       Cycle_Microseconds   = 0.0L;
+		float64       DeltaTime            = 0.0L;
 	};
 
 
@@ -37,7 +37,7 @@ public:
 
 	// Functions
 
-	unbound ro Data* GetContext(void);
+	unbound ro Data& GetContext(void);
 
 	unbound void LoadModule(void);
 
@@ -68,6 +68,6 @@ public:
 	void Tick ();
 
 
-	float64 Elapsed;
-	float64 EndTime;
+	float64 Elapsed = 0;
+	float64 EndTime = 0;
 };

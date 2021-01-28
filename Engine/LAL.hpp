@@ -21,6 +21,8 @@ Language Abstraction Layer
 
 #define CompileTime constexpr
 
+#define override virtual
+
 // Memory
 
 /*

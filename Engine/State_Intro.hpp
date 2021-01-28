@@ -12,6 +12,6 @@ namespace Intro
 {
 	// Functions
 
-	State::Callbacks* GetState(void);
+	AState* GetState(void);
 }
 

@@ -45,14 +45,17 @@ public:
 
 	struct SignalState
 	{
+		SignalState()
+		{}
+
 		struct StructOf_KeySignals
 		{
-			bool Up;
-			bool Down;
-			bool Left;
-			bool Right;
-			bool Enter;
-			bool Tab;
+			bool Up    = false;
+			bool Down  = false;
+			bool Left  = false;
+			bool Right = false;
+			bool Enter = false;
+			bool Tab   = false;
 		};
 
 		using BoolArray_KeySignals = bool[Keys_NumTracked];
@@ -67,9 +70,9 @@ public:
 
 	struct Subscriptions
 	{
-		EventFunctionPtr* Array;
+		EventFunctionPtr* Array = nullptr;
 
-		size_t Num;
+		size_t Num = 0;
 	};
 
 	struct Data
@@ -90,15 +93,15 @@ public:
 
 	// Functions
 
-	unbound ro Data* GetContext(void);
+	unbound ro Data& GetContext(void);
 
 	unbound void LoadModule(void);
 
 	unbound void Update(void);
 
-	unbound void SubscribeTo(EKeyCode _key, EventFunction* _callbackFunction);
+	unbound void SubscribeTo(EKeyCode _key, EventFunction& _callbackFunction);
 
-	unbound void Unsubscribe(EKeyCode _key, EventFunction* _callbackFunction);
+	unbound void Unsubscribe(EKeyCode _key, EventFunction& _callbackFunction);
 
 
 private:

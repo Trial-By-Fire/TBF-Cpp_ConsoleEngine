@@ -37,12 +37,11 @@ uIntDM   GetKeyIndexFromCode(EKeyCode _key);
 
 void Input::LoadModule(void)
 {
-	//Input.StateIndex = 0;
 }
 
-ro Input::Data* Input::GetContext(void)
+ro Input::Data& Input::GetContext(void)
 {
-	return &Context;
+	return Context;
 }
 
 void Input::Update(void)
@@ -110,7 +109,7 @@ void Input::Update(void)
 	}
 }
 
-void Input::SubscribeTo(EKeyCode _key, EventFunction* _callbackFunction)
+void Input::SubscribeTo(EKeyCode _key, EventFunction& _callbackFunction)
 {
 	Subscriptions* subs = &Context.KeyEventSubs[GetKeyIndexFromCode(_key)];
 
@@ -126,7 +125,7 @@ void Input::SubscribeTo(EKeyCode _key, EventFunction* _callbackFunction)
 		{
 			if ( (&subs->Array)[subIndex] == nullptr)
 			{
-				subs->Array[subs->Num - 1] = _callbackFunction;
+				subs->Array[subs->Num - 1] = &_callbackFunction;
 
 				return;
 			}
@@ -149,16 +148,16 @@ void Input::SubscribeTo(EKeyCode _key, EventFunction* _callbackFunction)
 		}
 	}
 
-	subs->Array[subs->Num - 1] = _callbackFunction;
+	subs->Array[subs->Num - 1] = &_callbackFunction;
 }
 
-void Input::Unsubscribe(EKeyCode _key, EventFunction* _callbackFunction)
+void Input::Unsubscribe(EKeyCode _key, EventFunction& _callbackFunction)
 {
 	Subscriptions* subs = &Context.KeyEventSubs[GetKeyIndexFromCode(_key)];
 
 	for (uIntDM subIndex = 0; subIndex < subs->Num; subIndex++)
 	{
-		if (subs->Array[subIndex] == _callbackFunction)
+		if (subs->Array[subIndex] == &_callbackFunction)
 		{
 			subs->Array[subIndex] = nullptr;
 		}

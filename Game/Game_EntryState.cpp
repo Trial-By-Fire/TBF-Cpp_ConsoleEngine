@@ -12,11 +12,26 @@
 
 namespace Game
 {
+	class MainMenu : public AState
+	{
+	public:
+
+		unbound void PressStart(void);
+		unbound void PressQuit (void);
+
+		override void Load  (void);
+		override void Unload(void);
+		override void Update(void);
+		override void Render(void);
+	};
+
+
+
 	// Static Data
 
 	// Private
 
-	State::Callbacks MainMenu;
+	MainMenu StateObj;
 
 	UI_Widget MenuWidget;
 
@@ -32,14 +47,14 @@ namespace Game
 
 	// Public Class
 
-	void MainMenu_PressStart(void)
+	void MainMenu::PressStart(void)
 	{
 		WriteToLog((WideChar*)L"UI Start Selected");
 
-		State::SetEngineState(GetLevelState());
+		State::SetEngineState(LevelState::Get());
 	}
 
-	void MainMenu_PressQuit(void)
+	void MainMenu::PressQuit(void)
 	{
 		Cycler::Lapse();
 	}
@@ -89,7 +104,7 @@ namespace Game
 		}
 	}
 
-	void MainMenu_Load(void)
+	void MainMenu::Load(void)
 	{
 		if (! Menu_DoneOnce)
 		{
@@ -120,7 +135,7 @@ namespace Game
 				L"Start\0",
 				startCell, endCell,
 				true,
-				&MainMenu_PressStart
+				MainMenu::PressStart
 			);
 
 			startCell.X = -1; endCell.X = -1;
@@ -131,15 +146,15 @@ namespace Game
 				L"Quit\0",
 				startCell, endCell,
 				true,
-				&MainMenu_PressQuit
+				MainMenu::PressQuit
 			);
 
 			Menu_DoneOnce = true;
 		}
 
-		Input::SubscribeTo(EKeyCode::Arrow_Up  , &Game_EntryState_OnKeyArrowUp  );
-		Input::SubscribeTo(EKeyCode::Arrow_Down, &Game_EntryState_OnKeyArrowDown);
-		Input::SubscribeTo(EKeyCode::Enter     , &Game_EntryState_OnKeyEnter    );
+		Input::SubscribeTo(EKeyCode::Arrow_Up  , Game_EntryState_OnKeyArrowUp  );
+		Input::SubscribeTo(EKeyCode::Arrow_Down, Game_EntryState_OnKeyArrowDown);
+		Input::SubscribeTo(EKeyCode::Enter     , Game_EntryState_OnKeyEnter    );
 
 		if (Log_Load)
 		{
@@ -149,11 +164,11 @@ namespace Game
 		}
 	}
 
-	void MainMenu_Unload(void)
+	void MainMenu::Unload(void)
 	{
-		Input::Unsubscribe(EKeyCode::Arrow_Up  , &Game_EntryState_OnKeyArrowUp  );
-		Input::Unsubscribe(EKeyCode::Arrow_Down, &Game_EntryState_OnKeyArrowDown);
-		Input::Unsubscribe(EKeyCode::Enter     , &Game_EntryState_OnKeyEnter    );
+		Input::Unsubscribe(EKeyCode::Arrow_Up  , Game_EntryState_OnKeyArrowUp  );
+		Input::Unsubscribe(EKeyCode::Arrow_Down, Game_EntryState_OnKeyArrowDown);
+		Input::Unsubscribe(EKeyCode::Enter     , Game_EntryState_OnKeyEnter    );
 
 		if (Log_Unload)
 		{
@@ -163,11 +178,11 @@ namespace Game
 		}
 	}
 
-	void MainMenu_Update(void)
+	void MainMenu::Update(void)
 	{
 	}
 
-	void MainMenu_Render(void)
+	void MainMenu::Render(void)
 	{
 		MenuWidget.Render();
 	}
@@ -178,22 +193,8 @@ namespace Engine
 {
 	// Engine Entrypoint
 
-	State::Callbacks* LoadGame(void)
+	AState* LoadGame(void)
 	{
-		using namespace Game;
-
-		unbound bool stateConstructed = false;
-
-		if (!stateConstructed)
-		{
-			MainMenu.Load   = &MainMenu_Load;
-			MainMenu.Unload = &MainMenu_Unload;
-			MainMenu.Update = &MainMenu_Update;
-			MainMenu.Render = &MainMenu_Render;
-
-			stateConstructed = true;
-		}
-
-		return &MainMenu;
+		return &Game::StateObj;
 	}
 }

@@ -10,6 +10,6 @@
 
 namespace Game
 {
-	State::Callbacks* GetPausedState(void);
+	AState* GetPausedState(void);
 }
 

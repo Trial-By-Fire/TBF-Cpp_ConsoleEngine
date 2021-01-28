@@ -26,7 +26,7 @@ enum class EFocusState
 
 // State
 
-State CurrentState;
+State EngineState;
 
 EFocusState FocusState = EFocusState::Game;
 
@@ -110,67 +110,58 @@ void State::LoadModule(void)
 {
 	using OSPlatform::EKeyCode;
 
-	CurrentState.data = nullptr;
+	EngineState.Set(Intro::GetState());
 
-	CurrentState.Set(Intro::GetState());
-
-	Input::SubscribeTo(EKeyCode::Arrow_Up  , &State_OnKeyArrowUp  );
-	Input::SubscribeTo(EKeyCode::Arrow_Down, &State_OnKeyArrowDown);
-	Input::SubscribeTo(EKeyCode::Enter     , &State_OnKeyTab      );
+	Input::SubscribeTo(EKeyCode::Arrow_Up  , State_OnKeyArrowUp  );
+	Input::SubscribeTo(EKeyCode::Arrow_Down, State_OnKeyArrowDown);
+	Input::SubscribeTo(EKeyCode::Enter     , State_OnKeyTab      );
 }
 
-ro State* State::GetEngineState()
+AState* AState::GetEngineState()
 {
-	return &CurrentState;
+	return &EngineState;
 }
 
-void State::SetEngineState(State::Callbacks* _state)
+void AState::SetEngineState(AState* _state)
 {
-	if (CurrentState.data != nullptr)
+	EngineState.Set(_state);
+}
+
+void State::Set(AState* _state)
+{
+	if (CurrentState != nullptr)
 	{
-		CurrentState.data->Unload();
+		CurrentState->Unload();
 	}
 
-	CurrentState.data = _state;
+	CurrentState = _state;
 
-	CurrentState.data->Load();
+	CurrentState->Load();
 }
 
-void State::Set(Callbacks* _state)
+void State::Load(void)
 {
-	if (data != nullptr)
+	CurrentState->Load();
+}
+
+void State::Unload(void)
+{
+	CurrentState->Unload();
+}
+
+void State::Update(void)
+{
+	if (CurrentState != nullptr)
 	{
-		data->Unload();
-	}
-
-	data = _state;
-
-	data->Load();
-}
-
-void State::Unload(void) ro
-{
-	data->Unload();
-}
-
-void State::Update(void) ro
-{
-	if (data != nullptr)
-	{
-		data->Update();
+		CurrentState->Update();
 	}
 }
 
-void State::Render(void) ro
+void State::Render(void)
 {
-	if (data != nullptr)
+	if (CurrentState != nullptr)
 	{
-		data->Render();
+		CurrentState->Render();
 	}
-}
-
-void State::LoadGame(void)
-{
-	CurrentState.Set(Engine::LoadGame());
 }
 

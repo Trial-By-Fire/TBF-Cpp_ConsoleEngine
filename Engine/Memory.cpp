@@ -12,8 +12,7 @@ using Block      = BlockArray::Block;
 
 // Private
 
-BlockArray GlobalMemory =
-{ nullptr, 0U };
+Memory GlobalMemory;
 
 
 
@@ -21,7 +20,10 @@ BlockArray GlobalMemory =
 
 // Public
 
-// C-API
+Memory::~Memory()
+{
+	Deallocate();
+}
 
 void* Memory::Allocate(uIntDM _amountToAllocate)
 {
@@ -79,9 +81,9 @@ void BlockArray::Add(Block* _memoryAllocation)
 
 
 
-Block* BlockArray::LastEntry()
+Block& BlockArray::LastEntry()
 {
-	return (Block*)&Array[Length - 1];
+	return (Block&)Array[Length - 1];
 }
 
 // Memory Management
@@ -147,21 +149,21 @@ void Memory::Deallocate()
 
 Memory::Address Memory::Internal_GlobalAllocate(uIntDM _sizeOfAllocation)
 {
-	if (GlobalMemory.Array == nullptr)
+	if (GlobalMemory.records.Array == nullptr)
 	{
-		GlobalMemory.Array = (Block**)Allocate(sizeof(Block*));
+		GlobalMemory.records.Array = (Block**)Allocate(sizeof(Block*));
 
-		GlobalMemory.Length = 1;
+		GlobalMemory.records.Length = 1;
 	}
 	else
 	{
-		Address resizeIntermediary = Reallocate(GlobalMemory.Array, sizeof(Block*) * (GlobalMemory.Length + 1));
+		Address resizeIntermediary = Reallocate(GlobalMemory.records.Array, sizeof(Block*) * (GlobalMemory.records.Length + 1));
 
 		if (resizeIntermediary != nullptr)
 		{
-			GlobalMemory.Array = (Block**)resizeIntermediary;
+			GlobalMemory.records.Array = (Block**)resizeIntermediary;
 
-			GlobalMemory.Length++;
+			GlobalMemory.records.Length++;
 		}
 		else
 		{
@@ -169,9 +171,9 @@ Memory::Address Memory::Internal_GlobalAllocate(uIntDM _sizeOfAllocation)
 		}
 	}
 
-	GlobalMemory.Array[GlobalMemory.Length -1] = (Block*)Allocate(sizeof(Block));
+	GlobalMemory.records.Array[GlobalMemory.records.Length -1] = (Block*)Allocate(sizeof(Block));
 
-	Block* newBlock = GlobalMemory.Array[GlobalMemory.Length -1];
+	Block* newBlock = GlobalMemory.records.Array[GlobalMemory.records.Length -1];
 
 	newBlock->Size     = _sizeOfAllocation;
 	newBlock->Location = Allocate(_sizeOfAllocation);
@@ -190,17 +192,17 @@ Memory::Address Memory::Internal_GlobalAllocate(uIntDM _sizeOfAllocation)
 
 Memory::Address Memory::Internal_GlobalReallocate(Address _location, uIntDM _sizeForReallocation)
 {
-	for (uIntDM index = 0; index < GlobalMemory.Length; index++)
+	for (uIntDM index = 0; index < GlobalMemory.records.Length; index++)
 	{
-		if (GlobalMemory.Array[index]->Location == _location)
+		if (GlobalMemory.records.Array[index]->Location == _location)
 		{
 			Address resizeIntermediary = Reallocate(_location, _sizeForReallocation);
 
 			if (resizeIntermediary != nullptr)
 			{
-				GlobalMemory.Array[index]->Location = resizeIntermediary;
+				GlobalMemory.records.Array[index]->Location = resizeIntermediary;
 
-				return GlobalMemory.Array[index]->Location;
+				return GlobalMemory.records.Array[index]->Location;
 			}
 			else
 			{
@@ -214,14 +216,14 @@ Memory::Address Memory::Internal_GlobalReallocate(Address _location, uIntDM _siz
 
 void Memory::GlobalDeallocate(void)
 {
-	for (uIntDM index = 0; index < GlobalMemory.Length; index++)
+	for (uIntDM index = 0; index < GlobalMemory.records.Length; index++)
 	{
-		Deallocate(GlobalMemory.Array[index]->Location);
+		Deallocate(GlobalMemory.records.Array[index]->Location);
 
-		Deallocate(GlobalMemory.Array[index]);
+		Deallocate(GlobalMemory.records.Array[index]);
 	}
 
-	Deallocate(GlobalMemory.Array);
+	Deallocate(GlobalMemory.records.Array);
 
 	return;
 }

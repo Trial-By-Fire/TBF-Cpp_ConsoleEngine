@@ -9,10 +9,18 @@
 
 namespace Game
 {
-	// Functions
+	class LevelState : public AState
+	{
+	public:
 
-	State::Callbacks* GetLevelState(void);
+		unbound AState* Get(void);
 
-	void LevelState_SetSubstate(State::Callbacks* _state);
+		unbound void Set(AState* State);
+
+		override void Load  (void);
+		override void Unload(void);
+		override void Update(void);
+		override void Render(void);
+	};
 }
 

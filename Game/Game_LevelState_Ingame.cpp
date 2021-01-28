@@ -13,11 +13,23 @@
 
 namespace Game
 {
+	class Ingame : public AState
+	{
+	public:
+
+		override void Load  (void);
+		override void Unload(void);
+		override void Update(void);
+		override void Render(void);
+	};
+
+
+
 	// Static Data
 
 	// Private
 
-	State::Callbacks Ingame_State;
+	Ingame Ingame_State;
 
 	UI_Text Ingame_Text;
 
@@ -33,7 +45,7 @@ namespace Game
 
 	sInt CurrentLevel = 1;
 
-	bool ShouldReload = true;
+	bool ShouldReload = false;
 
 	bool Ingame_DoneOnce = false;
 
@@ -49,7 +61,7 @@ namespace Game
 		{
 			case Input::EState::Pressed:
 			{
-				LevelState_SetSubstate(GetPausedState());
+				LevelState::Set(GetPausedState());
 
 				break;
 			}
@@ -117,7 +129,7 @@ namespace Game
 		}
 	}
 
-	void Load_Ingame(void)
+	void Ingame::Load(void)
 	{
 		if (! Ingame_DoneOnce)
 		{
@@ -246,30 +258,30 @@ namespace Game
 			ShouldReload = false;
 		}
 
-		Input::SubscribeTo(EKeyCode::Enter      , &LevelState_Ingame_OnKeyEnter);
-		Input::SubscribeTo(EKeyCode::Arrow_Up   , &LevelState_Ingame_OnKeyUp   );
-		Input::SubscribeTo(EKeyCode::Arrow_Left , &LevelState_Ingame_OnKeyLeft );
-		Input::SubscribeTo(EKeyCode::Arrow_Right, &LevelState_Ingame_OnKeyRight);
+		Input::SubscribeTo(EKeyCode::Enter      , LevelState_Ingame_OnKeyEnter);
+		Input::SubscribeTo(EKeyCode::Arrow_Up   , LevelState_Ingame_OnKeyUp   );
+		Input::SubscribeTo(EKeyCode::Arrow_Left , LevelState_Ingame_OnKeyLeft );
+		Input::SubscribeTo(EKeyCode::Arrow_Right, LevelState_Ingame_OnKeyRight);
 	}
 
-	void Unload_Ingame(void)
+	void Ingame::Unload(void)
 	{
-		Input::Unsubscribe(EKeyCode::Enter      , &LevelState_Ingame_OnKeyEnter);
-		Input::Unsubscribe(EKeyCode::Arrow_Up   , &LevelState_Ingame_OnKeyUp   );
-		Input::Unsubscribe(EKeyCode::Arrow_Left , &LevelState_Ingame_OnKeyLeft );
-		Input::Unsubscribe(EKeyCode::Arrow_Right, &LevelState_Ingame_OnKeyRight);
+		Input::Unsubscribe(EKeyCode::Enter      , LevelState_Ingame_OnKeyEnter);
+		Input::Unsubscribe(EKeyCode::Arrow_Up   , LevelState_Ingame_OnKeyUp   );
+		Input::Unsubscribe(EKeyCode::Arrow_Left , LevelState_Ingame_OnKeyLeft );
+		Input::Unsubscribe(EKeyCode::Arrow_Right, LevelState_Ingame_OnKeyRight);
 	}
 
-	void Update_Ingame(void)
+	void Ingame::Update(void)
 	{
-		if (CurrentLevel == 2 && ! Player.AtFinish(&Level2))
+		if (CurrentLevel == 2 && ! Player.AtFinish(Level2))
 		{
-			Player.Update(&Level2);	
+			Player.Update(Level2);	
 		}
 
 		if (CurrentLevel == 1)
 		{
-			Player.Update(&Level1);
+			Player.Update(Level1);
 		}
 
 		if (CurrentLevel == 1 && Player.Position.X >= 0.98f)
@@ -280,7 +292,7 @@ namespace Game
 		}
 	}
 
-	void Render_Ingame(void)
+	void Ingame::Render(void)
 	{
 		if (CurrentLevel == 1)
 		{
@@ -300,7 +312,7 @@ namespace Game
 			Ingame_GameOver_Fell.Render();
 		}
 
-		if (CurrentLevel == 2 && Player.AtFinish(&Level2))
+		if (CurrentLevel == 2 && Player.AtFinish(Level2))
 		{
 			Ingame_GameOver_MadeIt.Render();
 		}
@@ -310,20 +322,8 @@ namespace Game
 
 	// Public
 
-	State::Callbacks* GetIngameState(void)
+	AState* GetIngameState(void)
 	{
-		unbound bool stateConstructed = false;
-
-		if (!stateConstructed)
-		{
-			Ingame_State.Load   = &Load_Ingame  ;
-			Ingame_State.Unload = &Unload_Ingame;
-			Ingame_State.Update = &Update_Ingame;
-			Ingame_State.Render = &Render_Ingame;
-
-			stateConstructed = true;
-		}
-
 		return &Ingame_State;
 	}
 

@@ -27,24 +27,29 @@ public:
 	{
 		struct Block
 		{
-			Address Location;
+			Address Location = nullptr;
 
-			uIntDM Size;
+			uIntDM Size = 0;
 		};
 
 		void   Add       (Block* _memoryAllocation);
-		Block* LastEntry ();
+		Block& LastEntry ();
 		void   Deallocate();
 
 
-		Block** Array;
+		Block** Array = nullptr;
 
-		uIntDM Length;
+		uIntDM Length = 0;
 	};
 
 
 
+	~Memory();
+
+
+
 	// Functions
+
 
 	// C-API
 
@@ -88,9 +93,7 @@ private:
 	{					                  \
 		Memory scopedMemory;
 
-
-	#define SmartScope_End                           \
-			scopedMemory.Deallocate(); \
+	#define SmartScope_End \
 	}
 };
 

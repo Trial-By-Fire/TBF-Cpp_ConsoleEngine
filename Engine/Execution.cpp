@@ -56,7 +56,5 @@ ExitCode EntryPoint(void)
 	
 	UnloadModules();
 
-	Memory::GlobalDeallocate();
-
 	return ExitCode::Success;
 }

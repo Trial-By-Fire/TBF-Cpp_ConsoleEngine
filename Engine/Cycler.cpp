@@ -16,7 +16,7 @@
 
 // Private
 
-bool Exist;   // Sentinel value use to exist core engine loop.
+bool Exist = false;   // Sentinel value use to exist core engine loop.
 
 
 

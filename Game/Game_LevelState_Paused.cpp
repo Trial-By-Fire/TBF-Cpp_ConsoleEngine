@@ -12,11 +12,26 @@
 
 namespace Game
 {
+	class Paused : public AState
+	{
+	public:
+
+		unbound void PressResume    (void);
+		unbound void PressQuitToMenu(void);
+
+		override void Load  (void);
+		override void Unload(void);
+		override void Update(void);
+		override void Render(void);
+	};
+
+
+
 	// Static Data
 
 	// Private
 
-	State::Callbacks Paused_State;
+	Paused Paused_State;
 
 	UI_Widget PauseWidget;
 
@@ -40,12 +55,12 @@ namespace Game
 
 	// Class Public
 
-	void Level_State_Paused_PressResume(void)
+	void Paused::PressResume(void)
 	{
-		LevelState_SetSubstate(GetIngameState());
+		LevelState::Set(GetIngameState());
 	}
 
-	void Level_State_Paused_PressQuitToMenu(void)
+	void Paused::PressQuitToMenu(void)
 	{
 		Ingame_Reload();
 
@@ -95,7 +110,7 @@ namespace Game
 		}
 	}
 
-	void Load_Paused(void)
+	void Paused::Load(void)
 	{
 		PauseUI_Index = 0;
 
@@ -128,7 +143,7 @@ namespace Game
 				L"Resume\0",
 				startCell, endCell,
 				true,
-				&Level_State_Paused_PressResume
+				Paused::PressResume
 			);
 
 			startCell.X = 0;  endCell.X = 0;
@@ -139,29 +154,29 @@ namespace Game
 				L"Quit to Menu\0",
 				startCell, endCell,
 				true,
-				&Level_State_Paused_PressQuitToMenu
+				Paused::PressQuitToMenu
 			);
 
 			Paused_DoneOnce = true;
 		}
 
-		Input::SubscribeTo(EKeyCode::Enter     , &LevelState_Paused_OnKeyEnter    );
-		Input::SubscribeTo(EKeyCode::Arrow_Up  , &LevelState_Paused_OnKeyArrowUp  );
-		Input::SubscribeTo(EKeyCode::Arrow_Down, &LevelState_Paused_OnKeyArrowDown);
+		Input::SubscribeTo(EKeyCode::Enter     , LevelState_Paused_OnKeyEnter    );
+		Input::SubscribeTo(EKeyCode::Arrow_Up  , LevelState_Paused_OnKeyArrowUp  );
+		Input::SubscribeTo(EKeyCode::Arrow_Down, LevelState_Paused_OnKeyArrowDown);
 	}
 
-	void Unload_Paused(void)
+	void Paused::Unload(void)
 	{
-		Input::Unsubscribe(EKeyCode::Enter     , &LevelState_Paused_OnKeyEnter    );
-		Input::Unsubscribe(EKeyCode::Arrow_Up  , &LevelState_Paused_OnKeyArrowUp  );
-		Input::Unsubscribe(EKeyCode::Arrow_Down, &LevelState_Paused_OnKeyArrowDown);
+		Input::Unsubscribe(EKeyCode::Enter     , LevelState_Paused_OnKeyEnter    );
+		Input::Unsubscribe(EKeyCode::Arrow_Up  , LevelState_Paused_OnKeyArrowUp  );
+		Input::Unsubscribe(EKeyCode::Arrow_Down, LevelState_Paused_OnKeyArrowDown);
 	}
 
-	void Update_Paused(void)
+	void Paused::Update(void)
 	{
 	}
 
-	void Render_Paused(void)
+	void Paused::Render(void)
 	{
 		PauseWidget.Render();
 	}
@@ -170,20 +185,8 @@ namespace Game
 
 	// Public
 
-	State::Callbacks* GetPausedState(void)
+	AState* GetPausedState(void)
 	{
-		unbound bool stateConstructed = false;
-
-		if (! stateConstructed)
-		{
-			Paused_State.Load   = &Load_Paused  ;
-			Paused_State.Unload = &Unload_Paused;
-			Paused_State.Update = &Update_Paused;
-			Paused_State.Render = &Render_Paused;
-
-			stateConstructed = true;
-		}
-
 		return &Paused_State;
 	}
 }

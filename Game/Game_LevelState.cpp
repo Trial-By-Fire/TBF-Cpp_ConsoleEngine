@@ -17,9 +17,7 @@ namespace Game
 
 	// Private
 
-	State::Callbacks LevelState;
-
-	State::Callbacks* LevelState_CurrentSubstate = nullptr;
+	LevelState StateObj;
 
 	State Substate;
 
@@ -27,52 +25,36 @@ namespace Game
 
 	// Functions
 
-	// Class Public
+	AState* LevelState::Get(void)
+	{
+		return &StateObj;
+	}
 
-	void Load_Level(void)
+	void LevelState::Set(AState* _state)
+	{
+		Substate.Set(_state);
+	}
+
+	// AState
+
+	void LevelState::Load(void)
 	{
 		Substate.Set(GetIngameState());
 	}
 
-	void Unload_Level(void)
+	void LevelState::Unload(void)
 	{
 		Substate.Unload();
 	}
 
-	void Update_Level(void)
+	void LevelState::Update(void)
 	{
 		Substate.Update();
 	}
 
-	void Render_Level(void)
+	void LevelState::Render(void)
 	{
 		Substate.Render();
-	}
-
-
-
-	// Public
-
-	State::Callbacks* GetLevelState(void)
-	{
-		unbound bool stateConstructed = false;
-
-		if (! stateConstructed)
-		{
-			LevelState.Load   = &Load_Level  ;
-			LevelState.Unload = &Unload_Level;
-			LevelState.Update = &Update_Level;
-			LevelState.Render = &Render_Level;
-
-			stateConstructed = true;
-		}
-
-		return &LevelState;
-	}
-
-	void LevelState_SetSubstate(State::Callbacks* _state)
-	{
-		Substate.Set(_state);
 	}
 }
 

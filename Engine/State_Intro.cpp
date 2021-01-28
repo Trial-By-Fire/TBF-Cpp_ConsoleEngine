@@ -7,6 +7,7 @@
 #include "Renderer.hpp"
 #include "Cycler.hpp"
 #include "Timing.hpp"
+#include "Engine.hpp"
 
 
 
@@ -15,8 +16,18 @@ namespace Intro
 	using OSPlatform::Console_WhiteCell;
 
 
+	class IntroState : public AState
+	{
+	public:
 
-	State::Callbacks IntroState;
+		override void Load  (void);
+		override void Unload(void);
+		override void Update(void);
+		override void Render(void);
+	};
+
+
+	IntroState StateObj;
 
 	Timer IntroTimer;
 
@@ -87,7 +98,7 @@ namespace Intro
 
 	// Class Public
 
-	void IntroState_Load(void)
+	void IntroState::Load(void)
 	{
 		Renderer::WriteToLog((WideChar*)L"Intro State: Loaded");
 
@@ -131,12 +142,12 @@ namespace Intro
 		ChangeEngineVerTo_Grey();
 	}
 
-	void IntroState_Unload(void)
+	void IntroState::Unload(void)
 	{
 		Renderer::WriteToLog((WideChar*)L"Intro State: Unloaded");
 	}
 
-	void IntroState_Update(void)
+	void IntroState::Update(void)
 	{
 		unbound CompileTime auto WriteToLog               =  Renderer::WriteToLog;
 		unbound CompileTime auto WriteToPersistentSection =  Renderer::WriteToPersistentSection;
@@ -242,11 +253,11 @@ namespace Intro
 
 			LogEnd = false;
 
-			State::LoadGame();
+			State::SetEngineState(Engine::LoadGame());
 		}
 	}
 
-	void IntroState_Render(void)
+	void IntroState::Render(void)
 	{
 		unbound CompileTime auto WriteToBufferCells = Renderer::WriteToBufferCells;
 
@@ -285,20 +296,8 @@ namespace Intro
 
 	// Public
 
-	State::Callbacks* GetState(void)
+	AState* GetState(void)
 	{
-		unbound bool firstGet = true;
-
-		if (firstGet) 
-		{
-			IntroState.Load   = &IntroState_Load  ;
-			IntroState.Unload = &IntroState_Unload;
-			IntroState.Update = &IntroState_Update;
-			IntroState.Render = &IntroState_Render;
-
-			firstGet = false;
-		}
-
-		return &IntroState;
+		return &StateObj;
 	}
 }

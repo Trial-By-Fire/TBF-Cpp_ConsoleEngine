@@ -42,26 +42,31 @@ public:
 
 	// Structures
 
-	struct Vec2D_Int { sInt X, Y; };
+	struct Vec2D_Int 
+	{ 
+		sInt 
+			X = 0, 
+			Y = 0 ; 
+	};
 
 	struct Data
 	{
 		// Console Data
 
-		HWND   Window_Handle;
-		HANDLE Output_Handle;
+		HWND   Window_Handle = nullptr;
+		HANDLE Output_Handle = INVALID_HANDLE_VALUE;
 
-		DWORD      CharactersWritten;
-		COORD      CoordSize;
-		CSBI       CSBI_Instance;
-		DWORD      BufferSize;
-		SMALL_RECT Size;
+		DWORD      CharactersWritten = 0;
+		COORD      CoordSize         = { BufferWidth, BufferHeight};
+		CSBI       CSBI_Instance       {};
+		DWORD      BufferSize        = 0;
+		SMALL_RECT Size              = { 0, 0};
 
-		CONSOLE_CURSOR_INFO CursorSettings;
+		CONSOLE_CURSOR_INFO CursorSettings {};
 
-		Vec2D_Int ScreenPosition;
+		Vec2D_Int ScreenPosition {};
 
-		Timer RefreshTimer;
+		Timer RefreshTimer { 0.0L, 1.0L / 60.0L };
 	};
 
 	struct ScreenInfo
@@ -73,7 +78,7 @@ public:
 
 	// Functions
 
-	unbound ro Data* GetContext(void);
+	unbound ro Data& GetContext(void);
 
 	unbound void LoadModule(void);
 

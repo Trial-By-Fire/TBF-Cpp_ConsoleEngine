@@ -104,9 +104,9 @@ bool Renderer::FormatCells(void)
 	);
 }
 
-ro Data* Renderer::GetContext(void)
+ro Data& Renderer::GetContext(void)
 {
-	return &Context;
+	return Context;
 }
 
 void Renderer::LoadModule(void)
@@ -420,12 +420,6 @@ void Renderer::InitalizeData(void)
 
 	Context.ScreenPosition.X = (Screen.Center.X - ((BufferWidth  / 2) * 8)) - 20;
 	Context.ScreenPosition.Y = (Screen.Center.Y - ((BufferHeight / 2) * 8)) - 200;
-
-	Context.RefreshTimer.Elapsed = 0.0L;
-	Context.RefreshTimer.EndTime = 1.0L / 60.0L;
-
-	Context.CoordSize.X = BufferWidth ;
-	Context.CoordSize.Y = BufferHeight;
 
 	Context.Output_Handle = GetStdHandle(OSPlatform::StdHandle::Output);
 

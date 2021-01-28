@@ -21,9 +21,9 @@ Timing::Data Timing::Context;
 
 // Public
 
-ro Timing::Data* Timing::GetContext(void)
+ro Timing::Data& Timing::GetContext(void)
 {
-	return &Context;
+	return Context;
 }
 
 void Timing::LoadModule(void)
@@ -57,10 +57,6 @@ void Timing::Update(void)
 
 void Timing::InitalizeData(void)
 {
-	Context.Cycle_TicksElapsed = 0;
-	Context.Cycle_Microseconds = 0.0L;
-	Context.DeltaTime          = 0.0L;
-
 	QueryPerformanceFrequency(&Context.TimeFrequency);
 
 	return;

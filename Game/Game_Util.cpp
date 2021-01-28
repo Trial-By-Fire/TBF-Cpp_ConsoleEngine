@@ -12,51 +12,53 @@ namespace Game
 
 	// Character
 
-	bool Character::AtFinish(Level* _level)
+	bool Character::AtFinish(Level& _level)
 	{
 		Vector2D collisionPostion = Position;
 
 		collisionPostion.Y -= 0.085f;
 
-		sInt cellCollided = _level->GetCellAtPosition(collisionPostion);
+		sInt cellCollided = _level.GetCellAtPosition(collisionPostion);
 
 		return cellCollided == ELevelCell::Finish;
 	}
 
-	bool Character::IsGrounded(Level* _level)
+	bool Character::IsGrounded(Level& _level)
 	{
 		Vector2D collisionPostion = Position;
 
 		collisionPostion.Y -= 0.085f;
 
-		sInt cellCollided = _level->GetCellAtPosition(collisionPostion);
+		sInt cellCollided = _level.GetCellAtPosition(collisionPostion);
 
 		return cellCollided == ELevelCell::Ground || cellCollided == ELevelCell::Finish;
 	}
 
 	void Character::Load()
 	{
-		Sprite.Char.UnicodeChar = 0;
-		Sprite.Attributes       = BACKGROUND_INTENSITY | BACKGROUND_RED | BACKGROUND_GREEN | BACKGROUND_BLUE;
+		Sprite =
+		{
+			0,
+			BACKGROUND_INTENSITY | BACKGROUND_RED | BACKGROUND_GREEN | BACKGROUND_BLUE
+		};
 
-		Position.X = -0.975f;
-		Position.Y = -0.075f;
+		Position = { -0.975f, 0.075f };
 
 		VerticalVelocity = 0.0f;
 
-		ShouldJump = false;
-		Fell       = false;
+		ShouldJump = false,
+		Fell = false;
 
-		MoveState        = ECharacter_Move::Dont;
 		Active_MoveState = ECharacter_Move::Dont;
+		MoveState = ECharacter_Move::Dont;
 	}
 
-	void Character::Update(Level* _level)
+	void Character::Update(Level& _level)
 	{
 		if (Fell == true) return;
 
 
-		float32 deltaTime = (float32)Timing::GetContext()->DeltaTime;
+		float32 deltaTime = (float32)Timing::GetContext().DeltaTime;
 
 		unbound float32 velocity = 1.0f;
 		unbound float32 gravity  = 0.00004f;
@@ -65,7 +67,7 @@ namespace Game
 
 		collisionPostion.Y -= 0.085f;
 
-		sInt cellCollided = _level->GetCellAtPosition(collisionPostion);
+		sInt cellCollided = _level.GetCellAtPosition(collisionPostion);
 
 		if (cellCollided == ELevelCell::Ground || cellCollided == ELevelCell::Finish)
 		{
@@ -186,7 +188,6 @@ namespace Game
 
 	SmartScope
 	{
-
 		uIntDM lineOffset = _firstCell.Y * Renderer::BufferWidth;
 		uIntDM colOffset  = _firstCell.X;
 
@@ -332,12 +333,12 @@ namespace Game
 		   COORD          _startingCell, 
 		   COORD          _endingCell, 
 		   bool           _shouldCenter,
-		   Void_Function* _callback
+		   Void_Function& _callback
 	)
 	{
 		Text.Create(_text, _startingCell, _endingCell, _shouldCenter);
 
-		Callback = _callback;
+		Callback = &_callback;
 	}
 
 	void UI_Button::Press()
@@ -359,7 +360,7 @@ namespace Game
 		   COORD          _startingCell, 
 		   COORD          _endingCell, 
 		   bool           _shouldCenter,
-		   Void_Function* _callback
+		   Void_Function& _callback
 	)
 	{
 		if (Num == 0)
@@ -400,17 +401,15 @@ namespace Game
 
 	void UI_Grid::MoveUp()
 	{
-		uIntDM* currentIndex = &CurrentIndex;
+		UI_Text* buttonText = &Buttons[CurrentIndex].Text;
 
-		UI_Text* buttonText = &Buttons[*currentIndex].Text;
-
-		if (*currentIndex > 0)
+		if (CurrentIndex > 0)
 		{
 			ChangeCellsTo_Grey(buttonText->RenderCells, buttonText->Length);
 
-			*currentIndex =  *currentIndex - 1;
+			CurrentIndex =  CurrentIndex - 1;
 
-			buttonText = &Buttons[*currentIndex].Text;
+			buttonText = &Buttons[CurrentIndex].Text;
 
 			ChangeCellsTo_White(buttonText->RenderCells, buttonText->Length);
 		}
@@ -418,17 +417,15 @@ namespace Game
 
 	void UI_Grid::MoveDown()
 	{
-		uIntDM* currentIndex = &CurrentIndex;
+		UI_Text* buttonText = &Buttons[CurrentIndex].Text;
 
-		UI_Text* buttonText = &Buttons[*currentIndex].Text;
-
-		if (*currentIndex < (Num - 1))
+		if (CurrentIndex < (Num - 1))
 		{
 			ChangeCellsTo_Grey(buttonText->RenderCells, buttonText->Length);
 
-			*currentIndex = *currentIndex + 1;
+			CurrentIndex = CurrentIndex + 1;
 
-			buttonText = &Buttons[*currentIndex].Text;
+			buttonText = &Buttons[CurrentIndex].Text;
 
 			ChangeCellsTo_White(buttonText->RenderCells, buttonText->Length);
 		}
@@ -497,7 +494,7 @@ namespace Game
 		   COORD          _startingCell,
 		   COORD          _endingCell,
 		   bool           _shouldCenter,
-		   Void_Function* _callback
+		   Void_Function& _callback
 	)
 	{
 		Grid.Add

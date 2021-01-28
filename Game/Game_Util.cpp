@@ -20,7 +20,7 @@ namespace Game
 
 		sInt cellCollided = Level_GetCellAtPosition(_level, collisionPostion);
 
-		return cellCollided == LevelCell_Finish;
+		return cellCollided == ELevelCell::Finish;
 	}
 
 	bool Character_IsGrounded(Character* _character, Level* _level)
@@ -31,7 +31,7 @@ namespace Game
 
 		sInt cellCollided = Level_GetCellAtPosition(_level, collisionPostion);
 
-		return cellCollided == LevelCell_Ground || cellCollided == LevelCell_Finish;
+		return cellCollided == ELevelCell::Ground || cellCollided == ELevelCell::Finish;
 	}
 
 	void Character_Load(Character* _character)
@@ -47,8 +47,8 @@ namespace Game
 		_character->ShouldJump = false;
 		_character->Fell       = false;
 
-		_character->MoveState        = ECharacter_DontMove;
-		_character->Active_MoveState = ECharacter_DontMove;
+		_character->MoveState        = ECharacter_Move::Dont;
+		_character->Active_MoveState = ECharacter_Move::Dont;
 	}
 
 	void Character_Update(Character* _character, Level* _level)
@@ -58,8 +58,8 @@ namespace Game
 
 		float32 deltaTime = (float32)Timing::GetContext()->DeltaTime;
 
-		static float32 velocity = 1.0f;
-		static float32 gravity  = 0.00004f;
+		unbound float32 velocity = 1.0f;
+		unbound float32 gravity  = 0.00004f;
 
 		Vector2D collisionPostion = _character->Position;
 
@@ -67,7 +67,7 @@ namespace Game
 
 		sInt cellCollided = Level_GetCellAtPosition(_level, collisionPostion);
 
-		if (cellCollided == LevelCell_Ground || cellCollided == LevelCell_Finish)
+		if (cellCollided == ELevelCell::Ground || cellCollided == ELevelCell::Finish)
 		{
 			_character->VerticalVelocity = 0.0f;
 
@@ -75,7 +75,7 @@ namespace Game
 
 			_character->Active_MoveState = _character->MoveState;
 		}
-		else if (cellCollided == LevelCell_Pit)
+		else if (cellCollided == ELevelCell::Pit)
 		{
 			_character->VerticalVelocity = 0.0f;
 
@@ -90,9 +90,9 @@ namespace Game
 			_character->Position.Y += _character->VerticalVelocity;
 		}
 
-		if (cellCollided == LevelCell_Finish) return;
+		if (cellCollided == ELevelCell::Finish) return;
 
-		if (_character->ShouldJump && cellCollided == LevelCell_Ground)
+		if (_character->ShouldJump && cellCollided == ELevelCell::Ground)
 		{
 			WriteToLog((WideChar*)L"Giving character jump velocity");
 
@@ -105,7 +105,7 @@ namespace Game
 
 		switch (_character->Active_MoveState)
 		{
-			case ECharacter_MoveLeft:
+			case ECharacter_Move::Left:
 			{
 				if (_character->Position.X > -1.0f)
 				{
@@ -114,7 +114,7 @@ namespace Game
 
 				break;
 			}
-			case ECharacter_MoveRight:
+			case ECharacter_Move::Right:
 			{
 				if (_character->Position.X < 1.0f)
 				{
@@ -139,31 +139,31 @@ namespace Game
 		WriteToPersistentSection(4, (WideChar*)L"RC  Y: %u", renderCoord.Y);
 
 		if (renderCoord.Y < 0                ) renderCoord.Y = 0;
-		if (renderCoord.Y > ERenderer_GameEnd) renderCoord.Y = ERenderer_GameEnd;
+		if (renderCoord.Y > Renderer::GameEnd) renderCoord.Y = Renderer::GameEnd;
 
 		WriteToBufferCells(&_character->Sprite, renderCoord, renderCoord);
 
-	#ifdef Debug
-
-		static Cell colliderView = 
+		if CompileTime (DebugEnabled)
 		{
-			0,
-			BACKGROUND_INTENSITY | BACKGROUND_RED | BACKGROUND_GREEN
-		};
+			unbound Cell colliderView = 
+			{
+				0,
+				BACKGROUND_INTENSITY | BACKGROUND_RED | BACKGROUND_GREEN
+			};
 
-		COORD colliderViewCoord;
+			COORD colliderViewCoord;
 
-		Vector2D collisionPostion = _character->Position;
+			Vector2D collisionPostion = _character->Position;
 
-		collisionPostion.Y -= 0.085f;
+			collisionPostion.Y -= 0.085f;
 
-		colliderViewCoord = Convert_Vector2D_ToRenderCoord(collisionPostion);
+			colliderViewCoord = Convert_Vector2D_ToRenderCoord(collisionPostion);
 
-		if (colliderViewCoord.Y < 0                ) colliderViewCoord.Y = 0;
-		if (colliderViewCoord.Y > ERenderer_GameEnd) colliderViewCoord.Y = ERenderer_GameEnd;
+			if (colliderViewCoord.Y < 0                ) colliderViewCoord.Y = 0;
+			if (colliderViewCoord.Y > Renderer::GameEnd) colliderViewCoord.Y = Renderer::GameEnd;
 
-		WriteToBufferCells(&colliderView, colliderViewCoord, colliderViewCoord);
-	#endif
+			WriteToBufferCells(&colliderView, colliderViewCoord, colliderViewCoord);
+		}
 	}
 
 	// Level
@@ -174,31 +174,31 @@ namespace Game
 
 		Cell* cellBuffer = (Cell*)_level;
 
-		size_t lineOffset = renderCoord.Y * ERenderer_Width;
-		size_t colOffset  = renderCoord.X;
+		uIntDM lineOffset = renderCoord.Y * Renderer::BufferWidth;
+		uIntDM colOffset  = renderCoord.X;
 
-		size_t totalOffset = lineOffset + colOffset;
+		uIntDM totalOffset = lineOffset + colOffset;
 
 		return cellBuffer[totalOffset].Attributes;
 	}
 
-	void Level_SetCells(Level* _level, COORD _firstCell, COORD _lastCell, sInt _cellType) 
+	void Level_SetCells(Level* _level, COORD _firstCell, COORD _lastCell, ELevelCell _cellType) 
 
 	SmartScope
 	{
 
-		size_t lineOffset = _firstCell.Y * ERenderer_Width;
-		size_t colOffset  = _firstCell.X;
+		uIntDM lineOffset = _firstCell.Y * Renderer::BufferWidth;
+		uIntDM colOffset  = _firstCell.X;
 
-		size_t totalOffset = lineOffset + colOffset;
+		uIntDM totalOffset = lineOffset + colOffset;
 
 		Cell* levelCellBuffer = (Cell*)_level;
 
 		void* bufferOffset = &levelCellBuffer[totalOffset];
 
-		size_t dataSize = totalOffset;
+		uIntDM dataSize = totalOffset;
 
-		lineOffset = _lastCell.Y * ERenderer_Width;
+		lineOffset = _lastCell.Y * Renderer::BufferWidth;
 
 		colOffset  = _lastCell.X;
 
@@ -210,10 +210,10 @@ namespace Game
 
 		Cell* setCellBuffer = (Cell*)ScopedAllocate(Cell, dataSize);
 
-		for (size_t index = 0; index < dataSize; index++)
+		for (uIntDM index = 0; index < dataSize; index++)
 		{
 			setCellBuffer[index].Char.UnicodeChar = 0;
-			setCellBuffer[index].Attributes       = _cellType;
+			setCellBuffer[index].Attributes       = (WORD)_cellType;
 		}
 
 		Memory::FormatWithData(bufferOffset, (void*)setCellBuffer, dataSize * sizeof(Cell));
@@ -223,8 +223,8 @@ namespace Game
 	void Level_Render(Level* _level)
 	{
 		COORD 
-			screenStart = {               0,                 0 }, 
-			screenEnd   = { ERenderer_Width, ERenderer_GameEnd } ;
+			screenStart = {                     0,                 0 }, 
+			screenEnd   = { Renderer::BufferWidth, Renderer::GameEnd } ;
 
 		WriteToBufferCells((Cell*)_level, screenStart, screenEnd);
 	}
@@ -233,20 +233,20 @@ namespace Game
 
 	COORD Convert_Vector2D_ToRenderCoord(Vector2D _vector)
 	{
-		static float32 
-			offsetX = (float32)ERenderer_Width   / 2.0f, 
-			offsetY = (float32)ERenderer_GameEnd / 2.0f;
+		unbound float32 
+			offsetX = (float32)Renderer::BufferWidth / 2.0f, 
+			offsetY = (float32)Renderer::GameEnd     / 2.0f;
 
 		float32 
-			convertedX = _vector.X * ((float32)ERenderer_Width   / 2.0f), 
-			convertedY = _vector.Y * ((float32)ERenderer_GameEnd / 2.0f);
+			convertedX = _vector.X * ((float32)Renderer::BufferWidth / 2.0f), 
+			convertedY = _vector.Y * ((float32)Renderer::GameEnd     / 2.0f);
 
 		COORD renderingCoord;
 
 		renderingCoord.X = (sInt16)(convertedX + offsetX   );	
 		renderingCoord.Y = (sInt16)(offsetY    - convertedY);
 
-		if (renderingCoord.X >= ERenderer_Width) renderingCoord.X = ERenderer_Width - 1;
+		if (renderingCoord.X >= Renderer::BufferWidth) renderingCoord.X = Renderer::BufferWidth - 1;
 
 		return renderingCoord;
 	}
@@ -254,17 +254,17 @@ namespace Game
 
 	// General Rendering
 
-	void ChangeCellsTo_Grey(Cell* _renderCells, size_t _length)
+	void ChangeCellsTo_Grey(Cell* _renderCells, uIntDM _length)
 	{
-		for (size_t cellIndex = 0; cellIndex < _length; cellIndex++)
+		for (uIntDM cellIndex = 0; cellIndex < _length; cellIndex++)
 		{
 			_renderCells[cellIndex].Attributes = FOREGROUND_INTENSITY;
 		}
 	}
 
-	void ChangeCellsTo_White(Cell* _renderCells, size_t _length)
+	void ChangeCellsTo_White(Cell* _renderCells, uIntDM _length)
 	{
-		for (size_t cellIndex = 0; cellIndex < _length; cellIndex++)
+		for (uIntDM cellIndex = 0; cellIndex < _length; cellIndex++)
 		{
 			_renderCells[cellIndex].Attributes = Console_WhiteCell;
 		}
@@ -296,7 +296,7 @@ namespace Game
 
 		_uiText->RenderCells = (Cell*)GlobalAllocate(Cell, _uiText->Length);
 
-		for (size_t cellIndex = 0; cellIndex < _uiText->Length; cellIndex++)
+		for (uIntDM cellIndex = 0; cellIndex < _uiText->Length; cellIndex++)
 		{
 			_uiText->RenderCells[cellIndex].Char.UnicodeChar = _uiText->Content[cellIndex];
 			_uiText->RenderCells[cellIndex].Attributes       = Console_WhiteCell;
@@ -307,8 +307,8 @@ namespace Game
 
 		if (_shouldCenter)
 		{
-			_uiText->StartingCell.X += (ERenderer_Width / 2) - (_uiText->Length / 2);
-			_uiText->EndingCell  .X += (ERenderer_Width / 2) + (_uiText->Length / 2);
+			_uiText->StartingCell.X += (Renderer::BufferWidth / 2) - (_uiText->Length / 2);
+			_uiText->EndingCell  .X += (Renderer::BufferWidth / 2) + (_uiText->Length / 2);
 
 			_uiText->StartingCell.X--;
 			_uiText->EndingCell  .X--;
@@ -319,7 +319,7 @@ namespace Game
 		}
 	}
 
-	void UI_Text_Render(const UI_Text* _uiText)
+	void UI_Text_Render(ro UI_Text* _uiText)
 	{
 		WriteToBufferCells(_uiText->RenderCells, _uiText->StartingCell, _uiText->EndingCell);
 	}
@@ -329,12 +329,12 @@ namespace Game
 
 	void UI_Button_Create 
 	(
-			  UI_Button*     _button, 
-		const WideChar*      _text, 
-			  COORD          _startingCell, 
-			  COORD          _endingCell, 
-			  bool           _shouldCenter,
-			  Void_Function* _callback
+		   UI_Button*     _button, 
+		ro WideChar*      _text, 
+		   COORD          _startingCell, 
+		   COORD          _endingCell, 
+		   bool           _shouldCenter,
+		   Void_Function* _callback
 	)
 	{
 		// Get length of contents.
@@ -349,7 +349,7 @@ namespace Game
 
 		_button->Text.RenderCells = (Cell*)GlobalAllocate(Cell, _button->Text.Length);
 
-		for (size_t cellIndex = 0; cellIndex < _button->Text.Length; cellIndex++)
+		for (uIntDM cellIndex = 0; cellIndex < _button->Text.Length; cellIndex++)
 		{
 			_button->Text.RenderCells[cellIndex].Char.UnicodeChar = _button->Text.Content[cellIndex];
 			_button->Text.RenderCells[cellIndex].Attributes       = Console_WhiteCell;
@@ -360,8 +360,8 @@ namespace Game
 
 		if (_shouldCenter)
 		{
-			_button->Text.StartingCell.X += (ERenderer_Width / 2) - (_button->Text.Length / 2);
-			_button->Text.EndingCell  .X += (ERenderer_Width / 2) + (_button->Text.Length / 2);
+			_button->Text.StartingCell.X += (Renderer::BufferWidth / 2) - (_button->Text.Length / 2);
+			_button->Text.EndingCell  .X += (Renderer::BufferWidth / 2) + (_button->Text.Length / 2);
 
 			_button->Text.StartingCell.X--;
 			_button->Text.EndingCell  .X--;
@@ -374,12 +374,12 @@ namespace Game
 		_button->Callback = _callback;
 	}
 
-	void UI_Button_Press(const UI_Button* _uiButton)
+	void UI_Button_Press(ro UI_Button* _uiButton)
 	{
 		_uiButton->Callback();
 	}
 
-	void UI_Button_Render(const UI_Button* _uiButton)
+	void UI_Button_Render(ro UI_Button* _uiButton)
 	{
 		WriteToBufferCells(_uiButton->Text.RenderCells, _uiButton->Text.StartingCell, _uiButton->Text.EndingCell);
 	}
@@ -389,12 +389,12 @@ namespace Game
 
 	void UI_Grid_Add 
 	(
-			  UI_Grid*       _uiGrid, 
-		const WideChar*      _text, 
-			  COORD          _startingCell, 
-			  COORD          _endingCell, 
-			  bool           _shouldCenter,
-			  Void_Function* _callback
+		   UI_Grid*       _uiGrid, 
+		ro WideChar*      _text, 
+		   COORD          _startingCell, 
+		   COORD          _endingCell, 
+		   bool           _shouldCenter,
+		   Void_Function* _callback
 	)
 	{
 		if (_uiGrid->Num == 0)
@@ -444,7 +444,7 @@ namespace Game
 
 	void UI_Grid_MoveUp(UI_Grid* _uiGrid)
 	{
-		size_t* currentIndex = &_uiGrid->CurrentIndex;
+		uIntDM* currentIndex = &_uiGrid->CurrentIndex;
 
 		UI_Text* buttonText = &_uiGrid->Buttons[*currentIndex].Text;
 
@@ -462,7 +462,7 @@ namespace Game
 
 	void UI_Grid_MoveDown(UI_Grid* _uiGrid)
 	{
-		size_t* currentIndex = &_uiGrid->CurrentIndex;
+		uIntDM* currentIndex = &_uiGrid->CurrentIndex;
 
 		UI_Text* buttonText = &_uiGrid->Buttons[*currentIndex].Text;
 
@@ -485,7 +485,7 @@ namespace Game
 
 	void UI_Grid_Render(UI_Grid* _uiGrid)
 	{
-		for (size_t index = 0; index < _uiGrid->Num; index++)
+		for (uIntDM index = 0; index < _uiGrid->Num; index++)
 		{
 			UI_Button_Render(&_uiGrid->Buttons[index]);
 		}
@@ -496,11 +496,11 @@ namespace Game
 
 	void UI_Widget_AddText
 	(
-			  UI_Widget* _uiWidget,
-		const WideChar*  _text,
-			   COORD     _startingCell,
-			   COORD     _endingCell,
-			   bool      _shouldCenter
+		   UI_Widget* _uiWidget,
+		ro WideChar*  _text,
+		   COORD     _startingCell,
+		   COORD     _endingCell,
+		   bool      _shouldCenter
 	)
 	{
 		if (_uiWidget->Num_TextUIs == 0)
@@ -540,12 +540,12 @@ namespace Game
 
 	void UI_Widget_AddButton 
 	(
-			  UI_Widget*      _uiWidget,
-		const WideChar*       _text,
-			   COORD          _startingCell,
-			   COORD          _endingCell,
-			   bool           _shouldCenter,
-			   Void_Function* _callback
+		   UI_Widget*     _uiWidget,
+		ro WideChar*      _text,
+		   COORD          _startingCell,
+		   COORD          _endingCell,
+		   bool           _shouldCenter,
+		   Void_Function* _callback
 	)
 	{
 		UI_Grid_Add
@@ -577,7 +577,7 @@ namespace Game
 
 	void UI_Widget_Render(UI_Widget* _uiWidget)
 	{
-		for (size_t index = 0; index < _uiWidget->Num_TextUIs; index++)
+		for (uIntDM index = 0; index < _uiWidget->Num_TextUIs; index++)
 		{
 			UI_Text_Render(&_uiWidget->TextUIs[index]);
 		}

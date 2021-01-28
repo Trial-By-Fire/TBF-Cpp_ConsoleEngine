@@ -18,7 +18,5 @@ namespace Cycler
 	void Lapse(void);
 
 	void LoadModule(void);
-
-	void Quit(void);
 }
 

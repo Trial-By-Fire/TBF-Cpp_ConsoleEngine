@@ -14,28 +14,16 @@
 
 namespace Renderer
 {
-	// Enums
+	// Constants
 
-	enum ERenderer
-	{
-		ERenderer_Width                 = 80,
-
-	#ifdef Debug
-		ERenderer_Height                = 48,
-
-		ERenderer_BorderLine            = 24,
-
-		ERenderer_DebugStart            = 25,
-		ERenderer_DebugLogSize          = 18,
-
-		ERenderer_DebugPersistentStart  = 44,
-		ERenderer_PersistentSectionSize = 4 ,
-	#else
-		ERenderer_Height                = 24,
-	#endif
-
-		ERenderer_GameEnd               = 23,	
-	};
+	CompileTime uInt16 BufferWidth     = 80;
+	CompileTime uInt16 BufferHeight    = DebugEnabled ? 48 : 24;
+	CompileTime uInt16 BorderLineRow   = 24;
+	CompileTime uInt16 DebugStart      = 25;
+	CompileTime uInt16 LogSize         = 18;
+	CompileTime uInt16 PersistentStart = 44;
+	CompileTime uInt16 PersistentSize  = 4 ;
+	CompileTime uInt16 GameEnd         = 23;
 
 
 
@@ -43,7 +31,7 @@ namespace Renderer
 
 	using CSBI = CONSOLE_SCREEN_BUFFER_INFO;
 	using Cell = CHAR_INFO;
-	using Line = Cell[ERenderer_Width];
+	using Line = Cell[BufferWidth];
 
 
 
@@ -81,13 +69,6 @@ namespace Renderer
 
 
 
-	// Constants
-
-	#define SizeOf_Renderer \
-		sizeof(Data)
-
-
-
 	// Functions
 
 	void Clear(void);
@@ -96,7 +77,7 @@ namespace Renderer
 
 	bool FormatCells(void);
 
-	const Data* GetContext(void);
+	ro Data* GetContext(void);
 
 	void LoadModule(void);
 
@@ -113,7 +94,7 @@ namespace Renderer
 	void WriteToBufferCells(Cell* _cells, COORD _initalCell, COORD _finalCell);
 
 	// BS Fix for now:
-	typedef wchar_t WideChar;   // From C_String.h
+	using WideChar = wchar_t;   // From C_String.h
 
 	void WriteToLog(WideChar* _logString);
 

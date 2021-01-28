@@ -47,7 +47,7 @@ namespace Game
 	{
 		switch (_state)
 		{
-			case Input::EInput_Pressed:
+			case Input::EState::Pressed:
 			{
 				LevelState_SetSubstate(GetPausedState());
 
@@ -60,13 +60,13 @@ namespace Game
 	{
 		switch (_state)
 		{
-			case Input::EInput_Pressed:
+			case Input::EState::Pressed:
 			{
 				Player.ShouldJump = true;
 
 				break;
 			}
-			case Input::EInput_Released:
+			case Input::EState::Released:
 			{
 				break;
 			}
@@ -77,17 +77,17 @@ namespace Game
 	{
 		switch (_state)
 		{
-			case Input::EInput_Pressed:
+			case Input::EState::Pressed:
 			{
-				Player.MoveState = ECharacter_MoveLeft;
+				Player.MoveState = ECharacter_Move::Left;
 
 				break;
 			}
-			case Input::EInput_Released:
+			case Input::EState::Released:
 			{
-				if (Player.MoveState == ECharacter_MoveLeft)
+				if (Player.MoveState == ECharacter_Move::Left)
 				{
-					Player.MoveState = ECharacter_DontMove;
+					Player.MoveState = ECharacter_Move::Dont;
 				}
 
 				break;
@@ -99,17 +99,17 @@ namespace Game
 	{
 		switch (_state)
 		{
-			case Input::EInput_Pressed:
+			case Input::EState::Pressed:
 			{
-				Player.MoveState = ECharacter_MoveRight;
+				Player.MoveState = ECharacter_Move::Right;
 
 				break;
 			}
-			case Input::EInput_Released:
+			case Input::EState::Released:
 			{
-				if (Player.MoveState == ECharacter_MoveRight)
+				if (Player.MoveState == ECharacter_Move::Right)
 				{
-					Player.MoveState = ECharacter_DontMove;
+					Player.MoveState = ECharacter_Move::Dont;
 				}
 
 				break;
@@ -157,87 +157,87 @@ namespace Game
 
 			// Level 1
 
-			start.X = 0;                    start.Y = ERenderer_GameEnd - 1;
-			end  .X = ERenderer_Width - 70; end  .Y = ERenderer_GameEnd - 1;
+			start.X = 0;                          start.Y = Renderer::GameEnd - 1;
+			end  .X = Renderer::BufferWidth - 70; end  .Y = Renderer::GameEnd - 1;
 
-			Level_SetCells(&Level1, start, end, LevelCell_Ground);
+			Level_SetCells(&Level1, start, end, ELevelCell::Ground);
 
-			start.X = 0;                    start.Y = ERenderer_GameEnd;
-			end  .X = ERenderer_Width - 70; end  .Y = ERenderer_GameEnd;
+			start.X = 0;                    start.Y = Renderer::GameEnd;
+			end  .X = Renderer::BufferWidth - 70; end  .Y = Renderer::GameEnd;
 
-			Level_SetCells(&Level1, start, end, LevelCell_Ground);
+			Level_SetCells(&Level1, start, end, ELevelCell::Ground);
 
-			start.X = ERenderer_Width - 70; start.Y = ERenderer_GameEnd;
-			end  .X = ERenderer_Width - 60; end  .Y = ERenderer_GameEnd;
+			start.X = Renderer::BufferWidth - 70; start.Y = Renderer::GameEnd;
+			end  .X = Renderer::BufferWidth - 60; end  .Y = Renderer::GameEnd;
 
-			Level_SetCells(&Level1, start, end, LevelCell_Pit);
+			Level_SetCells(&Level1, start, end, ELevelCell::Pit);
 
-			start.X = ERenderer_Width - 60; start.Y = ERenderer_GameEnd -1;
-			end  .X = ERenderer_Width - 40; end  .Y = ERenderer_GameEnd -1;
+			start.X = Renderer::BufferWidth - 60; start.Y = Renderer::GameEnd -1;
+			end  .X = Renderer::BufferWidth - 40; end  .Y = Renderer::GameEnd -1;
 
-			Level_SetCells(&Level1, start, end, LevelCell_Ground);
+			Level_SetCells(&Level1, start, end, ELevelCell::Ground);
 
-			start.X = ERenderer_Width - 60; start.Y = ERenderer_GameEnd;
-			end  .X = ERenderer_Width - 40; end  .Y = ERenderer_GameEnd;
+			start.X = Renderer::BufferWidth - 60; start.Y = Renderer::GameEnd;
+			end  .X = Renderer::BufferWidth - 40; end  .Y = Renderer::GameEnd;
 
-			Level_SetCells(&Level1, start, end, LevelCell_Ground);
+			Level_SetCells(&Level1, start, end, ELevelCell::Ground);
 
-			start.X = ERenderer_Width - 40; start.Y = ERenderer_GameEnd;
-			end  .X = ERenderer_Width - 20; end  .Y = ERenderer_GameEnd;
+			start.X = Renderer::BufferWidth - 40; start.Y = Renderer::GameEnd;
+			end  .X = Renderer::BufferWidth - 20; end  .Y = Renderer::GameEnd;
 
-			Level_SetCells(&Level1, start, end, LevelCell_Pit);
+			Level_SetCells(&Level1, start, end, ELevelCell::Pit);
 
-			start.X = ERenderer_Width - 20; start.Y = ERenderer_GameEnd - 1;
-			end  .X = ERenderer_Width;      end  .Y = ERenderer_GameEnd - 1;
+			start.X = Renderer::BufferWidth - 20; start.Y = Renderer::GameEnd - 1;
+			end  .X = Renderer::BufferWidth;      end  .Y = Renderer::GameEnd - 1;
 
-			Level_SetCells(&Level1, start, end, LevelCell_Ground);
+			Level_SetCells(&Level1, start, end, ELevelCell::Ground);
 
-			start.X = ERenderer_Width - 20; start.Y = ERenderer_GameEnd;
-			end  .X = ERenderer_Width;      end  .Y = ERenderer_GameEnd;
+			start.X = Renderer::BufferWidth - 20; start.Y = Renderer::GameEnd;
+			end  .X = Renderer::BufferWidth;      end  .Y = Renderer::GameEnd;
 
-			Level_SetCells(&Level1, start, end, LevelCell_Ground);
+			Level_SetCells(&Level1, start, end, ELevelCell::Ground);
 
 			// Level 2
 
-			start.X = 0;                    start.Y = ERenderer_GameEnd - 1;
-			end  .X = ERenderer_Width - 40; end  .Y = ERenderer_GameEnd - 1;
+			start.X = 0;                          start.Y = Renderer::GameEnd - 1;
+			end  .X = Renderer::BufferWidth - 40; end  .Y = Renderer::GameEnd - 1;
 
-			Level_SetCells(&Level2, start, end, LevelCell_Ground);
+			Level_SetCells(&Level2, start, end, ELevelCell::Ground);
 
-			start.X = 0;                    start.Y = ERenderer_GameEnd;
-			end  .X = ERenderer_Width - 40; end  .Y = ERenderer_GameEnd;
+			start.X = 0;                          start.Y = Renderer::GameEnd;
+			end  .X = Renderer::BufferWidth - 40; end  .Y = Renderer::GameEnd;
 
-			Level_SetCells(&Level2, start, end, LevelCell_Ground);
+			Level_SetCells(&Level2, start, end, ELevelCell::Ground);
 
-			start.X = ERenderer_Width - 40; start.Y = ERenderer_GameEnd;
-			end  .X = ERenderer_Width - 25; end  .Y = ERenderer_GameEnd;
+			start.X = Renderer::BufferWidth - 40; start.Y = Renderer::GameEnd;
+			end  .X = Renderer::BufferWidth - 25; end  .Y = Renderer::GameEnd;
 
-			Level_SetCells(&Level2, start, end, LevelCell_Pit);
+			Level_SetCells(&Level2, start, end, ELevelCell::Pit);
 
-			start.X = ERenderer_Width - 25; start.Y = ERenderer_GameEnd -1;
-			end  .X = ERenderer_Width - 20; end  .Y = ERenderer_GameEnd -1;
+			start.X = Renderer::BufferWidth - 25; start.Y = Renderer::GameEnd -1;
+			end  .X = Renderer::BufferWidth - 20; end  .Y = Renderer::GameEnd -1;
 
-			Level_SetCells(&Level2, start, end, LevelCell_Ground);
+			Level_SetCells(&Level2, start, end, ELevelCell::Ground);
 
-			start.X = ERenderer_Width - 25; start.Y = ERenderer_GameEnd;
-			end  .X = ERenderer_Width - 20; end  .Y = ERenderer_GameEnd;
+			start.X = Renderer::BufferWidth - 25; start.Y = Renderer::GameEnd;
+			end  .X = Renderer::BufferWidth - 20; end  .Y = Renderer::GameEnd;
 
-			Level_SetCells(&Level2, start, end, LevelCell_Ground);
+			Level_SetCells(&Level2, start, end, ELevelCell::Ground);
 		 
-			start.X = ERenderer_Width - 20; start.Y = ERenderer_GameEnd;
-			end  .X = ERenderer_Width - 10; end  .Y = ERenderer_GameEnd;
+			start.X = Renderer::BufferWidth - 20; start.Y = Renderer::GameEnd;
+			end  .X = Renderer::BufferWidth - 10; end  .Y = Renderer::GameEnd;
 
-			Level_SetCells(&Level2, start, end, LevelCell_Pit);
+			Level_SetCells(&Level2, start, end, ELevelCell::Pit);
 
-			start.X = ERenderer_Width - 10; start.Y = ERenderer_GameEnd - 1;
-			end  .X = ERenderer_Width;      end  .Y = ERenderer_GameEnd - 1;
+			start.X = Renderer::BufferWidth - 10; start.Y = Renderer::GameEnd - 1;
+			end  .X = Renderer::BufferWidth;      end  .Y = Renderer::GameEnd - 1;
 
-			Level_SetCells(&Level2, start, end, LevelCell_Finish);
+			Level_SetCells(&Level2, start, end, ELevelCell::Finish);
 
-			start.X = ERenderer_Width - 10; start.Y = ERenderer_GameEnd;
-			end  .X = ERenderer_Width;      end  .Y = ERenderer_GameEnd;
+			start.X = Renderer::BufferWidth - 10; start.Y = Renderer::GameEnd;
+			end  .X = Renderer::BufferWidth;      end  .Y = Renderer::GameEnd;
 
-			Level_SetCells(&Level2, start, end, LevelCell_Finish);
+			Level_SetCells(&Level2, start, end, ELevelCell::Finish);
 
 
 			Ingame_DoneOnce = true;
@@ -252,18 +252,18 @@ namespace Game
 			ShouldReload = false;
 		}
 
-		Input::SubscribeTo(EKeyCode::Key_Enter      , &LevelState_Ingame_OnKeyEnter);
-		Input::SubscribeTo(EKeyCode::Key_Arrow_Up   , &LevelState_Ingame_OnKeyUp   );
-		Input::SubscribeTo(EKeyCode::Key_Arrow_Left , &LevelState_Ingame_OnKeyLeft );
-		Input::SubscribeTo(EKeyCode::Key_Arrow_Right, &LevelState_Ingame_OnKeyRight);
+		Input::SubscribeTo(EKeyCode::Enter      , &LevelState_Ingame_OnKeyEnter);
+		Input::SubscribeTo(EKeyCode::Arrow_Up   , &LevelState_Ingame_OnKeyUp   );
+		Input::SubscribeTo(EKeyCode::Arrow_Left , &LevelState_Ingame_OnKeyLeft );
+		Input::SubscribeTo(EKeyCode::Arrow_Right, &LevelState_Ingame_OnKeyRight);
 	}
 
 	void Unload_Ingame(void)
 	{
-		Input::Unsubscribe(EKeyCode::Key_Enter      , &LevelState_Ingame_OnKeyEnter);
-		Input::Unsubscribe(EKeyCode::Key_Arrow_Up   , &LevelState_Ingame_OnKeyUp   );
-		Input::Unsubscribe(EKeyCode::Key_Arrow_Left , &LevelState_Ingame_OnKeyLeft );
-		Input::Unsubscribe(EKeyCode::Key_Arrow_Right, &LevelState_Ingame_OnKeyRight);
+		Input::Unsubscribe(EKeyCode::Enter      , &LevelState_Ingame_OnKeyEnter);
+		Input::Unsubscribe(EKeyCode::Arrow_Up   , &LevelState_Ingame_OnKeyUp   );
+		Input::Unsubscribe(EKeyCode::Arrow_Left , &LevelState_Ingame_OnKeyLeft );
+		Input::Unsubscribe(EKeyCode::Arrow_Right, &LevelState_Ingame_OnKeyRight);
 	}
 
 	void Update_Ingame(void)
@@ -318,7 +318,7 @@ namespace Game
 
 	StateObj* GetIngameState(void)
 	{
-		static bool stateConstructed = false;
+		unbound bool stateConstructed = false;
 
 		if (!stateConstructed)
 		{

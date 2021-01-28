@@ -56,7 +56,7 @@ namespace Game
 	{
 		switch (_state)
 		{
-			case Input::EInput_Pressed:
+			case Input::EState::Pressed:
 			{
 				UI_Widget_Select(&PauseWidget);
 
@@ -69,7 +69,7 @@ namespace Game
 	{
 		switch (_state)
 		{
-			case Input::EInput_Pressed:
+			case Input::EState::Pressed:
 			{
 				WriteToLog((WideChar*)L"Pause: On Key Up");
 
@@ -84,7 +84,7 @@ namespace Game
 	{
 		switch (_state)
 		{
-			case Input::EInput_Pressed:
+			case Input::EState::Pressed:
 			{
 				WriteToLog((WideChar*)L"Pause: On Key Down");
 
@@ -101,9 +101,9 @@ namespace Game
 
 		if (! Paused_DoneOnce)
 		{
-			PauseWidget.TextUIs           = NULL;
+			PauseWidget.TextUIs           = nullptr;
 			PauseWidget.Num_TextUIs       = 0;
-			PauseWidget.Grid.Buttons      = NULL;
+			PauseWidget.Grid.Buttons      = nullptr;
 			PauseWidget.Grid.Num          = 0;
 			PauseWidget.Grid.CurrentIndex = 0;
 
@@ -151,16 +151,16 @@ namespace Game
 			Paused_DoneOnce = true;
 		}
 
-		Input::SubscribeTo(EKeyCode::Key_Enter     , &LevelState_Paused_OnKeyEnter    );
-		Input::SubscribeTo(EKeyCode::Key_Arrow_Up  , &LevelState_Paused_OnKeyArrowUp  );
-		Input::SubscribeTo(EKeyCode::Key_Arrow_Down, &LevelState_Paused_OnKeyArrowDown);
+		Input::SubscribeTo(EKeyCode::Enter     , &LevelState_Paused_OnKeyEnter    );
+		Input::SubscribeTo(EKeyCode::Arrow_Up  , &LevelState_Paused_OnKeyArrowUp  );
+		Input::SubscribeTo(EKeyCode::Arrow_Down, &LevelState_Paused_OnKeyArrowDown);
 	}
 
 	void Unload_Paused(void)
 	{
-		Input::Unsubscribe(EKeyCode::Key_Enter     , &LevelState_Paused_OnKeyEnter    );
-		Input::Unsubscribe(EKeyCode::Key_Arrow_Up  , &LevelState_Paused_OnKeyArrowUp  );
-		Input::Unsubscribe(EKeyCode::Key_Arrow_Down, &LevelState_Paused_OnKeyArrowDown);
+		Input::Unsubscribe(EKeyCode::Enter     , &LevelState_Paused_OnKeyEnter    );
+		Input::Unsubscribe(EKeyCode::Arrow_Up  , &LevelState_Paused_OnKeyArrowUp  );
+		Input::Unsubscribe(EKeyCode::Arrow_Down, &LevelState_Paused_OnKeyArrowDown);
 	}
 
 	void Update_Paused(void)
@@ -178,7 +178,7 @@ namespace Game
 
 	StateObj* GetPausedState(void)
 	{
-		static bool stateConstructed = false;
+		unbound bool stateConstructed = false;
 
 		if (! stateConstructed)
 		{

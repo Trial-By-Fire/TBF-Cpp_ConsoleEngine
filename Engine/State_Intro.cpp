@@ -12,7 +12,10 @@
 
 namespace Intro
 {
+	using OSPlatform::Console_WhiteCell;
+
 	using Timing::TimerData;
+
 
 	StateObj IntroState;
 
@@ -37,10 +40,10 @@ namespace Intro
 		RenderTitle   = false, 
 		RenderVersion = false ;
 
-	Renderer::Cell* IntroTitle_RenderCells = NULL;
-	Renderer::Cell* Version_RenderCells    = NULL;
+	Renderer::Cell* IntroTitle_RenderCells = nullptr;
+	Renderer::Cell* Version_RenderCells    = nullptr;
 
-	size_t 
+	uIntDM 
 		Title_Length         = 0,
 		EngineVersion_Length = 0 ;
 
@@ -52,7 +55,7 @@ namespace Intro
 
 	void ChangeTitleTo_Grey()
 	{
-		for (size_t cellIndex = 0; cellIndex < Title_Length; cellIndex++)
+		for (uIntDM cellIndex = 0; cellIndex < Title_Length; cellIndex++)
 		{
 			IntroTitle_RenderCells[cellIndex].Attributes = FOREGROUND_INTENSITY;
 		}
@@ -60,7 +63,7 @@ namespace Intro
 
 	void ChangeEngineVerTo_Grey()
 	{
-		for (size_t cellIndex = 0; cellIndex < EngineVersion_Length; cellIndex++)
+		for (uIntDM cellIndex = 0; cellIndex < EngineVersion_Length; cellIndex++)
 		{
 			Version_RenderCells[cellIndex].Attributes = FOREGROUND_INTENSITY;
 		}
@@ -68,7 +71,7 @@ namespace Intro
 
 	void ChangeTitleTo_White()
 	{
-		for (size_t cellIndex = 0; cellIndex < Title_Length; cellIndex++)
+		for (uIntDM cellIndex = 0; cellIndex < Title_Length; cellIndex++)
 		{
 			IntroTitle_RenderCells[cellIndex].Attributes = Console_WhiteCell;
 		}
@@ -76,7 +79,7 @@ namespace Intro
 
 	void ChangeEngineVerTo_White()
 	{
-		for (size_t cellIndex = 0; cellIndex < EngineVersion_Length; cellIndex++)
+		for (uIntDM cellIndex = 0; cellIndex < EngineVersion_Length; cellIndex++)
 		{
 			Version_RenderCells[cellIndex].Attributes = Console_WhiteCell;
 		}
@@ -111,12 +114,12 @@ namespace Intro
 			IntroTitle_RenderCells = (Cell*)GlobalAllocate(Cell, Title_Length        );
 			Version_RenderCells    = (Cell*)GlobalAllocate(Cell, EngineVersion_Length);
 
-			for (size_t cellIndex = 0; cellIndex < Title_Length; cellIndex++)
+			for (uIntDM cellIndex = 0; cellIndex < Title_Length; cellIndex++)
 			{
 				IntroTitle_RenderCells[cellIndex].Char.UnicodeChar = IntroTitle[cellIndex];
 			}
 
-			for (size_t cellIndex = 0; cellIndex < EngineVersion_Length; cellIndex++)
+			for (uIntDM cellIndex = 0; cellIndex < EngineVersion_Length; cellIndex++)
 			{
 				Version_RenderCells[cellIndex].Char.UnicodeChar = EngineVersion[cellIndex];
 			}
@@ -246,11 +249,10 @@ namespace Intro
 
 	void IntroState_Render(void)
 	{
-		using Renderer::ERenderer_Width;
 		using Renderer::WriteToBufferCells;
 
 
-		static COORD
+		unbound COORD
 			startingCell = { 0, 9 },
 			endingCell   = { 0, 9 };
 
@@ -258,8 +260,8 @@ namespace Intro
 		// Render Title
 		if (RenderTitle)
 		{
-			startingCell.X = (ERenderer_Width / 2) - (Title_Length / 2);
-			endingCell  .X = (ERenderer_Width / 2) + (Title_Length / 2);
+			startingCell.X = (Renderer::BufferWidth / 2) - (Title_Length / 2);
+			endingCell  .X = (Renderer::BufferWidth / 2) + (Title_Length / 2);
 
 			startingCell.Y = 9;
 			endingCell  .Y = 9;
@@ -270,8 +272,8 @@ namespace Intro
 		// Render Version
 		if (RenderVersion)
 		{
-			startingCell.X = (ERenderer_Width / 2) - (EngineVersion_Length / 2);
-			endingCell  .X = (ERenderer_Width / 2) + (EngineVersion_Length / 2);
+			startingCell.X = (Renderer::BufferWidth / 2) - (EngineVersion_Length / 2);
+			endingCell  .X = (Renderer::BufferWidth / 2) + (EngineVersion_Length / 2);
 
 			startingCell.Y = 11;
 			endingCell  .Y = 11;
@@ -286,7 +288,7 @@ namespace Intro
 
 	StateObj* GetState(void)
 	{
-		static bool firstGet = true;
+		unbound bool firstGet = true;
 
 		if (firstGet) 
 		{

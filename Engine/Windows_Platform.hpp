@@ -15,38 +15,43 @@
 
 namespace OSPlatform
 {
-	// Macros
+	CompileTime DWORD Console_Cursor_MinSize = 1;
 
-	#define Console_Cursor_MinSize 1
+	CompileTime bool Console_Cursor_NotVisible = 0;
 
-	#define Console_Cursor_NotVisible 0
+	CompileTime WORD Console_WhiteCell = FOREGROUND_RED | FOREGROUND_GREEN | FOREGROUND_BLUE | FOREGROUND_INTENSITY;
 
+	namespace StdHandle
+	{
+		CompileTime DWORD Input  = STD_INPUT_HANDLE;
+		CompileTime DWORD Output = STD_OUTPUT_HANDLE;
+		CompileTime DWORD Error  = STD_ERROR_HANDLE;
 
-	#define Console_WhiteCell \
-	FOREGROUND_RED | FOREGROUND_GREEN | FOREGROUND_BLUE | FOREGROUND_INTENSITY
+		HANDLE Invalid();
+	}
 
 
 
 	// Enums
 
-	enum EKeyCode
+	enum class EKeyCode
 	{
-		Key_None        = 0x00,
-		Key_Arrow_Up    = VK_UP,
-		Key_Arrow_Down  = VK_DOWN,
-		Key_Arrow_Left  = VK_LEFT,
-		Key_Arrow_Right = VK_RIGHT,
-		Key_Enter       = VK_RETURN,
-		Key_Tab         = VK_TAB,
+		None        = 0x00,
+		Arrow_Up    = VK_UP,
+		Arrow_Down  = VK_DOWN,
+		Arrow_Left  = VK_LEFT,
+		Arrow_Right = VK_RIGHT,
+		Enter       = VK_RETURN,
+		Tab         = VK_TAB,
 	};
-
-
-	// Aliases (Typedefs)
-
 
 
 
 	// Functions
+
+	FILE* StdInput (void);
+	FILE* StdOutput(void);
+	FILE* StdError (void);
 
 	bool Bind_IOBufferTo_Console(void);
 

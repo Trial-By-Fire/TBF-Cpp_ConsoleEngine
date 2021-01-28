@@ -22,9 +22,9 @@ namespace Cycler
 
 
 
-				  // Functions
+	// Functions
 
-				  // Public
+	// Public
 
 	void Lapse(void)
 	{
@@ -47,16 +47,6 @@ namespace Cycler
 
 			// Update Renderer
 
-			//Stack()
-
-			//ro Ptr(Data   ) inputContext    = Input_GetContext   ();
-			//ro Ptr(Data) rendererContext = GetContext();
-			//ro Ptr(Data  ) timingContext   = GetContext  ();
-
-			//WriteToPersistentSection(1, L"Tick Elapsed        : %llu" , timingContext  ->Cycle_TicksElapsed);
-			//WriteToPersistentSection(2, L"Timer      (Seconds): %.7Lf", rendererContext->RefeshTimer       );
-			//WriteToPersistentSection(3, L"Delta Time (Seconds): %.7Lf", timingContext  ->DeltaTime         );
-
 			Renderer::Update();
 
 			// Update Timing
@@ -70,20 +60,6 @@ namespace Cycler
 	void LoadModule(void)
 	{
 		Exist = true;
-	}
-
-	void Quit(void)
-	{
-		Exist = false;
-	}
-
-
-
-	// Private
-
-	bool ShouldQuit(void)
-	{
-		return false;
 	}
 }
 

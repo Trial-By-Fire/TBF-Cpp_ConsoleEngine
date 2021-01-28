@@ -12,10 +12,6 @@
 
 namespace Timing
 {
-	// Aliases (Typedefs)
-
-
-
 	// Structures
 
 	struct Data
@@ -32,22 +28,14 @@ namespace Timing
 
 	// Constants
 
-#define TickToMicroseconds \
-	1000000
-
-#define MicrosecondToSecond \
-	10000000
-
-#define SizeOf_TimeData \
-	sizeof(Data)
+	CompileTime sInt64 TickToMicroseconds  = 1000000;
+	CompileTime sInt64 MicrosecondToSecond = 10000000;
 
 
 
 	// Functions
 
-	//fn returns(void) Timing_MakeTimer parameters(void);
-
-	const Data* GetContext(void);
+	ro Data* GetContext(void);
 
 	void LoadModule(void);
 
@@ -56,12 +44,6 @@ namespace Timing
 	void TakeEndingSnapshot(void);
 
 	void Update(void);
-
-
-
-	// Timer Class
-
-	// Aliases (Typedefs)
 
 
 

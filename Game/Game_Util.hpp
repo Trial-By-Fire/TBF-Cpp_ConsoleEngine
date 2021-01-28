@@ -11,28 +11,31 @@
 namespace Game
 {
 	using OSPlatform::EKeyCode;
+	using OSPlatform::Console_WhiteCell;
 
 	using Renderer::Cell;
-	using Renderer::ERenderer;
 	using Renderer::Line;
-	using Renderer::ERenderer_GameEnd;
-	using Renderer::ERenderer_Width;
 	using Renderer::WriteToLog;
 	using Renderer::WriteToBufferCells;
 	using Renderer::WriteToPersistentSection;
 
+
+
 	// Enums
 
-	enum 
+	enum class ECharacter_Move
 	{
-		ECharacter_DontMove ,
-		ECharacter_MoveLeft ,
-		ECharacter_MoveRight,
+		Dont ,
+		Left ,
+		Right
+	};
 
-		LevelCell_Empty  = 0,
-		LevelCell_Pit    = BACKGROUND_BLUE,
-		LevelCell_Ground = BACKGROUND_GREEN,
-		LevelCell_Finish = BACKGROUND_RED
+	enum ELevelCell
+	{
+		Empty  = 0,
+		Pit    = BACKGROUND_BLUE,
+		Ground = BACKGROUND_GREEN,
+		Finish = BACKGROUND_RED
 	};
 
 
@@ -41,7 +44,7 @@ namespace Game
 
 	// Level
 
-	using GameScreenBuffer = Line[ERenderer::ERenderer_GameEnd + 1];
+	using GameScreenBuffer = Line[Renderer::GameEnd + 1];
 
 	using Level = GameScreenBuffer;
 
@@ -69,8 +72,8 @@ namespace Game
 
 		bool ShouldJump, Fell;
 
-		sInt Active_MoveState;
-		sInt MoveState;
+		ECharacter_Move Active_MoveState;
+		ECharacter_Move MoveState;
 	};
 
 	// UI
@@ -133,7 +136,7 @@ namespace Game
 
 	sInt Level_GetCellAtPosition(Level* _level, Vector2D _position);
 
-	void Level_SetCells(Level* _level, COORD _firstCell, COORD _lastCell, sInt _cellType);
+	void Level_SetCells(Level* _level, COORD _firstCell, COORD _lastCell, ELevelCell _cellType);
 
 	void Level_Render(Level* _level);
 
@@ -158,29 +161,29 @@ namespace Game
 		bool      _shouldCenter
 	);
 
-	void UI_Text_Render(const UI_Text* _uiText);
+	void UI_Text_Render(ro UI_Text* _uiText);
 
 	void UI_Button_Create 
 	(
-			  UI_Button*     _button, 
-		const WideChar*      _text, 
-			  COORD          _startingCell, 
-			  COORD          _endingCell, 
-			  bool           _shouldCenter,
-			  Void_Function* _callback
+		   UI_Button*     _button, 
+		ro WideChar*      _text, 
+		   COORD          _startingCell, 
+		   COORD          _endingCell, 
+		   bool           _shouldCenter,
+		   Void_Function* _callback
 	);
 
-	void UI_Button_Press (const UI_Button* _uiButton);
-	void UI_Button_Render(const UI_Button* _uiButton);
+	void UI_Button_Press (ro UI_Button* _uiButton);
+	void UI_Button_Render(ro UI_Button* _uiButton);
 
 	void UI_Grid_Add 
 	(
-			  UI_Grid*        _uiGrid, 
-		const WideChar*       _text, 
-			   COORD          _startingCell, 
-			   COORD          _endingCell, 
-			   bool           _shouldCenter,
-			   Void_Function* _callback
+		   UI_Grid*       _uiGrid, 
+		ro WideChar*      _text, 
+		   COORD          _startingCell, 
+		   COORD          _endingCell, 
+		   bool           _shouldCenter,
+		   Void_Function* _callback
 	);
 
 	void UI_Grid_MoveUp  (UI_Grid* _uiGrid);
@@ -190,21 +193,21 @@ namespace Game
 
 	void UI_Widget_AddText
 	(
-			  UI_Widget*     _uiWidget,
-		const WideChar*      _text,
-			  COORD          _startingCell,
-			  COORD          _endingCell,
-			  bool           _shouldCenter
+		   UI_Widget* _uiWidget,
+		ro WideChar*  _text,
+		   COORD     _startingCell,
+		   COORD     _endingCell,
+		   bool      _shouldCenter
 	);
 
 	void UI_Widget_AddButton 
 	(
-			  UI_Widget*     _uiWidget,
-		const WideChar*      _text,
-			  COORD          _startingCell,
-			  COORD          _endingCell,
-			  bool           _shouldCenter,
-			  Void_Function* _callback
+		   UI_Widget*     _uiWidget,
+		ro WideChar*      _text,
+		   COORD          _startingCell,
+		   COORD          _endingCell,
+		   bool           _shouldCenter,
+		   Void_Function* _callback
 	);
 
 	void UI_Widget_MoveUp  (UI_Widget* _uiWidget);

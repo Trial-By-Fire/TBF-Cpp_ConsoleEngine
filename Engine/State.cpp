@@ -12,17 +12,17 @@
 
 namespace State
 {
-	using Input::EInput_Pressed;
+	using Input::EState;
 
 	using Renderer::Logs_ScrollUp;
 	using Renderer::Logs_ScrollDown;
 
 
 
-	enum 
+	enum class EFocusState
 	{
-		EFocusState_Game,
-		EFocusState_Logs
+		Game,
+		Logs
 	};
 
 
@@ -30,9 +30,9 @@ namespace State
 
 	// State
 
-	StateObj* CurrentState = NULL;
+	StateObj* CurrentState = nullptr;
 
-	uInt FocusState = EFocusState_Game;
+	EFocusState FocusState = EFocusState::Game;
 
 
 
@@ -44,11 +44,11 @@ namespace State
 	{
 		switch (_state)
 		{
-			case EInput_Pressed:
+			case EState::Pressed:
 			{
 				switch (FocusState)
 				{
-					case EFocusState_Logs:
+					case EFocusState::Logs:
 					{
 						Logs_ScrollUp();
 
@@ -65,11 +65,11 @@ namespace State
 	{
 		switch (_state)
 		{
-			case EInput_Pressed:
+			case EState::Pressed:
 			{
 				switch (FocusState)
 				{
-					case EFocusState_Logs:
+					case EFocusState::Logs:
 					{
 						Logs_ScrollDown();
 
@@ -86,19 +86,19 @@ namespace State
 	{
 		switch (_state)
 		{
-			case EInput_Pressed:
+			case EState::Pressed:
 			{
 				switch (FocusState)
 				{
-					case EFocusState_Game:
+					case EFocusState::Game:
 					{
-						FocusState = EFocusState_Logs;
+						FocusState = EFocusState::Logs;
 
 						break;
 					}
-					case EFocusState_Logs:
+					case EFocusState::Logs:
 					{
-						FocusState = EFocusState_Game;
+						FocusState = EFocusState::Game;
 
 						break;
 					}
@@ -118,14 +118,14 @@ namespace State
 
 		CurrentState->Load();
 
-		Input::SubscribeTo(EKeyCode::Key_Arrow_Up  , &State_OnKeyArrowUp  );
-		Input::SubscribeTo(EKeyCode::Key_Arrow_Down, &State_OnKeyArrowDown);
-		Input::SubscribeTo(EKeyCode::Key_Enter     , &State_OnKeyTab      );
+		Input::SubscribeTo(EKeyCode::Arrow_Up  , &State_OnKeyArrowUp  );
+		Input::SubscribeTo(EKeyCode::Arrow_Down, &State_OnKeyArrowDown);
+		Input::SubscribeTo(EKeyCode::Enter     , &State_OnKeyTab      );
 	}
 
 	void SetState(StateObj* _state)
 	{
-		if (CurrentState != NULL)
+		if (CurrentState != nullptr)
 		{
 			CurrentState->Unload();
 		}
@@ -137,7 +137,7 @@ namespace State
 
 	void Update(void)
 	{
-		if (CurrentState != NULL)
+		if (CurrentState != nullptr)
 		{
 			CurrentState->Update();
 		}
@@ -145,7 +145,7 @@ namespace State
 
 	void Render(void)
 	{
-		if (CurrentState != NULL)
+		if (CurrentState != nullptr)
 		{
 			CurrentState->Render();
 		}

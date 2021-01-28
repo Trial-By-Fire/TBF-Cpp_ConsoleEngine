@@ -20,7 +20,6 @@
 void PrepareModules(void)
 {
 	Cycler  ::LoadModule();
-	CString ::LoadModule();
 	Timing  ::LoadModule();
 	Input   ::LoadModule();
 	Renderer::LoadModule();
@@ -43,7 +42,7 @@ void UnloadModules(void)
 
 // Entry Point
 
-ExecFlags EntryPoint(void)
+ExitCode EntryPoint(void)
 {
 	// Setup engine components.
 
@@ -59,5 +58,5 @@ ExecFlags EntryPoint(void)
 
 	Memory::GlobalDeallocate();
 
-	return ExecFlags_Sucess;
+	return ExitCode::Success;
 }

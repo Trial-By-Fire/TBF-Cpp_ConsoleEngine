@@ -20,7 +20,4 @@ using CTS_CWString = wchar_t[];
 
 namespace CString
 {
-	// Functions
-
-	void LoadModule(void);
 }

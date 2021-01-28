@@ -16,22 +16,20 @@ namespace Input
 	using OSPlatform::EKeyCode;
 
 
+	// Constants
+
+	CompileTime uIntDM Keys_NumTracked = 6;
+
+
 
 	// Enums
 
-	enum Constants
+	enum class EState
 	{
-		Keys_NumTracked = 6,
-
-		InputState_BufferSize = 10
-	};
-
-	enum EState
-	{
-		EInput_None,
-		EInput_Released,
-		EInput_Pressed,
-		EInput_PressHeld
+		None,
+		Released,
+		Pressed,
+		PressHeld
 	};
 
 
@@ -90,16 +88,9 @@ namespace Input
 
 
 
-	// Constants
-
-	#define SizeOf_InputSystem \
-		sizeof(Data)
-
-
-
 	// Functions
 
-	const Data* GetContext(void);
+	ro Data* GetContext(void);
 
 	void LoadModule(void);
 

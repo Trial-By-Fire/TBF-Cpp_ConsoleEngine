@@ -21,8 +21,8 @@ namespace Input
 
 	// Forward Declarations
 
-	EKeyCode GetKeyCodeAtIndex  (size_t   _index);
-	size_t   GetKeyIndexFromCode(EKeyCode _key);
+	EKeyCode GetKeyCodeAtIndex  (uIntDM   _index);
+	uIntDM   GetKeyIndexFromCode(EKeyCode _key);
 
 
 
@@ -35,16 +35,14 @@ namespace Input
 		//Input.StateIndex = 0;
 	}
 
-	const Data* GetContext(void)
+	ro Data* GetContext(void)
 	{
 		return &Input;
 	}
 
 	void Update(void)
 	{
-		size_t index = 0; 
-
-		for (; index < Keys_NumTracked; index++)
+		for (uIntDM index = 0; index < Keys_NumTracked; index++)
 		{
 			bool Current, Previous;
 
@@ -62,19 +60,19 @@ namespace Input
 
 			EState* CurrentState = &Input.KeyStates[index];
 					
-			EState latestState;
+			EState latestState = EState::None;
 
 			if (Current == Previous)
 			{
 				if (Current == true)
 				{
-					latestState = EInput_PressHeld;
+					latestState = EState::PressHeld;
 				}
 				else
 				{
-					if (*CurrentState != EInput_PressHeld)
+					if (*CurrentState != EState::PressHeld)
 					{
-						latestState = EInput_None;
+						latestState = EState::None;
 					}
 				}
 			}
@@ -82,11 +80,11 @@ namespace Input
 			{
 				if (Current == false)
 				{
-					latestState = EInput_Released;
+					latestState = EState::Released;
 				}
 				else
 				{
-					latestState = EInput_Pressed;
+					latestState = EState::Pressed;
 				}
 			}
 
@@ -94,9 +92,9 @@ namespace Input
 			{
 				*CurrentState = latestState;
 
-				for (size_t subIndex = 0; subIndex < Input.KeyEventSubs[index].Num; subIndex++)
+				for (uIntDM subIndex = 0; subIndex < Input.KeyEventSubs[index].Num; subIndex++)
 				{
-					if ( Input.KeyEventSubs[index].Array[subIndex] != NULL)
+					if ( Input.KeyEventSubs[index].Array[subIndex] != nullptr)
 					{
 						Input.KeyEventSubs[index].Array[subIndex](*CurrentState);
 					}
@@ -117,9 +115,9 @@ namespace Input
 		}
 		else
 		{
-			for (size_t subIndex = 0; subIndex < subs->Num; subIndex++)
+			for (uIntDM subIndex = 0; subIndex < subs->Num; subIndex++)
 			{
-				if ( (&subs->Array)[subIndex] == NULL)
+				if ( (&subs->Array)[subIndex] == nullptr)
 				{
 					subs->Array[subs->Num - 1] = _callbackFunction;
 
@@ -130,7 +128,7 @@ namespace Input
 
 			Memory::Address resizeIntermediary = GlobalReallocate(EventFunctionPtr*, subs->Array, (subs->Num + 1) );
 
-			if (resizeIntermediary != NULL)
+			if (resizeIntermediary != nullptr)
 			{
 				subs->Array = (EventFunctionPtr*)resizeIntermediary;
 
@@ -151,11 +149,11 @@ namespace Input
 	{
 		Subscriptions* subs = &Input.KeyEventSubs[GetKeyIndexFromCode(_key)];
 
-		for (size_t subIndex = 0; subIndex < subs->Num; subIndex++)
+		for (uIntDM subIndex = 0; subIndex < subs->Num; subIndex++)
 		{
 			if (subs->Array[subIndex] == _callbackFunction)
 			{
-				subs->Array[subIndex] = NULL;
+				subs->Array[subIndex] = nullptr;
 			}
 		}
 	}
@@ -164,62 +162,62 @@ namespace Input
 
 	// Private
 
-	EKeyCode GetKeyCodeAtIndex(size_t _index)
+	EKeyCode GetKeyCodeAtIndex(uIntDM _index)
 	{
 		switch (_index)
 		{
 			case 0:
 			{
-				return EKeyCode::Key_Arrow_Up;
+				return EKeyCode::Arrow_Up;
 			}
 			case 1:
 			{
-				return EKeyCode::Key_Arrow_Down;
+				return EKeyCode::Arrow_Down;
 			}
 			case 2:
 			{
-				return EKeyCode::Key_Arrow_Left;
+				return EKeyCode::Arrow_Left;
 			}
 			case 3:
 			{
-				return EKeyCode::Key_Arrow_Right;
+				return EKeyCode::Arrow_Right;
 			}
 			case 4:
 			{
-				return EKeyCode::Key_Enter;
+				return EKeyCode::Enter;
 			}
 			case 5:
 			{
-				return EKeyCode::Key_Tab;
+				return EKeyCode::Tab;
 			}
 		}
 	}
 
-	size_t GetKeyIndexFromCode(EKeyCode _key)
+	uIntDM GetKeyIndexFromCode(EKeyCode _key)
 	{
 		switch (_key)
 		{
-			case EKeyCode::Key_Arrow_Up:
+			case EKeyCode::Arrow_Up:
 			{
 				return 0;
 			}
-			case EKeyCode::Key_Arrow_Down:
+			case EKeyCode::Arrow_Down:
 			{
 				return 1;
 			}
-			case EKeyCode::Key_Arrow_Left:
+			case EKeyCode::Arrow_Left:
 			{
 				return 2;
 			}
-			case EKeyCode::Key_Arrow_Right:
+			case EKeyCode::Arrow_Right:
 			{
 				return 3;
 			}
-			case EKeyCode::Key_Enter:
+			case EKeyCode::Enter:
 			{
 				return 4;
 			}
-			case EKeyCode::Key_Tab:
+			case EKeyCode::Tab:
 			{
 				return 5;
 			}

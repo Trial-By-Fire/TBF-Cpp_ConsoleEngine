@@ -22,10 +22,6 @@ struct StateObj
 
 namespace State
 {
-	// Aliases (Typedefs)
-
-
-
 	// Functions
 
 	void LoadModule(void);

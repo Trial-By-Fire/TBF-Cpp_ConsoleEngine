@@ -29,14 +29,14 @@ namespace Memory
 	{
 		Address Location;
 
-		size_t Size;
+		uIntDM Size;
 	};
 
 	struct BlockArray
 	{
 		Block** Array;
 
-		size_t Length;
+		uIntDM Length;
 	};
 
 
@@ -45,11 +45,11 @@ namespace Memory
 
 	// C-API
 
-	void* AllocateMemory(size_t _amountToAllocate  );
+	void* AllocateMemory(uIntDM _amountToAllocate  );
 	void  Deallocate    (void*  _memoryToDeallocate);
 
-	void* Internal_FormatByFill(void* _memoryAddress,       sInt  _fillValue,  size_t _sizeOfData);
-	void* FormatWithData       (void* _memoryAddress, const void* _dataSource, size_t _sizeOfData);
+	void* Internal_FormatByFill(void* _memoryAddress,    sInt  _fillValue,  uIntDM _sizeOfData);
+	void* FormatWithData       (void* _memoryAddress, ro void* _dataSource, uIntDM _sizeOfData);
 
 	// Memory Allocation Array
 
@@ -59,11 +59,11 @@ namespace Memory
 
 	// Memory Management
 
-	Address Internal_ScopedAllocate(BlockArray* _scopedAllocations, size_t _sizeOfAllocation);
+	Address Internal_ScopedAllocate(BlockArray* _scopedAllocations, uIntDM _sizeOfAllocation);
 	void    ScopedDeallocate       (BlockArray* _scopedAllocations                          );
 
-	Address Internal_GlobalAllocate  (                   size_t _sizeOfAllocation   );
-	Address Internal_GlobalReallocate(Address _location, size_t _sizeForReallocation);
+	Address Internal_GlobalAllocate  (                   uIntDM _sizeOfAllocation   );
+	Address Internal_GlobalReallocate(Address _location, uIntDM _sizeForReallocation);
 	void    GlobalDeallocate         (void                                          );
 
 
@@ -85,11 +85,11 @@ namespace Memory
 	#define SmartScope                    \
 	{					                  \
 		Memory::BlockArray scopedMemory = \
-		{ NULL, 0U };
+		{ nullptr, 0U };
 
 
 	#define SmartScope_End                           \
-		if (scopedMemory.Array != NULL)              \
+		if (scopedMemory.Array != nullptr)              \
 		{								             \
 			Memory::ScopedDeallocate(&scopedMemory); \
 		}											 \

@@ -10,7 +10,7 @@ namespace Memory
 	// Private
 
 	BlockArray GlobalMemory =
-	{ NULL, 0U };
+	{ nullptr, 0U };
 
 
 
@@ -20,7 +20,7 @@ namespace Memory
 
 	// C-API
 
-	void* AllocateMemory(size_t _amountToAllocate)
+	void* AllocateMemory(uIntDM _amountToAllocate)
 	{
 		return malloc(_amountToAllocate);
 	}
@@ -32,17 +32,17 @@ namespace Memory
 		return;
 	}
 
-	void* Reallocate(void* _memoryToReallocate, size_t _sizeDesired)
+	void* Reallocate(void* _memoryToReallocate, uIntDM _sizeDesired)
 	{
 		return realloc(_memoryToReallocate, _sizeDesired);
 	}
 
-	void* Internal_FormatByFill(void* _memoryAddress, sInt _fillValue, size_t _sizeOfData)
+	void* Internal_FormatByFill(void* _memoryAddress, sInt _fillValue, uIntDM _sizeOfData)
 	{
 		return memset(_memoryAddress, _fillValue, _sizeOfData);
 	}
 
-	void* FormatWithData(void* _memoryAddress, const void* _dataSource, size_t _sizeOfData)
+	void* FormatWithData(void* _memoryAddress, ro void* _dataSource, uIntDM _sizeOfData)
 	{
 		return memcpy(_memoryAddress, _dataSource, _sizeOfData);
 	}
@@ -51,7 +51,7 @@ namespace Memory
 
 	void BlockArray_Add(BlockArray* _memoryArray, Block* _memoryAllocation)
 	{
-		if (_memoryArray->Array == NULL)
+		if (_memoryArray->Array == nullptr)
 		{
 			_memoryArray->Array = (Block**)AllocateMemory(sizeof(Block));
 
@@ -61,7 +61,7 @@ namespace Memory
 		{
 			Address resizeIntermediary = Reallocate(_memoryArray->Array, _memoryArray->Length + 1);
 
-			if (resizeIntermediary != NULL)
+			if (resizeIntermediary != nullptr)
 			{
 				_memoryArray->Array = (Block**)resizeIntermediary;
 
@@ -81,9 +81,9 @@ namespace Memory
 
 	// Memory Management
 
-	Address Internal_ScopedAllocate(BlockArray* _scopedMemory, size_t _sizeOfAllocation)
+	Address Internal_ScopedAllocate(BlockArray* _scopedMemory, uIntDM _sizeOfAllocation)
 	{
-		if (_scopedMemory->Array == NULL)
+		if (_scopedMemory->Array == nullptr)
 		{
 			_scopedMemory->Array = (Block**)AllocateMemory(sizeof(Block*));
 
@@ -93,7 +93,7 @@ namespace Memory
 		{
 			Address resizeIntermediary = Reallocate(_scopedMemory->Array, sizeof(Block*) * (_scopedMemory->Length + 1));
 
-			if (resizeIntermediary != NULL)
+			if (resizeIntermediary != nullptr)
 			{
 				_scopedMemory->Array = (Block**)resizeIntermediary;
 
@@ -112,7 +112,7 @@ namespace Memory
 		newBlock->Size     = _sizeOfAllocation;
 		newBlock->Location = AllocateMemory(_sizeOfAllocation);
 
-		if (newBlock->Location != NULL)
+		if (newBlock->Location != nullptr)
 		{
 			return newBlock->Location;
 		}
@@ -126,7 +126,7 @@ namespace Memory
 
 	void ScopedDeallocate(BlockArray* _scopedMemory)
 	{
-		for (size_t index = 0; index < _scopedMemory->Length; index++)
+		for (uIntDM index = 0; index < _scopedMemory->Length; index++)
 		{
 			Deallocate(_scopedMemory->Array[index]->Location);
 
@@ -138,9 +138,9 @@ namespace Memory
 		return;
 	}
 
-	Address Internal_GlobalAllocate(size_t _sizeOfAllocation)
+	Address Internal_GlobalAllocate(uIntDM _sizeOfAllocation)
 	{
-		if (GlobalMemory.Array == NULL)
+		if (GlobalMemory.Array == nullptr)
 		{
 			GlobalMemory.Array = (Block**)AllocateMemory(sizeof(Block*));
 
@@ -150,7 +150,7 @@ namespace Memory
 		{
 			Address resizeIntermediary = Reallocate(GlobalMemory.Array, sizeof(Block*) * (GlobalMemory.Length + 1));
 
-			if (resizeIntermediary != NULL)
+			if (resizeIntermediary != nullptr)
 			{
 				GlobalMemory.Array = (Block**)resizeIntermediary;
 
@@ -169,7 +169,7 @@ namespace Memory
 		newBlock->Size     = _sizeOfAllocation;
 		newBlock->Location = AllocateMemory(_sizeOfAllocation);
 
-		if (newBlock->Location != NULL)
+		if (newBlock->Location != nullptr)
 		{
 			return newBlock->Location;
 		}
@@ -181,15 +181,15 @@ namespace Memory
 		}
 	}
 
-	Address Internal_GlobalReallocate(Address _location, size_t _sizeForReallocation)
+	Address Internal_GlobalReallocate(Address _location, uIntDM _sizeForReallocation)
 	{
-		for (size_t index = 0; index < GlobalMemory.Length; index++)
+		for (uIntDM index = 0; index < GlobalMemory.Length; index++)
 		{
 			if (GlobalMemory.Array[index]->Location == _location)
 			{
 				Address resizeIntermediary = Reallocate(_location, _sizeForReallocation);
 
-				if (resizeIntermediary != NULL)
+				if (resizeIntermediary != nullptr)
 				{
 					GlobalMemory.Array[index]->Location = resizeIntermediary;
 
@@ -197,17 +197,17 @@ namespace Memory
 				}
 				else
 				{
-					return NULL;
+					return nullptr;
 				}
 			}
 		}
 
-		return NULL;
+		return nullptr;
 	}
 
 	void GlobalDeallocate(void)
 	{
-		for (size_t index = 0; index < GlobalMemory.Length; index++)
+		for (uIntDM index = 0; index < GlobalMemory.Length; index++)
 		{
 			Deallocate(GlobalMemory.Array[index]->Location);
 

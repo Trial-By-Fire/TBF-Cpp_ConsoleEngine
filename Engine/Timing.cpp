@@ -29,7 +29,7 @@ namespace Timing
 
 	// Public
 
-	const Data* GetContext(void)
+	ro Data* GetContext(void)
 	{
 		return &Timing;
 	}

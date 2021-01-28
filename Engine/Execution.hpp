@@ -13,14 +13,14 @@
 
 // Enumerators
 
-enum ExecFlags
+enum class ExitCode
 {
-	ExecFlags_Sucess = EXIT_SUCCESS,
+	Success = EXIT_SUCCESS
 };
 
 
 
 // Functions
 
-ExecFlags EntryPoint(void);
+ExitCode EntryPoint(void);
 

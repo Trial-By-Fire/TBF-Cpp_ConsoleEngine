@@ -41,14 +41,14 @@ namespace Game
 
 	void MainMenu_PressQuit(void)
 	{
-		Cycler::Quit();
+		Cycler::Lapse();
 	}
 
 	void Game_EntryState_OnKeyArrowUp(Input::EState _state)
 	{
 		switch (_state)
 		{
-			case Input::EInput_Pressed:
+			case Input::EState::Pressed:
 			{
 				WriteToLog((WideChar*)L"EntryState: On Key Up");
 
@@ -63,7 +63,7 @@ namespace Game
 	{
 		switch (_state)
 		{
-			case Input::EInput_Pressed:
+			case Input::EState::Pressed:
 			{
 				WriteToLog((WideChar*)L"EntryState: On Key Down");
 
@@ -78,7 +78,7 @@ namespace Game
 	{
 		switch (_state)
 		{
-			case Input::EInput_Pressed:
+			case Input::EState::Pressed:
 			{
 				WriteToLog((WideChar*)L"EntryState: On Key Enter");
 
@@ -93,9 +93,9 @@ namespace Game
 	{
 		if (! Menu_DoneOnce)
 		{
-			MenuWidget.TextUIs           = NULL;
+			MenuWidget.TextUIs           = nullptr;
 			MenuWidget.Num_TextUIs       = 0;
-			MenuWidget.Grid.Buttons      = NULL;
+			MenuWidget.Grid.Buttons      = nullptr;
 			MenuWidget.Grid.Num          = 0;
 			MenuWidget.Grid.CurrentIndex = 0;
 
@@ -143,9 +143,9 @@ namespace Game
 			Menu_DoneOnce = true;
 		}
 
-		Input::SubscribeTo(EKeyCode::Key_Arrow_Up  , &Game_EntryState_OnKeyArrowUp  );
-		Input::SubscribeTo(EKeyCode::Key_Arrow_Down, &Game_EntryState_OnKeyArrowDown);
-		Input::SubscribeTo(EKeyCode::Key_Enter     , &Game_EntryState_OnKeyEnter    );
+		Input::SubscribeTo(EKeyCode::Arrow_Up  , &Game_EntryState_OnKeyArrowUp  );
+		Input::SubscribeTo(EKeyCode::Arrow_Down, &Game_EntryState_OnKeyArrowDown);
+		Input::SubscribeTo(EKeyCode::Enter     , &Game_EntryState_OnKeyEnter    );
 
 		if (Log_Load)
 		{
@@ -157,9 +157,9 @@ namespace Game
 
 	void MainMenu_Unload(void)
 	{
-		Input::Unsubscribe(EKeyCode::Key_Arrow_Up  , &Game_EntryState_OnKeyArrowUp  );
-		Input::Unsubscribe(EKeyCode::Key_Arrow_Down, &Game_EntryState_OnKeyArrowDown);
-		Input::Unsubscribe(EKeyCode::Key_Enter     , &Game_EntryState_OnKeyEnter    );
+		Input::Unsubscribe(EKeyCode::Arrow_Up  , &Game_EntryState_OnKeyArrowUp  );
+		Input::Unsubscribe(EKeyCode::Arrow_Down, &Game_EntryState_OnKeyArrowDown);
+		Input::Unsubscribe(EKeyCode::Enter     , &Game_EntryState_OnKeyEnter    );
 
 		if (Log_Unload)
 		{
@@ -188,11 +188,11 @@ namespace Engine
 	{
 		using namespace Game;
 
-		static bool stateConstructed = false;
+		unbound bool stateConstructed = false;
 
 		if (!stateConstructed)
 		{
-			MainMenu.Load = &MainMenu_Load;
+			MainMenu.Load   = &MainMenu_Load;
 			MainMenu.Unload = &MainMenu_Unload;
 			MainMenu.Update = &MainMenu_Update;
 			MainMenu.Render = &MainMenu_Render;

@@ -19,7 +19,7 @@ namespace Game
 
 	StateObj LevelState;
 
-	StateObj* LevelState_CurrentSubstate = NULL;
+	StateObj* LevelState_CurrentSubstate = nullptr;
 
 
 
@@ -36,7 +36,7 @@ namespace Game
 	{
 		LevelState_CurrentSubstate->Unload();
 
-		LevelState_CurrentSubstate = NULL;
+		LevelState_CurrentSubstate = nullptr;
 	}
 
 	void Update_Level(void)
@@ -55,7 +55,7 @@ namespace Game
 
 	StateObj* GetLevelState(void)
 	{
-		static bool stateConstructed = false;
+		unbound bool stateConstructed = false;
 
 		if (! stateConstructed)
 		{
@@ -72,7 +72,7 @@ namespace Game
 
 	void LevelState_SetSubstate(StateObj* _state)
 	{
-		if (LevelState_CurrentSubstate != NULL)
+		if (LevelState_CurrentSubstate != nullptr)
 		{
 			LevelState_CurrentSubstate->Unload();
 		}

@@ -11,11 +11,9 @@
 
 
 
-namespace Memory
+class Memory
 {
-	// Public
-
-
+public:
 
 	// Aliases (Typedefs)
 
@@ -25,15 +23,20 @@ namespace Memory
 
 	// Structures
 
-	struct Block
-	{
-		Address Location;
-
-		uIntDM Size;
-	};
-
 	struct BlockArray
 	{
+		struct Block
+		{
+			Address Location;
+
+			uIntDM Size;
+		};
+
+		void   Add       (Block* _memoryAllocation);
+		Block* LastEntry ();
+		void   Deallocate();
+
+
 		Block** Array;
 
 		uIntDM Length;
@@ -45,26 +48,25 @@ namespace Memory
 
 	// C-API
 
-	void* AllocateMemory(uIntDM _amountToAllocate  );
-	void  Deallocate    (void*  _memoryToDeallocate);
+	unbound void* Allocate  (uIntDM _amountToAllocate  );
+	unbound void  Deallocate(void*  _memoryToDeallocate);
 
-	void* Internal_FormatByFill(void* _memoryAddress,    sInt  _fillValue,  uIntDM _sizeOfData);
-	void* FormatWithData       (void* _memoryAddress, ro void* _dataSource, uIntDM _sizeOfData);
-
-	// Memory Allocation Array
-
-	void   BlockArray_Add       (BlockArray* _memoryArray, Block* _memoryAllocation);
-	Block* BlockArray_LastEntry (BlockArray* _memoryArray                          );
-	void   BlockArray_Deallocate(BlockArray* _memoryArray                          );
+	unbound void* Internal_FormatByFill(void* _memoryAddress,    sInt  _fillValue,  uIntDM _sizeOfData);
+	unbound void* FormatWithData       (void* _memoryAddress, ro void* _dataSource, uIntDM _sizeOfData);
 
 	// Memory Management
 
-	Address Internal_ScopedAllocate(BlockArray* _scopedAllocations, uIntDM _sizeOfAllocation);
-	void    ScopedDeallocate       (BlockArray* _scopedAllocations                          );
+	Address Internal_Allocate(uIntDM _sizeOfAllocation);
+	void    Deallocate       ();
 
-	Address Internal_GlobalAllocate  (                   uIntDM _sizeOfAllocation   );
-	Address Internal_GlobalReallocate(Address _location, uIntDM _sizeForReallocation);
-	void    GlobalDeallocate         (void                                          );
+	unbound Address Internal_GlobalAllocate  (                   uIntDM _sizeOfAllocation   );
+	unbound Address Internal_GlobalReallocate(Address _location, uIntDM _sizeForReallocation);
+	unbound void    GlobalDeallocate         (void                                          );
+
+
+private:
+
+	BlockArray records = { nullptr, 0 };
 
 
 
@@ -77,22 +79,18 @@ namespace Memory
 	Memory::Internal_GlobalReallocate(_address, sizeof(_type) * _numberToReallocate);
 
 	#define ScopedAllocate(_type, _numberToAllocate)  \
-	Memory::Internal_ScopedAllocate(&scopedMemory, sizeof(_type) * _numberToAllocate)
+	scopedMemory.Internal_Allocate(sizeof(_type) * _numberToAllocate)
 
 	#define Memory_FormatByFill(_type, _memoryAddress, _fillValue, _sizeOfAllocation) \
 	Memory::Internal_FormatByFill(_memoryAddress, _fillValue, sizeof(_type) * _sizeOfAllocation);
 
 	#define SmartScope                    \
 	{					                  \
-		Memory::BlockArray scopedMemory = \
-		{ nullptr, 0U };
+		Memory scopedMemory;
 
 
 	#define SmartScope_End                           \
-		if (scopedMemory.Array != nullptr)              \
-		{								             \
-			Memory::ScopedDeallocate(&scopedMemory); \
-		}											 \
+			scopedMemory.Deallocate(); \
 	}
-}
+};
 

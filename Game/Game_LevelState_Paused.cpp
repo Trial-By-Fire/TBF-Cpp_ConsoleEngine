@@ -16,7 +16,7 @@ namespace Game
 
 	// Private
 
-	StateObj Paused_State;
+	State::Callbacks Paused_State;
 
 	UI_Widget PauseWidget;
 
@@ -49,7 +49,7 @@ namespace Game
 	{
 		Ingame_Reload();
 
-		State::SetState(Engine::LoadGame());
+		State::SetEngineState(Engine::LoadGame());
 	}
 
 	void LevelState_Paused_OnKeyEnter(Input::EState _state)
@@ -58,7 +58,7 @@ namespace Game
 		{
 			case Input::EState::Pressed:
 			{
-				UI_Widget_Select(&PauseWidget);
+				PauseWidget.Select();
 
 				break;
 			}
@@ -73,7 +73,7 @@ namespace Game
 			{
 				WriteToLog((WideChar*)L"Pause: On Key Up");
 
-				UI_Widget_MoveUp(&PauseWidget);
+				PauseWidget.MoveUp();
 
 				break;
 			}
@@ -88,7 +88,7 @@ namespace Game
 			{
 				WriteToLog((WideChar*)L"Pause: On Key Down");
 
-				UI_Widget_MoveDown(&PauseWidget);
+				PauseWidget.MoveDown();
 
 				break;
 			}
@@ -113,10 +113,8 @@ namespace Game
 			startCell.X = 0; endCell.X = 0;
 			startCell.Y = 9; endCell.Y = 9;
 
-			UI_Widget_AddText
+			PauseWidget.AddText
 			(
-				&PauseWidget,
-
 				L"Paused\0",
 				startCell, 
 				endCell,
@@ -125,10 +123,8 @@ namespace Game
 
 			startCell.Y = 15; endCell.Y = 15;
 
-			UI_Widget_AddButton
+			PauseWidget.AddButton
 			(
-				&PauseWidget,
-
 				L"Resume\0",
 				startCell, endCell,
 				true,
@@ -138,10 +134,8 @@ namespace Game
 			startCell.X = 0;  endCell.X = 0;
 			startCell.Y = 17; endCell.Y = 17;
 
-			UI_Widget_AddButton
+			PauseWidget.AddButton
 			(
-				&PauseWidget,
-
 				L"Quit to Menu\0",
 				startCell, endCell,
 				true,
@@ -169,14 +163,14 @@ namespace Game
 
 	void Render_Paused(void)
 	{
-		UI_Widget_Render(&PauseWidget);
+		PauseWidget.Render();
 	}
 
 
 
 	// Public
 
-	StateObj* GetPausedState(void)
+	State::Callbacks* GetPausedState(void)
 	{
 		unbound bool stateConstructed = false;
 

@@ -17,9 +17,11 @@ namespace Game
 
 	// Private
 
-	StateObj LevelState;
+	State::Callbacks LevelState;
 
-	StateObj* LevelState_CurrentSubstate = nullptr;
+	State::Callbacks* LevelState_CurrentSubstate = nullptr;
+
+	State Substate;
 
 
 
@@ -29,31 +31,29 @@ namespace Game
 
 	void Load_Level(void)
 	{
-		LevelState_SetSubstate(GetIngameState());
+		Substate.Set(GetIngameState());
 	}
 
 	void Unload_Level(void)
 	{
-		LevelState_CurrentSubstate->Unload();
-
-		LevelState_CurrentSubstate = nullptr;
+		Substate.Unload();
 	}
 
 	void Update_Level(void)
 	{
-		LevelState_CurrentSubstate->Update();
+		Substate.Update();
 	}
 
 	void Render_Level(void)
 	{
-		LevelState_CurrentSubstate->Render();
+		Substate.Render();
 	}
 
 
 
 	// Public
 
-	StateObj* GetLevelState(void)
+	State::Callbacks* GetLevelState(void)
 	{
 		unbound bool stateConstructed = false;
 
@@ -70,16 +70,9 @@ namespace Game
 		return &LevelState;
 	}
 
-	void LevelState_SetSubstate(StateObj* _state)
+	void LevelState_SetSubstate(State::Callbacks* _state)
 	{
-		if (LevelState_CurrentSubstate != nullptr)
-		{
-			LevelState_CurrentSubstate->Unload();
-		}
-
-		LevelState_CurrentSubstate = _state;
-
-		LevelState_CurrentSubstate->Load();
+		Substate.Set(_state);
 	}
 }
 

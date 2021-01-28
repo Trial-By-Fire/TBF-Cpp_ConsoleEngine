@@ -10,16 +10,11 @@
 
 
 
-
-namespace Input
+class Input
 {
-	using OSPlatform::EKeyCode;
+public:
 
-
-	// Constants
-
-	CompileTime uIntDM Keys_NumTracked = 6;
-
+	using EKeyCode = OSPlatform::EKeyCode;
 
 
 	// Enums
@@ -36,28 +31,33 @@ namespace Input
 
 	// Aliases (Typedefs)
 
-	using BoolArray_KeySignals = bool[Keys_NumTracked];
-
 	using EventFunction = void(EState);
 
 	using EventFunctionPtr = EventFunction*;
 
 
+	// Constants
+
+	unbound CompileTime uIntDM Keys_NumTracked = 6;;
+
 
 	// Structures
 
-	struct StructOf_KeySignals
-	{
-		bool Up;
-		bool Down;
-		bool Left;
-		bool Right;
-		bool Enter;
-		bool Tab;
-	};
-
 	struct SignalState
 	{
+		struct StructOf_KeySignals
+		{
+			bool Up;
+			bool Down;
+			bool Left;
+			bool Right;
+			bool Enter;
+			bool Tab;
+		};
+
+		using BoolArray_KeySignals = bool[Keys_NumTracked];
+
+
 		union
 		{
 			BoolArray_KeySignals Array;
@@ -90,14 +90,19 @@ namespace Input
 
 	// Functions
 
-	ro Data* GetContext(void);
+	unbound ro Data* GetContext(void);
 
-	void LoadModule(void);
+	unbound void LoadModule(void);
 
-	void Update(void);
+	unbound void Update(void);
 
-	void SubscribeTo(EKeyCode _key, EventFunction* _callbackFunction);
+	unbound void SubscribeTo(EKeyCode _key, EventFunction* _callbackFunction);
 
-	void Unsubscribe(EKeyCode _key, EventFunction* _callbackFunction);
-}
+	unbound void Unsubscribe(EKeyCode _key, EventFunction* _callbackFunction);
+
+
+private:
+
+	unbound Data Context;
+};
 

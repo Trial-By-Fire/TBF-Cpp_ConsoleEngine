@@ -17,7 +17,7 @@ namespace Game
 
 	// Private
 
-	StateObj Ingame_State;
+	State::Callbacks Ingame_State;
 
 	UI_Text Ingame_Text;
 
@@ -125,10 +125,8 @@ namespace Game
 				start = { 1, 1 }, 
 				end   = { 1, 1 } ;
 
-			UI_Text_Create
+			Ingame_Text.Create
 			(
-				&Ingame_Text,
-
 				(WideChar*)L"Press enter to pause.\0",
 				start, end,
 				false
@@ -137,19 +135,15 @@ namespace Game
 			start.X = 0; start.Y = 9;
 			end  .X = 0; end  .Y = 9;
 			
-			UI_Text_Create
+			Ingame_GameOver_Fell.Create
 			(
-				&Ingame_GameOver_Fell,
-
 				(WideChar*)L"Game Over: You fell\0",
 				start, end,
 				true
 			);
 
-			UI_Text_Create
+			Ingame_GameOver_MadeIt.Create
 			(
-				&Ingame_GameOver_MadeIt,
-
 				(WideChar*)L"Game Over: You Made It!\0",
 				start, end,
 				true
@@ -160,84 +154,84 @@ namespace Game
 			start.X = 0;                          start.Y = Renderer::GameEnd - 1;
 			end  .X = Renderer::BufferWidth - 70; end  .Y = Renderer::GameEnd - 1;
 
-			Level_SetCells(&Level1, start, end, ELevelCell::Ground);
+			Level1.SetCells(start, end, ELevelCell::Ground);
 
 			start.X = 0;                    start.Y = Renderer::GameEnd;
 			end  .X = Renderer::BufferWidth - 70; end  .Y = Renderer::GameEnd;
 
-			Level_SetCells(&Level1, start, end, ELevelCell::Ground);
+			Level1.SetCells(start, end, ELevelCell::Ground);
 
 			start.X = Renderer::BufferWidth - 70; start.Y = Renderer::GameEnd;
 			end  .X = Renderer::BufferWidth - 60; end  .Y = Renderer::GameEnd;
 
-			Level_SetCells(&Level1, start, end, ELevelCell::Pit);
+			Level1.SetCells(start, end, ELevelCell::Pit);
 
 			start.X = Renderer::BufferWidth - 60; start.Y = Renderer::GameEnd -1;
 			end  .X = Renderer::BufferWidth - 40; end  .Y = Renderer::GameEnd -1;
 
-			Level_SetCells(&Level1, start, end, ELevelCell::Ground);
+			Level1.SetCells(start, end, ELevelCell::Ground);
 
 			start.X = Renderer::BufferWidth - 60; start.Y = Renderer::GameEnd;
 			end  .X = Renderer::BufferWidth - 40; end  .Y = Renderer::GameEnd;
 
-			Level_SetCells(&Level1, start, end, ELevelCell::Ground);
+			Level1.SetCells(start, end, ELevelCell::Ground);
 
 			start.X = Renderer::BufferWidth - 40; start.Y = Renderer::GameEnd;
 			end  .X = Renderer::BufferWidth - 20; end  .Y = Renderer::GameEnd;
 
-			Level_SetCells(&Level1, start, end, ELevelCell::Pit);
+			Level1.SetCells(start, end, ELevelCell::Pit);
 
 			start.X = Renderer::BufferWidth - 20; start.Y = Renderer::GameEnd - 1;
 			end  .X = Renderer::BufferWidth;      end  .Y = Renderer::GameEnd - 1;
 
-			Level_SetCells(&Level1, start, end, ELevelCell::Ground);
+			Level1.SetCells(start, end, ELevelCell::Ground);
 
 			start.X = Renderer::BufferWidth - 20; start.Y = Renderer::GameEnd;
 			end  .X = Renderer::BufferWidth;      end  .Y = Renderer::GameEnd;
 
-			Level_SetCells(&Level1, start, end, ELevelCell::Ground);
+			Level1.SetCells(start, end, ELevelCell::Ground);
 
 			// Level 2
 
 			start.X = 0;                          start.Y = Renderer::GameEnd - 1;
 			end  .X = Renderer::BufferWidth - 40; end  .Y = Renderer::GameEnd - 1;
 
-			Level_SetCells(&Level2, start, end, ELevelCell::Ground);
+			Level2.SetCells(start, end, ELevelCell::Ground);
 
 			start.X = 0;                          start.Y = Renderer::GameEnd;
 			end  .X = Renderer::BufferWidth - 40; end  .Y = Renderer::GameEnd;
 
-			Level_SetCells(&Level2, start, end, ELevelCell::Ground);
+			Level2.SetCells(start, end, ELevelCell::Ground);
 
 			start.X = Renderer::BufferWidth - 40; start.Y = Renderer::GameEnd;
 			end  .X = Renderer::BufferWidth - 25; end  .Y = Renderer::GameEnd;
 
-			Level_SetCells(&Level2, start, end, ELevelCell::Pit);
+			Level2.SetCells(start, end, ELevelCell::Pit);
 
 			start.X = Renderer::BufferWidth - 25; start.Y = Renderer::GameEnd -1;
 			end  .X = Renderer::BufferWidth - 20; end  .Y = Renderer::GameEnd -1;
 
-			Level_SetCells(&Level2, start, end, ELevelCell::Ground);
+			Level2.SetCells(start, end, ELevelCell::Ground);
 
 			start.X = Renderer::BufferWidth - 25; start.Y = Renderer::GameEnd;
 			end  .X = Renderer::BufferWidth - 20; end  .Y = Renderer::GameEnd;
 
-			Level_SetCells(&Level2, start, end, ELevelCell::Ground);
+			Level2.SetCells(start, end, ELevelCell::Ground);
 		 
 			start.X = Renderer::BufferWidth - 20; start.Y = Renderer::GameEnd;
 			end  .X = Renderer::BufferWidth - 10; end  .Y = Renderer::GameEnd;
 
-			Level_SetCells(&Level2, start, end, ELevelCell::Pit);
+			Level2.SetCells(start, end, ELevelCell::Pit);
 
 			start.X = Renderer::BufferWidth - 10; start.Y = Renderer::GameEnd - 1;
 			end  .X = Renderer::BufferWidth;      end  .Y = Renderer::GameEnd - 1;
 
-			Level_SetCells(&Level2, start, end, ELevelCell::Finish);
+			Level2.SetCells(start, end, ELevelCell::Finish);
 
 			start.X = Renderer::BufferWidth - 10; start.Y = Renderer::GameEnd;
 			end  .X = Renderer::BufferWidth;      end  .Y = Renderer::GameEnd;
 
-			Level_SetCells(&Level2, start, end, ELevelCell::Finish);
+			Level2.SetCells(start, end, ELevelCell::Finish);
 
 
 			Ingame_DoneOnce = true;
@@ -245,7 +239,7 @@ namespace Game
 
 		if (ShouldReload == true)
 		{
-			Character_Load(&Player);
+			Player.Load();
 
 			CurrentLevel = 1;
 
@@ -268,14 +262,14 @@ namespace Game
 
 	void Update_Ingame(void)
 	{
-		if (CurrentLevel == 2 && ! Character_AtFinish(&Player, &Level2))
+		if (CurrentLevel == 2 && ! Player.AtFinish(&Level2))
 		{
-			Character_Update(&Player, &Level2);	
+			Player.Update(&Level2);	
 		}
 
 		if (CurrentLevel == 1)
 		{
-			Character_Update(&Player, &Level1);
+			Player.Update(&Level1);
 		}
 
 		if (CurrentLevel == 1 && Player.Position.X >= 0.98f)
@@ -290,25 +284,25 @@ namespace Game
 	{
 		if (CurrentLevel == 1)
 		{
-			Level_Render(&Level1);
+			Level1.Render();
 		}
 		else
 		{
-			Level_Render(&Level2);
+			Level2.Render();
 		}
 
-		UI_Text_Render(&Ingame_Text);
+		Ingame_Text.Render();
 
-		Character_Render(&Player);	
+		Player.Render();	
 
 		if (Player.Fell)
 		{
-			UI_Text_Render(&Ingame_GameOver_Fell);
+			Ingame_GameOver_Fell.Render();
 		}
 
-		if (CurrentLevel == 2 && Character_AtFinish(&Player, &Level2))
+		if (CurrentLevel == 2 && Player.AtFinish(&Level2))
 		{
-			UI_Text_Render(&Ingame_GameOver_MadeIt);
+			Ingame_GameOver_MadeIt.Render();
 		}
 	}
 
@@ -316,7 +310,7 @@ namespace Game
 
 	// Public
 
-	StateObj* GetIngameState(void)
+	State::Callbacks* GetIngameState(void)
 	{
 		unbound bool stateConstructed = false;
 

@@ -14,27 +14,26 @@ namespace Intro
 {
 	using OSPlatform::Console_WhiteCell;
 
-	using Timing::TimerData;
 
 
-	StateObj IntroState;
+	State::Callbacks IntroState;
 
-	TimerData IntroTimer;
+	Timer IntroTimer;
 
-	TimerData Timer_TillTitle;
-	TimerData Timer_TillVersion;
-	TimerData Timer_TillIntroFadeToGrey;
+	Timer Timer_TillTitle;
+	Timer Timer_TillVersion;
+	Timer Timer_TillIntroFadeToGrey;
 
-	TimerData Timer_TillTitle_ToWhite;
-	TimerData Timer_TillVersion_ToWhite;
+	Timer Timer_TillTitle_ToWhite;
+	Timer Timer_TillVersion_ToWhite;
 
-	TimerData Timer_Till_FadeOut;
+	Timer Timer_Till_FadeOut;
 
 
 	bool Intro_DoneOnce = false;
 
 	CTS_CWString IntroTitle    = L"Trial By Fire Engine";
-	CTS_CWString EngineVersion = L"Type C Phase 14"     ;
+	CTS_CWString EngineVersion = L"Type C++"           ;
 
 	bool 
 		RenderTitle   = false, 
@@ -139,8 +138,8 @@ namespace Intro
 
 	void IntroState_Update(void)
 	{
-		using Renderer::WriteToLog;
-		using Renderer::WriteToPersistentSection;
+		unbound CompileTime auto WriteToLog               =  Renderer::WriteToLog;
+		unbound CompileTime auto WriteToPersistentSection =  Renderer::WriteToPersistentSection;
 
 
 		static bool 
@@ -155,13 +154,13 @@ namespace Intro
 			Log_FadeToGrey = true;
 
 
-		Timer_Tick(&IntroTimer);
+		IntroTimer.Tick();
 
-		Timer_Tick(&Timer_TillTitle);
+		Timer_TillTitle.Tick();
 
 		WriteToPersistentSection(4, (WideChar*)L"Intro Time Elapsed: %.7Lf", IntroTimer.Elapsed);
 
-		if (Timer_Ended(&Timer_TillTitle))
+		if (Timer_TillTitle.Ended())
 		{
 			if (LogTitle)
 			{
@@ -172,9 +171,9 @@ namespace Intro
 				LogTitle = false;
 			}
 
-			Timer_Tick(&Timer_TillTitle_ToWhite);
+			Timer_TillTitle_ToWhite.Tick();
 
-			if (Log_ChangeToWhite_Title &&  Timer_Ended(&Timer_TillTitle_ToWhite))
+			if (Log_ChangeToWhite_Title &&  Timer_TillTitle_ToWhite.Ended())
 			{
 				ChangeTitleTo_White();
 
@@ -183,9 +182,9 @@ namespace Intro
 				Log_ChangeToWhite_Title = false;
 			}
 
-			Timer_Tick(&Timer_TillVersion);
+			Timer_TillVersion.Tick();
 
-			if (LogVersion && Timer_Ended(&Timer_TillVersion))
+			if (LogVersion && Timer_TillVersion.Ended())
 			{
 				WriteToLog((WideChar*)L"Version should show up now.");
 
@@ -196,9 +195,9 @@ namespace Intro
 
 			if (RenderVersion)
 			{
-				Timer_Tick(&Timer_TillVersion_ToWhite);
+				Timer_TillVersion_ToWhite.Tick();
 
-				if (Log_ChangeToWhite_Version && Timer_Ended(&Timer_TillVersion_ToWhite))
+				if (Log_ChangeToWhite_Version && Timer_TillVersion_ToWhite.Ended())
 				{
 					ChangeEngineVerTo_White();
 
@@ -209,9 +208,9 @@ namespace Intro
 			}
 		}
 
-		Timer_Tick(&Timer_TillIntroFadeToGrey);
+		Timer_TillIntroFadeToGrey.Tick();
 
-		if (Timer_Ended(&Timer_TillIntroFadeToGrey))
+		if (Timer_TillIntroFadeToGrey.Ended())
 		{
 			ChangeTitleTo_Grey();
 
@@ -224,9 +223,9 @@ namespace Intro
 				Log_FadeToGrey = false;
 			}
 
-			Timer_Tick(&Timer_Till_FadeOut);
+			Timer_Till_FadeOut.Tick();
 
-			if (LogFade && Timer_Ended(&Timer_Till_FadeOut))
+			if (LogFade && Timer_Till_FadeOut.Ended())
 			{
 				WriteToLog((WideChar*)L"Title should fade out now.");
 
@@ -237,7 +236,7 @@ namespace Intro
 			}
 		}
 
-		if (LogEnd && Timer_Ended(&IntroTimer) )
+		if (LogEnd && IntroTimer.Ended() )
 		{
 			WriteToLog((WideChar*)L"Intro Ends now.");
 
@@ -249,7 +248,7 @@ namespace Intro
 
 	void IntroState_Render(void)
 	{
-		using Renderer::WriteToBufferCells;
+		unbound CompileTime auto WriteToBufferCells = Renderer::WriteToBufferCells;
 
 
 		unbound COORD
@@ -286,7 +285,7 @@ namespace Intro
 
 	// Public
 
-	StateObj* GetState(void)
+	State::Callbacks* GetState(void)
 	{
 		unbound bool firstGet = true;
 

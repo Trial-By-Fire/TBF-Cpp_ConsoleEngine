@@ -10,7 +10,7 @@
 
 namespace Game
 {
-	StateObj* GetIngameState(void);
+	State::Callbacks* GetIngameState(void);
 
 	void Ingame_Reload(void);
 }

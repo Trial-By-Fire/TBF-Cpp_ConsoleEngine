@@ -9,14 +9,16 @@
 
 
 
-namespace Cycler
+class Cycler
 {
+public:
+
 	// Functions
 
-	void Initialize(void);
+	unbound void Initialize(void);
 
-	void Lapse(void);
+	unbound void Lapse(void);
 
-	void LoadModule(void);
-}
+	unbound void LoadModule(void);
+};
 

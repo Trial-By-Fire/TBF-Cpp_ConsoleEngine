@@ -9,105 +9,92 @@
 
 
 
-namespace Timing
+// Static Data
+
+// Private
+
+Timing::Data Timing::Context;
+
+
+
+// Functions
+
+// Public
+
+ro Timing::Data* Timing::GetContext(void)
 {
-	// Static Data
+	return &Context;
+}
 
-	// Private
+void Timing::LoadModule(void)
+{
+	InitalizeData();
+}
 
-	Data Timing;
+void Timing::TakeInitialSnapshot(void)
+{
+	QueryPerformanceCounter(&Context.TimeSnapshot_Initial);
+}
+
+void Timing::TakeEndingSnapshot(void)
+{
+	QueryPerformanceCounter(&Context.TimeSnapshot_End);
+}
+
+void Timing::Update(void)
+{
+	Context.Cycle_TicksElapsed = Context.TimeSnapshot_End.QuadPart - Context.TimeSnapshot_Initial.QuadPart;
+
+	Context.Cycle_Microseconds = (float64)(Context.Cycle_TicksElapsed * TickToMicroseconds);
+	Context.Cycle_Microseconds = Context.Cycle_Microseconds / (float64)Context.TimeFrequency.QuadPart;
+
+	Context.DeltaTime = (float64)Context.Cycle_TicksElapsed / (float64)MicrosecondToSecond;
+
+	Renderer::ProcessTiming(Context.DeltaTime);
+}
+
+// Private
+
+void Timing::InitalizeData(void)
+{
+	Context.Cycle_TicksElapsed = 0;
+	Context.Cycle_Microseconds = 0.0L;
+	Context.DeltaTime          = 0.0L;
+
+	QueryPerformanceFrequency(&Context.TimeFrequency);
+
+	return;
+}
 
 
 
-	// Forward Declarations
+// Timer
 
-	void Timing_InitalizeData(void);
+bool Timer::Ended()
+{
+	return
+		Float64_ApproxGreater(Elapsed, EndTime) ||
+		Float64_ApproxEqual  (Elapsed, EndTime);
+}
 
+void Timer::Reset()
+{
+	Elapsed = 0.0L;
+}
 
-
-	// Functions
-
-	// Public
-
-	ro Data* GetContext(void)
+void Timer::Tick()
+{
+	if (Float64_ApproxEqual(Timing::Context.DeltaTime, 0.000001L) || Float64_ApproxLess(Timing::Context.DeltaTime, 0.000001L))
 	{
-		return &Timing;
-	}
-
-	void LoadModule(void)
-	{
-		Timing_InitalizeData();
-	}
-
-	void TakeInitialSnapshot(void)
-	{
-		QueryPerformanceCounter(&Timing.TimeSnapshot_Initial);
-	}
-
-	void TakeEndingSnapshot(void)
-	{
-		QueryPerformanceCounter(&Timing.TimeSnapshot_End);
-	}
-
-	void Update(void)
-	{
-		Timing.Cycle_TicksElapsed = Timing.TimeSnapshot_End.QuadPart - Timing.TimeSnapshot_Initial.QuadPart;
-
-		Timing.Cycle_Microseconds = (float64)(Timing.Cycle_TicksElapsed * TickToMicroseconds);
-		Timing.Cycle_Microseconds = Timing.Cycle_Microseconds / (float64)Timing.TimeFrequency.QuadPart;
-
-		Timing.DeltaTime = (float64)Timing.Cycle_TicksElapsed / (float64)MicrosecondToSecond;
-
-		Renderer::ProcessTiming(Timing.DeltaTime);
-	}
-
-	// Private
-
-	void Timing_InitalizeData(void)
-	{
-		Timing.Cycle_TicksElapsed = 0;
-		Timing.Cycle_Microseconds = 0.0L;
-		Timing.DeltaTime          = 0.0L;
-
-		QueryPerformanceFrequency(&Timing.TimeFrequency);
+		Elapsed = Elapsed + 0.000001L;
 
 		return;
 	}
-
-
-
-	// Timer Class
-
-	// Functions
-
-	// Public
-
-	bool Timer_Ended(TimerData* _timer)
+	else
 	{
-		return 
-			Float64_ApproxGreater(_timer->Elapsed, _timer->EndTime) || 
-			Float64_ApproxEqual  (_timer->Elapsed, _timer->EndTime)   ;
-	}
+		Elapsed = Elapsed + Timing::Context.DeltaTime;
 
-	void Timer_Reset(TimerData* _timer)
-	{
-		_timer->Elapsed = 0.0L;
-	}
-
-	void Timer_Tick(TimerData* _timer)
-	{
-		if (Float64_ApproxEqual(Timing.DeltaTime, 0.000001L) || Float64_ApproxLess(Timing.DeltaTime, 0.000001L))
-		{
-			_timer->Elapsed = _timer->Elapsed + 0.000001L;
-
-			return;
-		}
-		else
-		{
-			_timer->Elapsed = _timer->Elapsed + Timing.DeltaTime;
-
-			return;
-		}
+		return;
 	}
 }
 

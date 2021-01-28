@@ -11,8 +11,8 @@ namespace Game
 {
 	// Functions
 
-	StateObj* GetLevelState(void);
+	State::Callbacks* GetLevelState(void);
 
-	void LevelState_SetSubstate(StateObj* _state);
+	void LevelState_SetSubstate(State::Callbacks* _state);
 }
 

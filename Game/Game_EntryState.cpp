@@ -16,7 +16,7 @@ namespace Game
 
 	// Private
 
-	StateObj MainMenu;
+	State::Callbacks MainMenu;
 
 	UI_Widget MenuWidget;
 
@@ -36,7 +36,7 @@ namespace Game
 	{
 		WriteToLog((WideChar*)L"UI Start Selected");
 
-		State::SetState(GetLevelState());
+		State::SetEngineState(GetLevelState());
 	}
 
 	void MainMenu_PressQuit(void)
@@ -52,7 +52,7 @@ namespace Game
 			{
 				WriteToLog((WideChar*)L"EntryState: On Key Up");
 
-				UI_Widget_MoveUp(&MenuWidget);
+				MenuWidget.MoveUp();
 
 				break;
 			}
@@ -67,7 +67,7 @@ namespace Game
 			{
 				WriteToLog((WideChar*)L"EntryState: On Key Down");
 
-				UI_Widget_MoveDown(&MenuWidget);
+				MenuWidget.MoveDown();
 
 				break;
 			}
@@ -82,7 +82,7 @@ namespace Game
 			{
 				WriteToLog((WideChar*)L"EntryState: On Key Enter");
 
-				UI_Widget_Select(&MenuWidget);
+				MenuWidget.Select();
 
 				break;
 			}
@@ -105,10 +105,8 @@ namespace Game
 			startCell.Y = 9; endCell.Y = 9;
 
 
-			UI_Widget_AddText
+			MenuWidget.AddText
 			(
-				&MenuWidget,
-
 				L"Generic Platformer Demo\0",
 				startCell, 
 				endCell,
@@ -117,10 +115,8 @@ namespace Game
 
 			startCell.Y = 15; endCell.Y = 15;
 
-			UI_Widget_AddButton
+			MenuWidget.AddButton
 			(
-				&MenuWidget,
-
 				L"Start\0",
 				startCell, endCell,
 				true,
@@ -130,10 +126,8 @@ namespace Game
 			startCell.X = -1; endCell.X = -1;
 			startCell.Y = 17; endCell.Y = 17;
 
-			UI_Widget_AddButton
+			MenuWidget.AddButton
 			(
-				&MenuWidget,
-
 				L"Quit\0",
 				startCell, endCell,
 				true,
@@ -175,7 +169,7 @@ namespace Game
 
 	void MainMenu_Render(void)
 	{
-		UI_Widget_Render(&MenuWidget);
+		MenuWidget.Render();
 	}
 }
 
@@ -184,7 +178,7 @@ namespace Engine
 {
 	// Engine Entrypoint
 
-	StateObj* LoadGame(void)
+	State::Callbacks* LoadGame(void)
 	{
 		using namespace Game;
 

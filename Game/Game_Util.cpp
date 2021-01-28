@@ -12,48 +12,48 @@ namespace Game
 
 	// Character
 
-	bool Character_AtFinish(Character* _character, Level* _level)
+	bool Character::AtFinish(Level* _level)
 	{
-		Vector2D collisionPostion = _character->Position;
+		Vector2D collisionPostion = Position;
 
 		collisionPostion.Y -= 0.085f;
 
-		sInt cellCollided = Level_GetCellAtPosition(_level, collisionPostion);
+		sInt cellCollided = _level->GetCellAtPosition(collisionPostion);
 
 		return cellCollided == ELevelCell::Finish;
 	}
 
-	bool Character_IsGrounded(Character* _character, Level* _level)
+	bool Character::IsGrounded(Level* _level)
 	{
-		Vector2D collisionPostion = _character->Position;
+		Vector2D collisionPostion = Position;
 
 		collisionPostion.Y -= 0.085f;
 
-		sInt cellCollided = Level_GetCellAtPosition(_level, collisionPostion);
+		sInt cellCollided = _level->GetCellAtPosition(collisionPostion);
 
 		return cellCollided == ELevelCell::Ground || cellCollided == ELevelCell::Finish;
 	}
 
-	void Character_Load(Character* _character)
+	void Character::Load()
 	{
-		_character->Sprite.Char.UnicodeChar = 0;
-		_character->Sprite.Attributes       = BACKGROUND_INTENSITY | BACKGROUND_RED | BACKGROUND_GREEN | BACKGROUND_BLUE;
+		Sprite.Char.UnicodeChar = 0;
+		Sprite.Attributes       = BACKGROUND_INTENSITY | BACKGROUND_RED | BACKGROUND_GREEN | BACKGROUND_BLUE;
 
-		_character->Position.X = -0.975f;
-		_character->Position.Y = -0.075f;
+		Position.X = -0.975f;
+		Position.Y = -0.075f;
 
-		_character->VerticalVelocity = 0.0f;
+		VerticalVelocity = 0.0f;
 
-		_character->ShouldJump = false;
-		_character->Fell       = false;
+		ShouldJump = false;
+		Fell       = false;
 
-		_character->MoveState        = ECharacter_Move::Dont;
-		_character->Active_MoveState = ECharacter_Move::Dont;
+		MoveState        = ECharacter_Move::Dont;
+		Active_MoveState = ECharacter_Move::Dont;
 	}
 
-	void Character_Update(Character* _character, Level* _level)
+	void Character::Update(Level* _level)
 	{
-		if (_character->Fell == true) return;
+		if (Fell == true) return;
 
 
 		float32 deltaTime = (float32)Timing::GetContext()->DeltaTime;
@@ -61,64 +61,64 @@ namespace Game
 		unbound float32 velocity = 1.0f;
 		unbound float32 gravity  = 0.00004f;
 
-		Vector2D collisionPostion = _character->Position;
+		Vector2D collisionPostion = Position;
 
 		collisionPostion.Y -= 0.085f;
 
-		sInt cellCollided = Level_GetCellAtPosition(_level, collisionPostion);
+		sInt cellCollided = _level->GetCellAtPosition(collisionPostion);
 
 		if (cellCollided == ELevelCell::Ground || cellCollided == ELevelCell::Finish)
 		{
-			_character->VerticalVelocity = 0.0f;
+			VerticalVelocity = 0.0f;
 
-			_character->Position.Y = -0.9f;
+			Position.Y = -0.9f;
 
-			_character->Active_MoveState = _character->MoveState;
+			Active_MoveState = MoveState;
 		}
 		else if (cellCollided == ELevelCell::Pit)
 		{
-			_character->VerticalVelocity = 0.0f;
+			VerticalVelocity = 0.0f;
 
-			_character->Position.Y = -0.9f;
+			Position.Y = -0.9f;
 
-			_character->Fell = true;
+			Fell = true;
 		}
 		else
 		{
-			_character->VerticalVelocity -= gravity * deltaTime;
+			VerticalVelocity -= gravity * deltaTime;
 
-			_character->Position.Y += _character->VerticalVelocity;
+			Position.Y += VerticalVelocity;
 		}
 
 		if (cellCollided == ELevelCell::Finish) return;
 
-		if (_character->ShouldJump && cellCollided == ELevelCell::Ground)
+		if (ShouldJump && cellCollided == ELevelCell::Ground)
 		{
 			WriteToLog((WideChar*)L"Giving character jump velocity");
 
-			_character->VerticalVelocity = 0.075 * deltaTime;
+			VerticalVelocity = 0.075 * deltaTime;
 
-			_character->Position.Y = -0.75f;
+			Position.Y = -0.75f;
 
-			_character->ShouldJump = false;
+			ShouldJump = false;
 		}
 
-		switch (_character->Active_MoveState)
+		switch (Active_MoveState)
 		{
 			case ECharacter_Move::Left:
 			{
-				if (_character->Position.X > -1.0f)
+				if (Position.X > -1.0f)
 				{
-					_character->Position.X -= velocity * deltaTime;
+					Position.X -= velocity * deltaTime;
 				}
 
 				break;
 			}
 			case ECharacter_Move::Right:
 			{
-				if (_character->Position.X < 1.0f)
+				if (Position.X < 1.0f)
 				{
-					_character->Position.X += velocity * deltaTime;
+					Position.X += velocity * deltaTime;
 				}
 
 				break;
@@ -126,14 +126,14 @@ namespace Game
 		}
 	}
 
-	void Character_Render(Character* _character)
+	void Character::Render()
 	{
-		if (_character->Fell) return;
+		if (Fell) return;
 
-		COORD renderCoord = Convert_Vector2D_ToRenderCoord(_character->Position);
+		COORD renderCoord = Convert_Vector2D_ToRenderCoord(Position);
 
-		WriteToPersistentSection(1, (WideChar*)L"Pos X: %f", _character->Position.X);
-		WriteToPersistentSection(3, (WideChar*)L"Pos Y: %f", _character->Position.Y);
+		WriteToPersistentSection(1, (WideChar*)L"Pos X: %f", Position.X);
+		WriteToPersistentSection(3, (WideChar*)L"Pos Y: %f", Position.Y);
 
 		WriteToPersistentSection(2, (WideChar*)L"RC  X: %u", renderCoord.X);
 		WriteToPersistentSection(4, (WideChar*)L"RC  Y: %u", renderCoord.Y);
@@ -141,7 +141,7 @@ namespace Game
 		if (renderCoord.Y < 0                ) renderCoord.Y = 0;
 		if (renderCoord.Y > Renderer::GameEnd) renderCoord.Y = Renderer::GameEnd;
 
-		WriteToBufferCells(&_character->Sprite, renderCoord, renderCoord);
+		WriteToBufferCells(&Sprite, renderCoord, renderCoord);
 
 		if CompileTime (DebugEnabled)
 		{
@@ -153,7 +153,7 @@ namespace Game
 
 			COORD colliderViewCoord;
 
-			Vector2D collisionPostion = _character->Position;
+			Vector2D collisionPostion = Position;
 
 			collisionPostion.Y -= 0.085f;
 
@@ -168,11 +168,11 @@ namespace Game
 
 	// Level
 
-	sInt Level_GetCellAtPosition(Level* _level, Vector2D _position)
+	sInt Level::GetCellAtPosition(Vector2D _position)
 	{
 		COORD renderCoord = Convert_Vector2D_ToRenderCoord(_position);
 
-		Cell* cellBuffer = (Cell*)_level;
+		Cell* cellBuffer = (Cell*)this;
 
 		uIntDM lineOffset = renderCoord.Y * Renderer::BufferWidth;
 		uIntDM colOffset  = renderCoord.X;
@@ -182,7 +182,7 @@ namespace Game
 		return cellBuffer[totalOffset].Attributes;
 	}
 
-	void Level_SetCells(Level* _level, COORD _firstCell, COORD _lastCell, ELevelCell _cellType) 
+	void Level::SetCells(COORD _firstCell, COORD _lastCell, ELevelCell _cellType) 
 
 	SmartScope
 	{
@@ -192,7 +192,7 @@ namespace Game
 
 		uIntDM totalOffset = lineOffset + colOffset;
 
-		Cell* levelCellBuffer = (Cell*)_level;
+		Cell* levelCellBuffer = (Cell*)this;
 
 		void* bufferOffset = &levelCellBuffer[totalOffset];
 
@@ -220,13 +220,13 @@ namespace Game
 	}
 	SmartScope_End
 
-	void Level_Render(Level* _level)
+	void Level::Render()
 	{
 		COORD 
 			screenStart = {                     0,                 0 }, 
 			screenEnd   = { Renderer::BufferWidth, Renderer::GameEnd } ;
 
-		WriteToBufferCells((Cell*)_level, screenStart, screenEnd);
+		WriteToBufferCells((Cell*)this, screenStart, screenEnd);
 	}
 
 	// Space
@@ -275,61 +275,59 @@ namespace Game
 
 	// Text
 
-	void UI_Text_Create 
+	void UI_Text::Create 
 	(
-		UI_Text*  _uiText, 
-		WideChar* _content, 
-		COORD     _startingCell, 
-		COORD     _endingCell,
-		bool      _shouldCenter
+		ro WideChar* _content, 
+		   COORD     _startingCell, 
+		   COORD     _endingCell,
+		   bool      _shouldCenter
 	)
 	{
 		// Get length of contents.
 
-		_uiText->Length = wcslen(_content) + 1;
+		Length = wcslen(_content) + 1;
 
 		// Format the contents.
 
-		_uiText->Content = (WideChar*)GlobalAllocate(WideChar, _uiText->Length);
+		Content = (WideChar*)GlobalAllocate(WideChar, Length);
 
-		wcscpy_s(_uiText->Content, _uiText->Length, _content);
+		wcscpy_s(Content, Length, _content);
 
-		_uiText->RenderCells = (Cell*)GlobalAllocate(Cell, _uiText->Length);
+		RenderCells = (Cell*)GlobalAllocate(Cell, Length);
 
-		for (uIntDM cellIndex = 0; cellIndex < _uiText->Length; cellIndex++)
+		for (uIntDM cellIndex = 0; cellIndex < Length; cellIndex++)
 		{
-			_uiText->RenderCells[cellIndex].Char.UnicodeChar = _uiText->Content[cellIndex];
-			_uiText->RenderCells[cellIndex].Attributes       = Console_WhiteCell;
+			RenderCells[cellIndex].Char.UnicodeChar = Content[cellIndex];
+			RenderCells[cellIndex].Attributes       = Console_WhiteCell;
 		}
 
-		_uiText->StartingCell = _startingCell;
-		_uiText->EndingCell   = _endingCell;
+		StartingCell = _startingCell;
+		EndingCell   = _endingCell;
 
 		if (_shouldCenter)
 		{
-			_uiText->StartingCell.X += (Renderer::BufferWidth / 2) - (_uiText->Length / 2);
-			_uiText->EndingCell  .X += (Renderer::BufferWidth / 2) + (_uiText->Length / 2);
+			StartingCell.X += (Renderer::BufferWidth / 2) - (Length / 2);
+			EndingCell  .X += (Renderer::BufferWidth / 2) + (Length / 2);
 
-			_uiText->StartingCell.X--;
-			_uiText->EndingCell  .X--;
+			StartingCell.X--;
+			EndingCell  .X--;
 		}
 		else
 		{
-			_uiText->EndingCell.X += _uiText->Length;
+			EndingCell.X += Length;
 		}
 	}
 
-	void UI_Text_Render(ro UI_Text* _uiText)
+	void UI_Text::Render()
 	{
-		WriteToBufferCells(_uiText->RenderCells, _uiText->StartingCell, _uiText->EndingCell);
+		WriteToBufferCells(RenderCells, StartingCell, EndingCell);
 	}
 
 
 	// Button
 
-	void UI_Button_Create 
+	void UI_Button::Create 
 	(
-		   UI_Button*     _button, 
 		ro WideChar*      _text, 
 		   COORD          _startingCell, 
 		   COORD          _endingCell, 
@@ -337,59 +335,26 @@ namespace Game
 		   Void_Function* _callback
 	)
 	{
-		// Get length of contents.
+		Text.Create(_text, _startingCell, _endingCell, _shouldCenter);
 
-		_button->Text.Length = wcslen(_text) + 1;
-
-		// Format the contents.
-
-		_button->Text.Content = (WideChar*)GlobalAllocate(WideChar, _button->Text.Length);
-
-		wcscpy_s(_button->Text.Content, _button->Text.Length, _text);
-
-		_button->Text.RenderCells = (Cell*)GlobalAllocate(Cell, _button->Text.Length);
-
-		for (uIntDM cellIndex = 0; cellIndex < _button->Text.Length; cellIndex++)
-		{
-			_button->Text.RenderCells[cellIndex].Char.UnicodeChar = _button->Text.Content[cellIndex];
-			_button->Text.RenderCells[cellIndex].Attributes       = Console_WhiteCell;
-		}
-
-		_button->Text.StartingCell = _startingCell;
-		_button->Text.EndingCell   = _endingCell;
-
-		if (_shouldCenter)
-		{
-			_button->Text.StartingCell.X += (Renderer::BufferWidth / 2) - (_button->Text.Length / 2);
-			_button->Text.EndingCell  .X += (Renderer::BufferWidth / 2) + (_button->Text.Length / 2);
-
-			_button->Text.StartingCell.X--;
-			_button->Text.EndingCell  .X--;
-		}
-		else
-		{
-			_button->Text.EndingCell.X += _button->Text.Length / 2;
-		}
-
-		_button->Callback = _callback;
+		Callback = _callback;
 	}
 
-	void UI_Button_Press(ro UI_Button* _uiButton)
+	void UI_Button::Press()
 	{
-		_uiButton->Callback();
+		Callback();
 	}
 
-	void UI_Button_Render(ro UI_Button* _uiButton)
+	void UI_Button::Render()
 	{
-		WriteToBufferCells(_uiButton->Text.RenderCells, _uiButton->Text.StartingCell, _uiButton->Text.EndingCell);
+		WriteToBufferCells(Text.RenderCells, Text.StartingCell, Text.EndingCell);
 	}
 
 
 	// Grid
 
-	void UI_Grid_Add 
+	void UI_Grid::Add 
 	(
-		   UI_Grid*       _uiGrid, 
 		ro WideChar*      _text, 
 		   COORD          _startingCell, 
 		   COORD          _endingCell, 
@@ -397,21 +362,21 @@ namespace Game
 		   Void_Function* _callback
 	)
 	{
-		if (_uiGrid->Num == 0)
+		if (Num == 0)
 		{
-			_uiGrid->Buttons = (UI_Button*)GlobalAllocate(UI_Button, 1);
+			Buttons = (UI_Button*)GlobalAllocate(UI_Button, 1);
 
-			_uiGrid->Num++;
+			Num++;
 		}
 		else
 		{
-			Memory::Address resizeIntermediary = GlobalReallocate(UI_Button, _uiGrid->Buttons, (_uiGrid->Num + 1));
+			Memory::Address resizeIntermediary = GlobalReallocate(UI_Button, Buttons, (Num + 1));
 
 			if (resizeIntermediary != NULL)
 			{
-				_uiGrid->Buttons = (UI_Button*)resizeIntermediary;
+				Buttons = (UI_Button*)resizeIntermediary;
 
-				_uiGrid->Num++;
+				Num++;
 			}
 			else
 			{
@@ -421,32 +386,23 @@ namespace Game
 			}
 		}
 
-		UI_Button_Create
-		(
-			&_uiGrid->Buttons[_uiGrid->Num - 1], 
-			
-			_text, 
-			_startingCell, 
-			_endingCell, 
-			_shouldCenter, 
-			_callback
-		);
+		Buttons[Num - 1].Create(_text, _startingCell, _endingCell, _shouldCenter, _callback);
 
-		if (_uiGrid->Num != 1)
+		if (Num != 1)
 		{
 			ChangeCellsTo_Grey
 			(
-				_uiGrid->Buttons[_uiGrid->Num -1].Text.RenderCells, 
-				_uiGrid->Buttons[_uiGrid->Num -1].Text.Length
+				Buttons[Num -1].Text.RenderCells, 
+				Buttons[Num -1].Text.Length
 			);
 		}
 	}
 
-	void UI_Grid_MoveUp(UI_Grid* _uiGrid)
+	void UI_Grid::MoveUp()
 	{
-		uIntDM* currentIndex = &_uiGrid->CurrentIndex;
+		uIntDM* currentIndex = &CurrentIndex;
 
-		UI_Text* buttonText = &_uiGrid->Buttons[*currentIndex].Text;
+		UI_Text* buttonText = &Buttons[*currentIndex].Text;
 
 		if (*currentIndex > 0)
 		{
@@ -454,70 +410,69 @@ namespace Game
 
 			*currentIndex =  *currentIndex - 1;
 
-			buttonText = &_uiGrid->Buttons[*currentIndex].Text;
+			buttonText = &Buttons[*currentIndex].Text;
 
 			ChangeCellsTo_White(buttonText->RenderCells, buttonText->Length);
 		}
 	}
 
-	void UI_Grid_MoveDown(UI_Grid* _uiGrid)
+	void UI_Grid::MoveDown()
 	{
-		uIntDM* currentIndex = &_uiGrid->CurrentIndex;
+		uIntDM* currentIndex = &CurrentIndex;
 
-		UI_Text* buttonText = &_uiGrid->Buttons[*currentIndex].Text;
+		UI_Text* buttonText = &Buttons[*currentIndex].Text;
 
-		if (*currentIndex < (_uiGrid->Num - 1))
+		if (*currentIndex < (Num - 1))
 		{
 			ChangeCellsTo_Grey(buttonText->RenderCells, buttonText->Length);
 
 			*currentIndex = *currentIndex + 1;
 
-			buttonText = &_uiGrid->Buttons[*currentIndex].Text;
+			buttonText = &Buttons[*currentIndex].Text;
 
 			ChangeCellsTo_White(buttonText->RenderCells, buttonText->Length);
 		}
 	}
 
-	void UI_Grid_Select(UI_Grid* _uiGrid)
+	void UI_Grid::Select()
 	{
-		UI_Button_Press(&_uiGrid->Buttons[_uiGrid->CurrentIndex]);
+		Buttons[CurrentIndex].Press();
 	}
 
-	void UI_Grid_Render(UI_Grid* _uiGrid)
+	void UI_Grid::Render()
 	{
-		for (uIntDM index = 0; index < _uiGrid->Num; index++)
+		for (uIntDM index = 0; index < Num; index++)
 		{
-			UI_Button_Render(&_uiGrid->Buttons[index]);
+			Buttons[index].Render();
 		}
 	}
 
 
 	// Grid
 
-	void UI_Widget_AddText
+	void UI_Widget::AddText
 	(
-		   UI_Widget* _uiWidget,
 		ro WideChar*  _text,
 		   COORD     _startingCell,
 		   COORD     _endingCell,
 		   bool      _shouldCenter
 	)
 	{
-		if (_uiWidget->Num_TextUIs == 0)
+		if (Num_TextUIs == 0)
 		{
-			_uiWidget->TextUIs = (UI_Text*)GlobalAllocate(UI_Text, 1);
+			TextUIs = (UI_Text*)GlobalAllocate(UI_Text, 1);
 
-			_uiWidget->Num_TextUIs++;
+			Num_TextUIs++;
 		}
 		else
 		{
-			Memory::Address resizeIntermediary = GlobalReallocate(UI_Text, _uiWidget->TextUIs, (_uiWidget->Num_TextUIs + 1));
+			Memory::Address resizeIntermediary = GlobalReallocate(UI_Text, TextUIs, (Num_TextUIs + 1));
 
 			if (resizeIntermediary != NULL)
 			{
-				_uiWidget->TextUIs = (UI_Text*)resizeIntermediary;
+				TextUIs = (UI_Text*)resizeIntermediary;
 
-				_uiWidget->Num_TextUIs++;
+				Num_TextUIs++;
 			}
 			else
 			{
@@ -527,10 +482,8 @@ namespace Game
 			}
 		}
 
-		UI_Text_Create
-		(
-			&_uiWidget->TextUIs[_uiWidget->Num_TextUIs - 1], 
-			
+		TextUIs[Num_TextUIs - 1].Create
+		( 
 			(WideChar*)_text, 
 			_startingCell, 
 			_endingCell, 
@@ -538,9 +491,8 @@ namespace Game
 		);
 	}
 
-	void UI_Widget_AddButton 
+	void UI_Widget::AddButton 
 	(
-		   UI_Widget*     _uiWidget,
 		ro WideChar*      _text,
 		   COORD          _startingCell,
 		   COORD          _endingCell,
@@ -548,10 +500,8 @@ namespace Game
 		   Void_Function* _callback
 	)
 	{
-		UI_Grid_Add
-		(
-			&_uiWidget->Grid, 
-			
+		Grid.Add
+		( 
 			_text, 
 			_startingCell, 
 			_endingCell, 
@@ -560,28 +510,28 @@ namespace Game
 		);
 	}
 
-	void UI_Widget_MoveUp(UI_Widget* _uiWidget)
+	void UI_Widget::MoveUp()
 	{
-		UI_Grid_MoveUp(&_uiWidget->Grid);
+		Grid.MoveUp();
 	}
 
-	void UI_Widget_MoveDown(UI_Widget* _uiWidget)
+	void UI_Widget::MoveDown()
 	{
-		UI_Grid_MoveDown(&_uiWidget->Grid);
+		Grid.MoveDown();
 	}
 
-	void UI_Widget_Select(UI_Widget* _uiWidget)
+	void UI_Widget::Select()
 	{
-		UI_Grid_Select(&_uiWidget->Grid);
+		Grid.Select();
 	}
 
-	void UI_Widget_Render(UI_Widget* _uiWidget)
+	void UI_Widget::Render()
 	{
-		for (uIntDM index = 0; index < _uiWidget->Num_TextUIs; index++)
+		for (uIntDM index = 0; index < Num_TextUIs; index++)
 		{
-			UI_Text_Render(&_uiWidget->TextUIs[index]);
+			TextUIs[index].Render();
 		}
 
-		UI_Grid_Render(&_uiWidget->Grid);
+		Grid.Render();
 	}
 }

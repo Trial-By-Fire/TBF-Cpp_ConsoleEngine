@@ -9,218 +9,224 @@
 
 
 
-namespace Input
+
+// Usings
+
+using OSPlatform::EKeyCode;
+
+
+
+// Static Data
+
+// Private
+
+Input::Data Input::Context;
+
+
+
+// Forward Declarations
+
+EKeyCode GetKeyCodeAtIndex  (uIntDM   _index);
+uIntDM   GetKeyIndexFromCode(EKeyCode _key);
+
+
+
+// Functions
+
+// Public
+
+void Input::LoadModule(void)
 {
-	// Static Data
+	//Input.StateIndex = 0;
+}
 
-	// Private
+ro Input::Data* Input::GetContext(void)
+{
+	return &Context;
+}
 
-	Data Input;
-
-
-
-	// Forward Declarations
-
-	EKeyCode GetKeyCodeAtIndex  (uIntDM   _index);
-	uIntDM   GetKeyIndexFromCode(EKeyCode _key);
-
-
-
-	// Functions
-
-	// Public
-
-	void LoadModule(void)
+void Input::Update(void)
+{
+	for (uIntDM index = 0; index < Keys_NumTracked; index++)
 	{
-		//Input.StateIndex = 0;
-	}
+		bool Current, Previous;
 
-	ro Data* GetContext(void)
-	{
-		return &Input;
-	}
+		// Get current signal state
 
-	void Update(void)
-	{
-		for (uIntDM index = 0; index < Keys_NumTracked; index++)
+		Context.PreviousSignalState.Array[index] = Context.CurrentSignalState.Array[index];
+
+		Previous = Context.CurrentSignalState.Array[index];
+
+		Context.CurrentSignalState.Array[index] = GetKeySignal(GetKeyCodeAtIndex(index));
+
+		Current = Context.CurrentSignalState.Array[index];
+
+		// Determine latest key state.
+
+		EState* CurrentState = &Context.KeyStates[index];
+				
+		EState latestState = EState::None;
+
+		if (Current == Previous)
 		{
-			bool Current, Previous;
-
-			// Get current signal state
-
-			Input.PreviousSignalState.Array[index] = Input.CurrentSignalState.Array[index];
-
-			Previous = Input.CurrentSignalState.Array[index];
-
-			Input.CurrentSignalState.Array[index] = GetKeySignal(GetKeyCodeAtIndex(index));
-
-			Current = Input.CurrentSignalState.Array[index];
-
-			// Determine latest key state.
-
-			EState* CurrentState = &Input.KeyStates[index];
-					
-			EState latestState = EState::None;
-
-			if (Current == Previous)
+			if (Current == true)
 			{
-				if (Current == true)
-				{
-					latestState = EState::PressHeld;
-				}
-				else
-				{
-					if (*CurrentState != EState::PressHeld)
-					{
-						latestState = EState::None;
-					}
-				}
+				latestState = EState::PressHeld;
 			}
 			else
 			{
-				if (Current == false)
+				if (*CurrentState != EState::PressHeld)
 				{
-					latestState = EState::Released;
-				}
-				else
-				{
-					latestState = EState::Pressed;
+					latestState = EState::None;
 				}
 			}
-
-			if (latestState != *CurrentState)
+		}
+		else
+		{
+			if (Current == false)
 			{
-				*CurrentState = latestState;
+				latestState = EState::Released;
+			}
+			else
+			{
+				latestState = EState::Pressed;
+			}
+		}
 
-				for (uIntDM subIndex = 0; subIndex < Input.KeyEventSubs[index].Num; subIndex++)
+		if (latestState != *CurrentState)
+		{
+			*CurrentState = latestState;
+
+			uIntDM num = Context.KeyEventSubs[index].Num;
+
+			for (uIntDM subIndex = 0; subIndex < num; subIndex++)
+			{
+				if ( Context.KeyEventSubs[index].Array[subIndex] != nullptr)
 				{
-					if ( Input.KeyEventSubs[index].Array[subIndex] != nullptr)
-					{
-						Input.KeyEventSubs[index].Array[subIndex](*CurrentState);
-					}
+					Context.KeyEventSubs[index].Array[subIndex](*CurrentState);
 				}
 			}
 		}
 	}
+}
 
-	void SubscribeTo(EKeyCode _key, EventFunction* _callbackFunction)
+void Input::SubscribeTo(EKeyCode _key, EventFunction* _callbackFunction)
+{
+	Subscriptions* subs = &Context.KeyEventSubs[GetKeyIndexFromCode(_key)];
+
+	if (subs->Num == 0)
 	{
-		Subscriptions* subs = &Input.KeyEventSubs[GetKeyIndexFromCode(_key)];
+		subs->Array = (EventFunctionPtr*)GlobalAllocate(EventFunctionPtr*, 1);
 
-		if (subs->Num == 0)
+		subs->Num++;
+	}
+	else
+	{
+		for (uIntDM subIndex = 0; subIndex < subs->Num; subIndex++)
 		{
-			subs->Array = (EventFunctionPtr*)GlobalAllocate(EventFunctionPtr*, 1);
+			if ( (&subs->Array)[subIndex] == nullptr)
+			{
+				subs->Array[subs->Num - 1] = _callbackFunction;
+
+				return;
+			}
+		}
+
+
+		Memory::Address resizeIntermediary = GlobalReallocate(EventFunctionPtr*, subs->Array, (subs->Num + 1) );
+
+		if (resizeIntermediary != nullptr)
+		{
+			subs->Array = (EventFunctionPtr*)resizeIntermediary;
 
 			subs->Num++;
 		}
 		else
 		{
-			for (uIntDM subIndex = 0; subIndex < subs->Num; subIndex++)
-			{
-				if ( (&subs->Array)[subIndex] == nullptr)
-				{
-					subs->Array[subs->Num - 1] = _callbackFunction;
+			perror("Failed to globally reallocate subscription array.");
 
-					return;
-				}
-			}
-
-
-			Memory::Address resizeIntermediary = GlobalReallocate(EventFunctionPtr*, subs->Array, (subs->Num + 1) );
-
-			if (resizeIntermediary != nullptr)
-			{
-				subs->Array = (EventFunctionPtr*)resizeIntermediary;
-
-				subs->Num++;
-			}
-			else
-			{
-				perror("Failed to globally reallocate subscription array.");
-
-				exit(1);
-			}
-		}
-
-		subs->Array[subs->Num - 1] = _callbackFunction;
-	}
-
-	void Unsubscribe(EKeyCode _key, EventFunction* _callbackFunction)
-	{
-		Subscriptions* subs = &Input.KeyEventSubs[GetKeyIndexFromCode(_key)];
-
-		for (uIntDM subIndex = 0; subIndex < subs->Num; subIndex++)
-		{
-			if (subs->Array[subIndex] == _callbackFunction)
-			{
-				subs->Array[subIndex] = nullptr;
-			}
+			exit(1);
 		}
 	}
 
+	subs->Array[subs->Num - 1] = _callbackFunction;
+}
 
+void Input::Unsubscribe(EKeyCode _key, EventFunction* _callbackFunction)
+{
+	Subscriptions* subs = &Context.KeyEventSubs[GetKeyIndexFromCode(_key)];
 
-	// Private
-
-	EKeyCode GetKeyCodeAtIndex(uIntDM _index)
+	for (uIntDM subIndex = 0; subIndex < subs->Num; subIndex++)
 	{
-		switch (_index)
+		if (subs->Array[subIndex] == _callbackFunction)
 		{
-			case 0:
-			{
-				return EKeyCode::Arrow_Up;
-			}
-			case 1:
-			{
-				return EKeyCode::Arrow_Down;
-			}
-			case 2:
-			{
-				return EKeyCode::Arrow_Left;
-			}
-			case 3:
-			{
-				return EKeyCode::Arrow_Right;
-			}
-			case 4:
-			{
-				return EKeyCode::Enter;
-			}
-			case 5:
-			{
-				return EKeyCode::Tab;
-			}
+			subs->Array[subIndex] = nullptr;
 		}
 	}
+}
 
-	uIntDM GetKeyIndexFromCode(EKeyCode _key)
+
+
+// Private
+
+EKeyCode GetKeyCodeAtIndex(uIntDM _index)
+{
+	switch (_index)
 	{
-		switch (_key)
+		case 0:
 		{
-			case EKeyCode::Arrow_Up:
-			{
-				return 0;
-			}
-			case EKeyCode::Arrow_Down:
-			{
-				return 1;
-			}
-			case EKeyCode::Arrow_Left:
-			{
-				return 2;
-			}
-			case EKeyCode::Arrow_Right:
-			{
-				return 3;
-			}
-			case EKeyCode::Enter:
-			{
-				return 4;
-			}
-			case EKeyCode::Tab:
-			{
-				return 5;
-			}
+			return EKeyCode::Arrow_Up;
+		}
+		case 1:
+		{
+			return EKeyCode::Arrow_Down;
+		}
+		case 2:
+		{
+			return EKeyCode::Arrow_Left;
+		}
+		case 3:
+		{
+			return EKeyCode::Arrow_Right;
+		}
+		case 4:
+		{
+			return EKeyCode::Enter;
+		}
+		case 5:
+		{
+			return EKeyCode::Tab;
+		}
+	}
+}
+
+uIntDM GetKeyIndexFromCode(EKeyCode _key)
+{
+	switch (_key)
+	{
+		case EKeyCode::Arrow_Up:
+		{
+			return 0;
+		}
+		case EKeyCode::Arrow_Down:
+		{
+			return 1;
+		}
+		case EKeyCode::Arrow_Left:
+		{
+			return 2;
+		}
+		case EKeyCode::Arrow_Right:
+		{
+			return 3;
+		}
+		case EKeyCode::Enter:
+		{
+			return 4;
+		}
+		case EKeyCode::Tab:
+		{
+			return 5;
 		}
 	}
 }

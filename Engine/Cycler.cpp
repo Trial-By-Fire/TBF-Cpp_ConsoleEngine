@@ -12,54 +12,51 @@
 
 
 
-namespace Cycler
+// Static Data
+
+// Private
+
+bool Exist;   // Sentinel value use to exist core engine loop.
+
+
+
+// Functions
+
+// Public
+
+void Cycler::Lapse(void)
 {
-	// Static Data
+	Exist = false;
+}
 
-	// Private
-
-	bool Exist;   // Sentinel value use to exist core engine loop.
-
-
-
-	// Functions
-
-	// Public
-
-	void Lapse(void)
+void Cycler::Initialize(void)
+{
+	while (Exist == true)
 	{
-		Exist = false;
+		Timing::TakeInitialSnapshot();
+
+		// Update Input
+
+		Input::Update();
+
+		// Update State
+
+		State::GetEngineState()->Update();
+
+		// Update Renderer
+
+		Renderer::Update();
+
+		// Update Timing
+
+		Timing::TakeEndingSnapshot();
+
+		Timing::Update();
 	}
+}
 
-	void Initialize(void)
-	{
-		while (Exist == true)
-		{
-			Timing::TakeInitialSnapshot();
-
-			// Update Input
-
-			Input::Update();
-
-			// Update State
-
-			State::Update();
-
-			// Update Renderer
-
-			Renderer::Update();
-
-			// Update Timing
-
-			Timing::TakeEndingSnapshot();
-
-			Timing::Update();
-		}
-	}
-
-	void LoadModule(void)
-	{
-		Exist = true;
-	}
+void Cycler::LoadModule(void)
+{
+	Exist = true;
 }
 

@@ -8,22 +8,27 @@
 #include "LAL.hpp"
 #include "CString.hpp"
 #include "OSPlatform.hpp"
+#include "Timing.hpp"
 
 
 
 
-namespace Renderer
+class Renderer
 {
+	friend Timing;
+
+public:
+
 	// Constants
 
-	CompileTime uInt16 BufferWidth     = 80;
-	CompileTime uInt16 BufferHeight    = DebugEnabled ? 48 : 24;
-	CompileTime uInt16 BorderLineRow   = 24;
-	CompileTime uInt16 DebugStart      = 25;
-	CompileTime uInt16 LogSize         = 18;
-	CompileTime uInt16 PersistentStart = 44;
-	CompileTime uInt16 PersistentSize  = 4 ;
-	CompileTime uInt16 GameEnd         = 23;
+	unbound CompileTime uInt16 BufferWidth     = 80;
+	unbound CompileTime uInt16 BufferHeight    = DebugEnabled ? 48 : 24;
+	unbound CompileTime uInt16 BorderLineRow   = 24;
+	unbound CompileTime uInt16 DebugStart      = 25;
+	unbound CompileTime uInt16 LogSize         = 18;
+	unbound CompileTime uInt16 PersistentStart = 44;
+	unbound CompileTime uInt16 PersistentSize  = 4 ;
+	unbound CompileTime uInt16 GameEnd         = 23;
 
 
 
@@ -56,10 +61,7 @@ namespace Renderer
 
 		Vec2D_Int ScreenPosition;
 
-		// Render Timing
-
-		float64 RefeshTimer   ;
-		float64 RefeshInterval;
+		Timer RefreshTimer;
 	};
 
 	struct ScreenInfo
@@ -71,37 +73,49 @@ namespace Renderer
 
 	// Functions
 
-	void Clear(void);
+	unbound ro Data* GetContext(void);
 
-	bool FillCellsWithWhitespace(void);
+	unbound void LoadModule(void);
 
-	bool FormatCells(void);
+	unbound void UnloadModule(void);
 
-	ro Data* GetContext(void);
+	unbound void Update(void);
 
-	void LoadModule(void);
-
-	void ProcessTiming(float64 _deltaTime);
-
-	void RenderFrame(void);
-
-	void ResetDrawPosition(void);
-
-	void UnloadModule(void);
-
-	void Update(void);
-
-	void WriteToBufferCells(Cell* _cells, COORD _initalCell, COORD _finalCell);
+	unbound void WriteToBufferCells(Cell* _cells, COORD _initalCell, COORD _finalCell);
 
 	// BS Fix for now:
 	using WideChar = wchar_t;   // From C_String.h
 
-	void WriteToLog(WideChar* _logString);
+	unbound void WriteToLog(WideChar* _logString);
 
-	void WriteToPersistentSection(sInt _row, WideChar* _lineformat, ...);
+	unbound void WriteToPersistentSection(sInt _row, WideChar* _lineformat, ...);
 
-	void Logs_ScrollUp(void);
+	unbound void Logs_ScrollUp(void);
 
-	void Logs_ScrollDown(void);
-}
+	unbound void Logs_ScrollDown(void);
+
+
+private:
+
+	unbound void DrawGameScanlines    (void);
+	unbound void InitalizeData        (void);
+	unbound void SetupConsole         (void);
+	unbound bool UpdateConsoleInfo    (void);
+	unbound void UpdateSizeAndPosition(void);
+
+	unbound void Clear(void);
+
+	unbound bool FillCellsWithWhitespace(void);
+
+	unbound void ProcessTiming(float64 _deltaTime);
+
+	unbound bool FormatCells(void);
+
+	unbound void RenderFrame(void);
+
+	unbound void ResetDrawPosition(void);
+
+
+	unbound Data Context;
+};
 

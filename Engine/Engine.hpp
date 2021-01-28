@@ -18,5 +18,5 @@ namespace Engine
 	// Functions
 
 	// Game must implement this function.
-	StateObj* LoadGame(void);
+	State::Callbacks* LoadGame(void);
 }

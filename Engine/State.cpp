@@ -10,150 +10,167 @@
 
 
 
-namespace State
+CompileTime auto Logs_ScrollUp   = Renderer::Logs_ScrollUp;
+CompileTime auto Logs_ScrollDown = Renderer::Logs_ScrollDown;
+
+
+
+enum class EFocusState
 {
-	using Input::EState;
-
-	using Renderer::Logs_ScrollUp;
-	using Renderer::Logs_ScrollDown;
-
+	Game,
+	Logs
+};
 
 
-	enum class EFocusState
+
+
+// State
+
+State CurrentState;
+
+EFocusState FocusState = EFocusState::Game;
+
+
+
+// Functions
+
+// Public
+
+void State_OnKeyArrowUp(Input::EState _state)
+{
+	switch (_state)
 	{
-		Game,
-		Logs
-	};
-
-
-
-
-	// State
-
-	StateObj* CurrentState = nullptr;
-
-	EFocusState FocusState = EFocusState::Game;
-
-
-
-	// Functions
-
-	// Public
-
-	void State_OnKeyArrowUp(Input::EState _state)
-	{
-		switch (_state)
+		case Input::EState::Pressed:
 		{
-			case EState::Pressed:
+			switch (FocusState)
 			{
-				switch (FocusState)
+				case EFocusState::Logs:
 				{
-					case EFocusState::Logs:
-					{
-						Logs_ScrollUp();
+					Logs_ScrollUp();
 
-						break;
-					}
+					break;
 				}
-
-				break;
 			}
+
+			break;
 		}
 	}
+}
 
-	void State_OnKeyArrowDown(Input::EState _state)
+void State_OnKeyArrowDown(Input::EState _state)
+{
+	switch (_state)
 	{
-		switch (_state)
+		case Input::EState::Pressed:
 		{
-			case EState::Pressed:
+			switch (FocusState)
 			{
-				switch (FocusState)
+				case EFocusState::Logs:
 				{
-					case EFocusState::Logs:
-					{
-						Logs_ScrollDown();
+					Logs_ScrollDown();
 
-						break;
-					}
+					break;
 				}
-
-				break;
 			}
+
+			break;
 		}
 	}
+}
 
-	void State_OnKeyTab(Input::EState _state)
+void State_OnKeyTab(Input::EState _state)
+{
+	switch (_state)
 	{
-		switch (_state)
+		case Input::EState::Pressed:
 		{
-			case EState::Pressed:
+			switch (FocusState)
 			{
-				switch (FocusState)
+				case EFocusState::Game:
 				{
-					case EFocusState::Game:
-					{
-						FocusState = EFocusState::Logs;
+					FocusState = EFocusState::Logs;
 
-						break;
-					}
-					case EFocusState::Logs:
-					{
-						FocusState = EFocusState::Game;
-
-						break;
-					}
+					break;
 				}
+				case EFocusState::Logs:
+				{
+					FocusState = EFocusState::Game;
 
-				break;
+					break;
+				}
 			}
+
+			break;
 		}
 	}
+}
 
 
-	void LoadModule(void)
+void State::LoadModule(void)
+{
+	using OSPlatform::EKeyCode;
+
+	CurrentState.data = nullptr;
+
+	CurrentState.Set(Intro::GetState());
+
+	Input::SubscribeTo(EKeyCode::Arrow_Up  , &State_OnKeyArrowUp  );
+	Input::SubscribeTo(EKeyCode::Arrow_Down, &State_OnKeyArrowDown);
+	Input::SubscribeTo(EKeyCode::Enter     , &State_OnKeyTab      );
+}
+
+ro State* State::GetEngineState()
+{
+	return &CurrentState;
+}
+
+void State::SetEngineState(State::Callbacks* _state)
+{
+	if (CurrentState.data != nullptr)
 	{
-		using OSPlatform::EKeyCode;
-
-		CurrentState = Intro::GetState();
-
-		CurrentState->Load();
-
-		Input::SubscribeTo(EKeyCode::Arrow_Up  , &State_OnKeyArrowUp  );
-		Input::SubscribeTo(EKeyCode::Arrow_Down, &State_OnKeyArrowDown);
-		Input::SubscribeTo(EKeyCode::Enter     , &State_OnKeyTab      );
+		CurrentState.data->Unload();
 	}
 
-	void SetState(StateObj* _state)
+	CurrentState.data = _state;
+
+	CurrentState.data->Load();
+}
+
+void State::Set(Callbacks* _state)
+{
+	if (data != nullptr)
 	{
-		if (CurrentState != nullptr)
-		{
-			CurrentState->Unload();
-		}
-
-		CurrentState = _state;
-
-		CurrentState->Load();
+		data->Unload();
 	}
 
-	void Update(void)
-	{
-		if (CurrentState != nullptr)
-		{
-			CurrentState->Update();
-		}
-	}
+	data = _state;
 
-	void Render(void)
-	{
-		if (CurrentState != nullptr)
-		{
-			CurrentState->Render();
-		}
-	}
+	data->Load();
+}
 
-	void LoadGame(void)
+void State::Unload(void) ro
+{
+	data->Unload();
+}
+
+void State::Update(void) ro
+{
+	if (data != nullptr)
 	{
-		SetState(Engine::LoadGame());
+		data->Update();
 	}
+}
+
+void State::Render(void) ro
+{
+	if (data != nullptr)
+	{
+		data->Render();
+	}
+}
+
+void State::LoadGame(void)
+{
+	CurrentState.Set(Engine::LoadGame());
 }
 

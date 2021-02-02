@@ -5,7 +5,6 @@
 // Includes
 
 #include "LAL.hpp"
-#include "Memory.hpp"
 
 
 
@@ -21,3 +20,7 @@ using CTS_CWString = wchar_t[];
 namespace CString
 {
 }
+
+
+
+ptr<ro WideChar> operator""_wc(ptr<ro wchar_t> _um, uIntDM _umSize);

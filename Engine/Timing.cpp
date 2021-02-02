@@ -33,31 +33,32 @@ void Timing::LoadModule(void)
 
 void Timing::TakeInitialSnapshot(void)
 {
-	QueryPerformanceCounter(&Context.TimeSnapshot_Initial);
+	QueryPerformanceCounter(getPtr(Context.TimeSnapshot_Initial));
 }
 
 void Timing::TakeEndingSnapshot(void)
 {
-	QueryPerformanceCounter(&Context.TimeSnapshot_End);
+	QueryPerformanceCounter(getPtr(Context.TimeSnapshot_End));
 }
 
 void Timing::Update(void)
 {
 	Context.Cycle_TicksElapsed = Context.TimeSnapshot_End.QuadPart - Context.TimeSnapshot_Initial.QuadPart;
 
-	Context.Cycle_Microseconds = (float64)(Context.Cycle_TicksElapsed * TickToMicroseconds);
-	Context.Cycle_Microseconds = Context.Cycle_Microseconds / (float64)Context.TimeFrequency.QuadPart;
+	Context.Cycle_Microseconds = SCast<float64>( Context.Cycle_TicksElapsed * TickToMicroseconds );
 
-	Context.DeltaTime = (float64)Context.Cycle_TicksElapsed / (float64)MicrosecondToSecond;
+	Context.Cycle_Microseconds = Context.Cycle_Microseconds / SCast<float64>(Context.TimeFrequency.QuadPart);
 
-	Renderer::ProcessTiming(Context.DeltaTime);
+	Context.DeltaTime = SCast<float64>(Context.Cycle_TicksElapsed) / SCast<float64>(MicrosecondToSecond);
+
+	Renderer::ProcessTiming();
 }
 
 // Private
 
 void Timing::InitalizeData(void)
 {
-	QueryPerformanceFrequency(&Context.TimeFrequency);
+	QueryPerformanceFrequency(getPtr(Context.TimeFrequency));
 
 	return;
 }
@@ -80,9 +81,9 @@ void Timer::Reset()
 
 void Timer::Tick()
 {
-	if (Float64_ApproxEqual(Timing::Context.DeltaTime, 0.000001L) || Float64_ApproxLess(Timing::Context.DeltaTime, 0.000001L))
+	if (Float64_ApproxEqual(Timing::Context.DeltaTime, 0.000001) || Float64_ApproxLess(Timing::Context.DeltaTime, 0.000001))
 	{
-		Elapsed = Elapsed + 0.000001L;
+		Elapsed = Elapsed + 0.000001;
 
 		return;
 	}

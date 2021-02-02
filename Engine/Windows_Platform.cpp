@@ -37,17 +37,17 @@ namespace OSPlatform
 
 	// Public
 
-	FILE* StdInput(void)
+	ptr<FILE> StdInput(void)
 	{
 		return stdin;
 	}
 
-	FILE* StdOutput(void)
+	ptr<FILE> StdOutput(void)
 	{
 		return stdout;
 	}
 
-	FILE* StdError(void)
+	ptr<FILE> StdError(void)
 	{
 		return stderr;
 	}
@@ -57,17 +57,17 @@ namespace OSPlatform
 		unbound CompileTime int IO_NoBuffer = _IONBF;
 
 
-		FILE* dummyFile = nullptr;
+		ptr<FILE> dummyFile = nullptr;
 
 
-		freopen_s(&dummyFile, SConsole_In , SReadCode , StdInput ());
-		freopen_s(&dummyFile, SConsole_Out, SWriteCode, StdOutput());
-		freopen_s(&dummyFile, SConsole_Out, SWriteCode, StdError ());
+		freopen_s(getPtr(dummyFile), SConsole_In , SReadCode , StdInput ());
+		freopen_s(getPtr(dummyFile), SConsole_Out, SWriteCode, StdOutput());
+		freopen_s(getPtr(dummyFile), SConsole_Out, SWriteCode, StdError ());
 
 		// Redirect STDIN if the console has an input handle	
 		if (GetStdHandle(StdHandle::Input) != StdHandle::Invalid())
 		{
-			if (freopen_s(&dummyFile, SConsole_In, SReadCode, StdInput()) != 0)
+			if (freopen_s(getPtr(dummyFile), SConsole_In, SReadCode, StdInput()) != 0)
 			{
 				return false;
 			}
@@ -80,7 +80,7 @@ namespace OSPlatform
 		// Redirect STDOUT if the console has an output handle
 		if (GetStdHandle(StdHandle::Output) != StdHandle::Invalid)
 		{
-			if (freopen_s(&dummyFile, SConsole_Out, SWriteCode, StdOutput()) != 0)
+			if (freopen_s(getPtr(dummyFile), SConsole_Out, SWriteCode, StdOutput()) != 0)
 			{
 				return false;
 			}
@@ -93,7 +93,7 @@ namespace OSPlatform
 		// Redirect STDERR if the console has an error handle
 		if (GetStdHandle(StdHandle::Output) != StdHandle::Invalid())
 		{
-			if (freopen_s(&dummyFile, SConsole_Out, SWriteCode, StdError()) != 0)
+			if (freopen_s(getPtr(dummyFile), SConsole_Out, SWriteCode, StdError()) != 0)
 			{
 				return false;
 			}
@@ -116,13 +116,13 @@ namespace OSPlatform
 		unbound CompileTime int IO_NoBuffer = _IONBF;
 
 
-		FILE* dummyFile;
+		ptr<FILE> dummyFile;
 
 
 		// Just to be safe, redirect standard IO to NUL before releasing.
 
 		// Redirect STDIN to NUL
-		if (freopen_s(&dummyFile, SConsole_Null, SReadCode, StdInput()) != 0)
+		if (freopen_s(getPtr(dummyFile), SConsole_Null, SReadCode, StdInput()) != 0)
 		{
 			return false;
 		}
@@ -132,7 +132,7 @@ namespace OSPlatform
 		}
 
 		// Redirect STDOUT to NUL
-		if (freopen_s(&dummyFile, SConsole_Null, SWriteCode, StdOutput()) != 0)
+		if (freopen_s(getPtr(dummyFile), SConsole_Null, SWriteCode, StdOutput()) != 0)
 		{
 			return false;
 		}
@@ -142,7 +142,7 @@ namespace OSPlatform
 		}
 
 		// Redirect STDERR to NUL
-		if (freopen_s(&dummyFile, SConsole_Null, SWriteCode, StdError()) != 0)
+		if (freopen_s(getPtr(dummyFile), SConsole_Null, SWriteCode, StdError()) != 0)
 		{
 			return false;
 		}
@@ -156,7 +156,7 @@ namespace OSPlatform
 
 	bool GetKeySignal(EKeyCode _key)
 	{
-		if (GetAsyncKeyState((int)_key) & 0x8000)
+		if (GetAsyncKeyState(SCast<int>(_key)) & 0x8000)
 		{
 			return true;
 		}
@@ -171,7 +171,7 @@ namespace OSPlatform
 
 // Private
 
-INT WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR lpCmdLine, INT nCmdShow)
+INT WinMain(HINSTANCE /*hInstance*/, HINSTANCE /*hPrevInstance*/, PSTR /*lpCmdLine*/, INT /*nCmdShow*/)
 {
 	EntryPoint();
 

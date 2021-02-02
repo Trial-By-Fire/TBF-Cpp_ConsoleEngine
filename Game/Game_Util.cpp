@@ -47,10 +47,10 @@ namespace Game
 		VerticalVelocity = 0.0f;
 
 		ShouldJump = false,
-		Fell = false;
+		Fell       = false;
 
 		Active_MoveState = ECharacter_Move::Dont;
-		MoveState = ECharacter_Move::Dont;
+		MoveState        = ECharacter_Move::Dont;
 	}
 
 	void Character::Update(Level& _level)
@@ -58,7 +58,7 @@ namespace Game
 		if (Fell == true) return;
 
 
-		float32 deltaTime = (float32)Timing::GetContext().DeltaTime;
+		ro float32 deltaTime = SCast<ro float32>(Timing::GetContext().DeltaTime);
 
 		unbound float32 velocity = 1.0f;
 		unbound float32 gravity  = 0.00004f;
@@ -96,9 +96,9 @@ namespace Game
 
 		if (ShouldJump && cellCollided == ELevelCell::Ground)
 		{
-			WriteToLog((WideChar*)L"Giving character jump velocity");
+			WriteToLog(L"Giving character jump velocity");
 
-			VerticalVelocity = 0.075 * deltaTime;
+			VerticalVelocity = 0.075f * deltaTime;
 
 			Position.Y = -0.75f;
 
@@ -134,16 +134,16 @@ namespace Game
 
 		COORD renderCoord = Convert_Vector2D_ToRenderCoord(Position);
 
-		WriteToPersistentSection(1, (WideChar*)L"Pos X: %f", Position.X);
-		WriteToPersistentSection(3, (WideChar*)L"Pos Y: %f", Position.Y);
+		WriteToPersistentSection(1, L"Pos X: %f", Position.X);
+		WriteToPersistentSection(3, L"Pos Y: %f", Position.Y);
 
-		WriteToPersistentSection(2, (WideChar*)L"RC  X: %u", renderCoord.X);
-		WriteToPersistentSection(4, (WideChar*)L"RC  Y: %u", renderCoord.Y);
+		WriteToPersistentSection(2, L"RC  X: %u", renderCoord.X);
+		WriteToPersistentSection(4, L"RC  Y: %u", renderCoord.Y);
 
 		if (renderCoord.Y < 0                ) renderCoord.Y = 0;
 		if (renderCoord.Y > Renderer::GameEnd) renderCoord.Y = Renderer::GameEnd;
 
-		WriteToBufferCells(&Sprite, renderCoord, renderCoord);
+		WriteToBufferCells(getPtr(Sprite), renderCoord, renderCoord);
 
 		if CompileTime (DebugEnabled)
 		{
@@ -164,7 +164,7 @@ namespace Game
 			if (colliderViewCoord.Y < 0                ) colliderViewCoord.Y = 0;
 			if (colliderViewCoord.Y > Renderer::GameEnd) colliderViewCoord.Y = Renderer::GameEnd;
 
-			WriteToBufferCells(&colliderView, colliderViewCoord, colliderViewCoord);
+			WriteToBufferCells(getPtr(colliderView), colliderViewCoord, colliderViewCoord);
 		}
 	}
 
@@ -174,7 +174,7 @@ namespace Game
 	{
 		COORD renderCoord = Convert_Vector2D_ToRenderCoord(_position);
 
-		Cell* cellBuffer = (Cell*)this;
+		ptr<Cell> cellBuffer = RCast<Cell>(this);
 
 		uIntDM lineOffset = renderCoord.Y * Renderer::BufferWidth;
 		uIntDM colOffset  = renderCoord.X;
@@ -185,17 +185,17 @@ namespace Game
 	}
 
 	void Level::SetCells(COORD _firstCell, COORD _lastCell, ELevelCell _cellType) 
-
-	SmartScope
 	{
+		Memory scopedMemory;
+
 		uIntDM lineOffset = _firstCell.Y * Renderer::BufferWidth;
 		uIntDM colOffset  = _firstCell.X;
 
 		uIntDM totalOffset = lineOffset + colOffset;
 
-		Cell* levelCellBuffer = (Cell*)this;
+		ptr<Cell> levelCellBuffer = RCast<Cell>(this);
 
-		void* bufferOffset = &levelCellBuffer[totalOffset];
+		ptr<Cell> bufferOffset = getPtr(levelCellBuffer[totalOffset]);
 
 		uIntDM dataSize = totalOffset;
 
@@ -209,7 +209,7 @@ namespace Game
 
 		if (dataSize == 0) dataSize = 1;
 
-		Cell* setCellBuffer = (Cell*)ScopedAllocate(Cell, dataSize);
+		ptr<Cell> setCellBuffer = scopedMemory.Allocate<Cell>(dataSize);
 
 		for (uIntDM index = 0; index < dataSize; index++)
 		{
@@ -217,9 +217,8 @@ namespace Game
 			setCellBuffer[index].Attributes       = (WORD)_cellType;
 		}
 
-		Memory::FormatWithData(bufferOffset, (void*)setCellBuffer, dataSize * sizeof(Cell));
+		Memory::FormatWithData(bufferOffset, setCellBuffer, dataSize);
 	}
-	SmartScope_End
 
 	void Level::Render()
 	{
@@ -227,7 +226,7 @@ namespace Game
 			screenStart = {                     0,                 0 }, 
 			screenEnd   = { Renderer::BufferWidth, Renderer::GameEnd } ;
 
-		WriteToBufferCells((Cell*)this, screenStart, screenEnd);
+		WriteToBufferCells(RCast<Cell>(this), screenStart, screenEnd);
 	}
 
 	// Space
@@ -235,17 +234,17 @@ namespace Game
 	COORD Convert_Vector2D_ToRenderCoord(Vector2D _vector)
 	{
 		unbound float32 
-			offsetX = (float32)Renderer::BufferWidth / 2.0f, 
-			offsetY = (float32)Renderer::GameEnd     / 2.0f;
+			offsetX = SCast<float32>(Renderer::BufferWidth) / 2.0f, 
+			offsetY = SCast<float32>(Renderer::GameEnd    ) / 2.0f;
 
 		float32 
-			convertedX = _vector.X * ((float32)Renderer::BufferWidth / 2.0f), 
-			convertedY = _vector.Y * ((float32)Renderer::GameEnd     / 2.0f);
+			convertedX = _vector.X * (SCast<float32>(Renderer::BufferWidth) / 2.0f), 
+			convertedY = _vector.Y * (SCast<float32>(Renderer::GameEnd    ) / 2.0f);
 
 		COORD renderingCoord;
 
-		renderingCoord.X = (sInt16)(convertedX + offsetX   );	
-		renderingCoord.Y = (sInt16)(offsetY    - convertedY);
+		renderingCoord.X = SCast<sInt16>(convertedX + offsetX   );	
+		renderingCoord.Y = SCast<sInt16>(offsetY    - convertedY);
 
 		if (renderingCoord.X >= Renderer::BufferWidth) renderingCoord.X = Renderer::BufferWidth - 1;
 
@@ -255,7 +254,7 @@ namespace Game
 
 	// General Rendering
 
-	void ChangeCellsTo_Grey(Cell* _renderCells, uIntDM _length)
+	void ChangeCellsTo_Grey(ptr<Cell> _renderCells, uIntDM _length)
 	{
 		for (uIntDM cellIndex = 0; cellIndex < _length; cellIndex++)
 		{
@@ -263,7 +262,7 @@ namespace Game
 		}
 	}
 
-	void ChangeCellsTo_White(Cell* _renderCells, uIntDM _length)
+	void ChangeCellsTo_White(ptr<Cell> _renderCells, uIntDM _length)
 	{
 		for (uIntDM cellIndex = 0; cellIndex < _length; cellIndex++)
 		{
@@ -278,10 +277,10 @@ namespace Game
 
 	void UI_Text::Create 
 	(
-		ro WideChar* _content, 
-		   COORD     _startingCell, 
-		   COORD     _endingCell,
-		   bool      _shouldCenter
+		ptr<ro WideChar> _content, 
+		COORD            _startingCell, 
+		COORD            _endingCell,
+		bool             _shouldCenter
 	)
 	{
 		// Get length of contents.
@@ -290,11 +289,11 @@ namespace Game
 
 		// Format the contents.
 
-		Content = (WideChar*)GlobalAllocate(WideChar, Length);
+		Content = Memory::GlobalAllocate<WideChar>(Length);
 
 		wcscpy_s(Content, Length, _content);
 
-		RenderCells = (Cell*)GlobalAllocate(Cell, Length);
+		RenderCells = Memory::GlobalAllocate<Cell>(Length);
 
 		for (uIntDM cellIndex = 0; cellIndex < Length; cellIndex++)
 		{
@@ -307,15 +306,15 @@ namespace Game
 
 		if (_shouldCenter)
 		{
-			StartingCell.X += (Renderer::BufferWidth / 2) - (Length / 2);
-			EndingCell  .X += (Renderer::BufferWidth / 2) + (Length / 2);
+			StartingCell.X += (Renderer::BufferWidth / 2) - (static_cast<uInt16>(Length) / 2);
+			EndingCell  .X += (Renderer::BufferWidth / 2) + (static_cast<uInt16>(Length) / 2);
 
 			StartingCell.X--;
 			EndingCell  .X--;
 		}
 		else
 		{
-			EndingCell.X += Length;
+			EndingCell.X += SCast<uInt16>(Length);
 		}
 	}
 
@@ -329,11 +328,11 @@ namespace Game
 
 	void UI_Button::Create 
 	(
-		ro WideChar*      _text, 
-		   COORD          _startingCell, 
-		   COORD          _endingCell, 
-		   bool           _shouldCenter,
-		   Void_Function& _callback
+		ptr<ro WideChar> _text, 
+		COORD            _startingCell, 
+		COORD            _endingCell, 
+		bool             _shouldCenter,
+		Void_Function&   _callback
 	)
 	{
 		Text.Create(_text, _startingCell, _endingCell, _shouldCenter);
@@ -356,26 +355,26 @@ namespace Game
 
 	void UI_Grid::Add 
 	(
-		ro WideChar*      _text, 
-		   COORD          _startingCell, 
-		   COORD          _endingCell, 
-		   bool           _shouldCenter,
-		   Void_Function& _callback
+		ptr<ro WideChar> _text, 
+		COORD            _startingCell, 
+		COORD            _endingCell, 
+		bool             _shouldCenter,
+		Void_Function&   _callback
 	)
 	{
 		if (Num == 0)
 		{
-			Buttons = (UI_Button*)GlobalAllocate(UI_Button, 1);
+			Buttons = Memory::GlobalAllocate<UI_Button>(1);
 
 			Num++;
 		}
 		else
 		{
-			Memory::Address resizeIntermediary = GlobalReallocate(UI_Button, Buttons, (Num + 1));
+			ptr<UI_Button> resizeIntermediary = Memory::GlobalReallocate(Buttons, (Num + 1));
 
 			if (resizeIntermediary != NULL)
 			{
-				Buttons = (UI_Button*)resizeIntermediary;
+				Buttons = resizeIntermediary;
 
 				Num++;
 			}
@@ -449,25 +448,25 @@ namespace Game
 
 	void UI_Widget::AddText
 	(
-		ro WideChar*  _text,
-		   COORD     _startingCell,
-		   COORD     _endingCell,
-		   bool      _shouldCenter
+		ptr<ro WideChar> _text,
+		COORD            _startingCell,
+		COORD            _endingCell,
+		bool             _shouldCenter
 	)
 	{
 		if (Num_TextUIs == 0)
 		{
-			TextUIs = (UI_Text*)GlobalAllocate(UI_Text, 1);
+			TextUIs = Memory::GlobalAllocate<UI_Text>(1);
 
 			Num_TextUIs++;
 		}
 		else
 		{
-			Memory::Address resizeIntermediary = GlobalReallocate(UI_Text, TextUIs, (Num_TextUIs + 1));
+			ptr<UI_Text> resizeIntermediary = Memory::GlobalReallocate(TextUIs, (Num_TextUIs + 1));
 
 			if (resizeIntermediary != NULL)
 			{
-				TextUIs = (UI_Text*)resizeIntermediary;
+				TextUIs = resizeIntermediary;
 
 				Num_TextUIs++;
 			}
@@ -490,11 +489,11 @@ namespace Game
 
 	void UI_Widget::AddButton 
 	(
-		ro WideChar*      _text,
-		   COORD          _startingCell,
-		   COORD          _endingCell,
-		   bool           _shouldCenter,
-		   Void_Function& _callback
+		ptr<ro WideChar> _text,
+		COORD            _startingCell,
+		COORD            _endingCell,
+		bool             _shouldCenter,
+		Void_Function&   _callback
 	)
 	{
 		Grid.Add

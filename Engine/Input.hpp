@@ -33,7 +33,7 @@ public:
 
 	using EventFunction = void(EState);
 
-	using EventFunctionPtr = EventFunction*;
+	using EventFunctionPtr = ptr<EventFunction>;
 
 
 	// Constants
@@ -70,7 +70,7 @@ public:
 
 	struct Subscriptions
 	{
-		EventFunctionPtr* Array = nullptr;
+		ptr< EventFunctionPtr> Array = nullptr;
 
 		size_t Num = 0;
 	};

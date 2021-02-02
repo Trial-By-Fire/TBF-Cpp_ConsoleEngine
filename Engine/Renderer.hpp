@@ -86,14 +86,14 @@ public:
 
 	unbound void Update(void);
 
-	unbound void WriteToBufferCells(Cell* _cells, COORD _initalCell, COORD _finalCell);
+	unbound void WriteToBufferCells(ptr<Cell> _cells, COORD _initalCell, COORD _finalCell);
 
 	// BS Fix for now:
-	using WideChar = wchar_t;   // From C_String.h
+	//using WideChar = wchar_t;   // From C_String.h
 
-	unbound void WriteToLog(WideChar* _logString);
+	unbound void WriteToLog(ptr<ro WideChar> _logString);
 
-	unbound void WriteToPersistentSection(sInt _row, WideChar* _lineformat, ...);
+	unbound void WriteToPersistentSection(sInt _row, ptr<ro WideChar> _lineformat, ...);
 
 	unbound void Logs_ScrollUp(void);
 
@@ -112,7 +112,7 @@ private:
 
 	unbound bool FillCellsWithWhitespace(void);
 
-	unbound void ProcessTiming(float64 _deltaTime);
+	unbound void ProcessTiming();
 
 	unbound bool FormatCells(void);
 

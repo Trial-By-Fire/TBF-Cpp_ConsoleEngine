@@ -15,36 +15,28 @@ class Memory
 {
 public:
 
-	// Aliases (Typedefs)
-
-	using Address = void*;
-
-
-
 	// Structures
 
 	struct BlockArray
 	{
 		struct Block
 		{
-			Address Location = nullptr;
+			ptr<void> Location = nullptr;
 
 			uIntDM Size = 0;
 		};
 
-		void   Add       (Block* _memoryAllocation);
+
+		~BlockArray();
+
+
+		Block& Add       ();
 		Block& LastEntry ();
-		void   Deallocate();
 
-
-		Block** Array = nullptr;
+		ptr< ptr<Block>> Array = nullptr;
 
 		uIntDM Length = 0;
 	};
-
-
-
-	~Memory();
 
 
 
@@ -53,41 +45,33 @@ public:
 
 	// C-API
 
-	unbound void* Allocate  (uIntDM _amountToAllocate  );
-	unbound void  Deallocate(void*  _memoryToDeallocate);
+	template<typename Type> unbound ptr<Type> HeapAllocate  (uIntDM    _numberToAllocate                         );
+	template<typename Type>	unbound ptr<Type> HeapReallocate(ptr<Type> _memoryToReallocate, uIntDM _numberDesired);
+	                        unbound void      Deallocate    (ptr<void> _memoryToDeallocate                       );
 
-	unbound void* Internal_FormatByFill(void* _memoryAddress,    sInt  _fillValue,  uIntDM _sizeOfData);
-	unbound void* FormatWithData       (void* _memoryAddress, ro void* _dataSource, uIntDM _sizeOfData);
+	template<typename Type>	unbound ptr<void> FormatByFill  (ptr<Type> _memoryAddress, sInt         _fillValue , uIntDM _sizeOfData);
+	template<typename Type> unbound ptr<void> FormatWithData(ptr<Type> _memoryAddress, ptr<ro Type> _dataSource, uIntDM _sizeOfData);
 
 	// Memory Management
 
-	Address Internal_Allocate(uIntDM _sizeOfAllocation);
-	void    Deallocate       ();
+	template<typename Type>
+	ptr<Type> Allocate(uIntDM _numberToAllocate);
 
-	unbound Address Internal_GlobalAllocate  (                   uIntDM _sizeOfAllocation   );
-	unbound Address Internal_GlobalReallocate(Address _location, uIntDM _sizeForReallocation);
-	unbound void    GlobalDeallocate         (void                                          );
+	template<typename Type> unbound ptr<Type> GlobalAllocate  (                     uIntDM _sizeOfAllocation   );
+	template<typename Type> unbound ptr<Type> GlobalReallocate(ptr<Type> _location, uIntDM _sizeForReallocation);
 
 
 private:
 
-	BlockArray records = { nullptr, 0 };
+	BlockArray records;
 
+	unbound Memory GlobalMemory;
 
 
 	// Macros
 
-	#define GlobalAllocate(_type, _numberToAllocate) \
-	Memory::Internal_GlobalAllocate(sizeof(_type) * _numberToAllocate)
-
-	#define GlobalReallocate(_type, _address, _numberToReallocate) \
-	Memory::Internal_GlobalReallocate(_address, sizeof(_type) * _numberToReallocate);
-
 	#define ScopedAllocate(_type, _numberToAllocate)  \
-	scopedMemory.Internal_Allocate(sizeof(_type) * _numberToAllocate)
-
-	#define Memory_FormatByFill(_type, _memoryAddress, _fillValue, _sizeOfAllocation) \
-	Memory::Internal_FormatByFill(_memoryAddress, _fillValue, sizeof(_type) * _sizeOfAllocation);
+	scopedMemory.Allocate<_type>(_numberToAllocate)
 
 	#define SmartScope                    \
 	{					                  \
@@ -97,3 +81,7 @@ private:
 	}
 };
 
+
+
+// Template Implementation
+#include "Memory.tpp"

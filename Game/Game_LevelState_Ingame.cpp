@@ -139,7 +139,7 @@ namespace Game
 
 			Ingame_Text.Create
 			(
-				(WideChar*)L"Press enter to pause.\0",
+				L"Press enter to pause.\0",
 				start, end,
 				false
 			);
@@ -149,14 +149,14 @@ namespace Game
 			
 			Ingame_GameOver_Fell.Create
 			(
-				(WideChar*)L"Game Over: You fell\0",
+				L"Game Over: You fell\0",
 				start, end,
 				true
 			);
 
 			Ingame_GameOver_MadeIt.Create
 			(
-				(WideChar*)L"Game Over: You Made It!\0",
+				L"Game Over: You Made It!\0",
 				start, end,
 				true
 			);
@@ -322,9 +322,9 @@ namespace Game
 
 	// Public
 
-	AState* GetIngameState(void)
+	ptr<AState> GetIngameState(void)
 	{
-		return &Ingame_State;
+		return getPtr(Ingame_State);
 	}
 
 	void Ingame_Reload(void)

@@ -122,20 +122,20 @@ namespace Game
 	{
 		void Create 
 		(
-			ro WideChar* _content, 
-			   COORD     _startingCell, 
-			   COORD     _endingCell,
-			   bool      _shouldCenter
+			ptr<ro WideChar> _content, 
+			COORD            _startingCell, 
+			COORD            _endingCell,
+			bool             _shouldCenter
 		);
 
 		void Render();
 
 
-		WideChar* Content = nullptr;
+		ptr<WideChar> Content = nullptr;
 
 		uIntDM Length = 0;
 
-		Cell* RenderCells = nullptr;
+		ptr<Cell> RenderCells = nullptr;
 
 		COORD StartingCell { 0, 0}, EndingCell { 0, 0 };
 	};
@@ -144,11 +144,11 @@ namespace Game
 	{
 		void Create 
 		(
-			ro WideChar*      _text, 
-			   COORD          _startingCell, 
-			   COORD          _endingCell, 
-			   bool           _shouldCenter,
-			   Void_Function& _callback
+			ptr<ro WideChar> _text, 
+			COORD            _startingCell, 
+			COORD            _endingCell, 
+			bool             _shouldCenter,
+			Void_Function&   _callback
 		);
 
 		void Press ();
@@ -164,11 +164,11 @@ namespace Game
 	{
 		void Add 
 		(
-			ro WideChar*      _text, 
-			   COORD          _startingCell, 
-			   COORD          _endingCell, 
-			   bool           _shouldCenter,
-			   Void_Function& _callback
+			ptr<ro WideChar> _text, 
+			COORD            _startingCell, 
+			COORD            _endingCell, 
+			bool             _shouldCenter,
+			Void_Function&   _callback
 		);
 
 		void MoveUp  ();
@@ -177,7 +177,7 @@ namespace Game
 		void Render  ();
 
 
-		UI_Button* Buttons = nullptr;
+		ptr<UI_Button> Buttons = nullptr;
 
 		uIntDM Num = 0;
 
@@ -188,19 +188,19 @@ namespace Game
 	{
 		void AddText
 		(
-			ro WideChar*  _text,
-			   COORD     _startingCell,
-			   COORD     _endingCell,
-			   bool      _shouldCenter
+			ptr<ro WideChar> _text,
+			COORD            _startingCell,
+			COORD            _endingCell,
+			bool             _shouldCenter
 		);
 
 		void AddButton 
 		(
-			ro WideChar*      _text,
-			   COORD          _startingCell,
-			   COORD          _endingCell,
-			   bool           _shouldCenter,
-			   Void_Function& _callback
+			ptr<ro WideChar> _text,
+			COORD            _startingCell,
+			COORD            _endingCell,
+			bool             _shouldCenter,
+			Void_Function&   _callback
 		);
 
 		void MoveUp  ();
@@ -209,7 +209,7 @@ namespace Game
 		void Render  ();
 
 
-		UI_Text* TextUIs = nullptr;
+		ptr<UI_Text> TextUIs = nullptr;
 
 		uIntDM Num_TextUIs = 0;
 
@@ -228,9 +228,9 @@ namespace Game
 
 	// General Rendering
 
-	void ChangeCellsTo_Grey(Cell* _renderCells, uIntDM _length);
+	void ChangeCellsTo_Grey(ptr<Cell> _renderCells, uIntDM _length);
 
-	void ChangeCellsTo_White(Cell* _renderCells, uIntDM _length);
+	void ChangeCellsTo_White(ptr<Cell> _renderCells, uIntDM _length);
 }
 
 

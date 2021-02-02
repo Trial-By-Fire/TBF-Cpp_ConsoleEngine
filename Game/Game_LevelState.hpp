@@ -13,9 +13,9 @@ namespace Game
 	{
 	public:
 
-		unbound AState* Get(void);
+		unbound ptr<AState> Get(void);
 
-		unbound void Set(AState* State);
+		unbound void Set(ptr<AState> State);
 
 		override void Load  (void);
 		override void Unload(void);

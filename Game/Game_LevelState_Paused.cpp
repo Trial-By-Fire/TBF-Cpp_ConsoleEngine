@@ -86,7 +86,7 @@ namespace Game
 		{
 			case Input::EState::Pressed:
 			{
-				WriteToLog((WideChar*)L"Pause: On Key Up");
+				WriteToLog(L"Pause: On Key Up");
 
 				PauseWidget.MoveUp();
 
@@ -101,7 +101,7 @@ namespace Game
 		{
 			case Input::EState::Pressed:
 			{
-				WriteToLog((WideChar*)L"Pause: On Key Down");
+				WriteToLog(L"Pause: On Key Down");
 
 				PauseWidget.MoveDown();
 
@@ -185,9 +185,9 @@ namespace Game
 
 	// Public
 
-	AState* GetPausedState(void)
+	ptr<AState> GetPausedState(void)
 	{
-		return &Paused_State;
+		return getPtr(Paused_State);
 	}
 }
 

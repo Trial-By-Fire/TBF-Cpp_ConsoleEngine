@@ -23,6 +23,7 @@ Language Abstraction Layer
 
 #define override virtual
 
+
 // Memory
 
 /*
@@ -34,16 +35,16 @@ const are put in read only memory.
 const
 
 // Stores the address for a data instance of the specified type. (Pointer declaration, using indirection operator)
-#define Ptr(_type) \
-_type*
+//#define Ptr(_type) 
+//_type*
 
 //Provides a more explicit method for getting a reference.
-#define getPtr(_instance) \
-&_instance
+//#define getPtr(_instance) 
+//&_instance
 
 // Gets the data instance from the specified address (AKA Dereference, using indirection operator)
-#define dref(_address) \
-*_address
+//#define dref(_address) 
+//*_address
 
 // Creates a static duration variable accessible to any file or linkage. (Global/File scope Only)
 #define foreign \
@@ -65,8 +66,8 @@ static
 
 using Byte = char; 
 
-using sInt16 = signed          short;
-using sInt64 = signed long long int;
+using sInt16 = signed           short;
+using sInt64 = signed long long int  ;
 
 using uInt   = unsigned            int;
 using uInt16 = unsigned short      int;
@@ -79,8 +80,56 @@ using Key = char;
 using float32 = float;
 using float64 = double;
 
+
+template<typename Type>
+using ptr = Type*;
+
+
 using uIntDM = size_t;   // Data Model Unsigned Integer
 
 using Void_Function = void();
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
+
+
+
+// Indirection
+
+template<typename Type>
+ptr<Type> getPtr(Type& _ref)
+{
+	return &_ref;
+}
+
+template<typename Type>
+Type& dref(ptr<Type> _ptr)
+{
+	return *_ptr;
+}
+
+
+// Casting
+
+template<typename Derived, typename Base>
+Derived RCast(Base _obj)
+{
+	return reinterpret_cast<Derived>(_obj);
+}
+
+template<typename Derived, typename Base>
+ptr<Derived> RCast(ptr<Base> _ref)
+{
+	return reinterpret_cast< ptr<Derived>>(_ref);
+}
+
+template<typename Derived, typename Base>
+Derived SCast(Base _obj)
+{
+	return static_cast<Derived>(_obj);
+}
+
+template<typename Derived, typename Base>
+ptr<Derived> SCast(ptr<Base> _ref)
+{
+	return static_cast< ptr<Derived>>(_ref);
+}

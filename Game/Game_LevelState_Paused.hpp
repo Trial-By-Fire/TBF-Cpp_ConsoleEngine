@@ -10,6 +10,6 @@
 
 namespace Game
 {
-	AState* GetPausedState(void);
+	ptr<AState> GetPausedState(void);
 }
 

@@ -18,5 +18,5 @@ namespace Engine
 	// Functions
 
 	// Game must implement this function.
-	AState* LoadGame(void);
+	ptr<AState> LoadGame(void);
 }

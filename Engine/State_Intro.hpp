@@ -12,6 +12,6 @@ namespace Intro
 {
 	// Functions
 
-	AState* GetState(void);
+	ptr<AState> GetState(void);
 }
 

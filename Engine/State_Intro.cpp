@@ -44,14 +44,14 @@ namespace Intro
 	bool Intro_DoneOnce = false;
 
 	CTS_CWString IntroTitle    = L"Trial By Fire Engine";
-	CTS_CWString EngineVersion = L"Type C++"           ;
+	CTS_CWString EngineVersion = L"Type C++"            ;
 
 	bool 
 		RenderTitle   = false, 
 		RenderVersion = false ;
 
-	Renderer::Cell* IntroTitle_RenderCells = nullptr;
-	Renderer::Cell* Version_RenderCells    = nullptr;
+	ptr<Renderer::Cell> IntroTitle_RenderCells = nullptr;
+	ptr<Renderer::Cell> Version_RenderCells    = nullptr;
 
 	uIntDM 
 		Title_Length         = 0,
@@ -100,7 +100,7 @@ namespace Intro
 
 	void IntroState::Load(void)
 	{
-		Renderer::WriteToLog((WideChar*)L"Intro State: Loaded");
+		Renderer::WriteToLog(L"Intro State: Loaded");
 
 		if (! Intro_DoneOnce)
 		{
@@ -108,21 +108,21 @@ namespace Intro
 
 			IntroTimer.EndTime = 7.0L;
 
-			Timer_TillTitle    .EndTime = 2.0L;
-			Timer_TillVersion  .EndTime = 1.2L;
+			Timer_TillTitle    .EndTime = 2.0;
+			Timer_TillVersion  .EndTime = 1.2;
 
-			Timer_TillIntroFadeToGrey.EndTime = Timer_TillTitle.EndTime + 4.2L;
+			Timer_TillIntroFadeToGrey.EndTime = Timer_TillTitle.EndTime + 4.2;
 
-			Timer_Till_FadeOut.EndTime = 0.134L;
+			Timer_Till_FadeOut.EndTime = 0.134;
 
-			Timer_TillTitle_ToWhite  .EndTime = 0.134L;
-			Timer_TillVersion_ToWhite.EndTime = 0.134L;
+			Timer_TillTitle_ToWhite  .EndTime = 0.134;
+			Timer_TillVersion_ToWhite.EndTime = 0.134;
 
 			Title_Length         = wcslen(IntroTitle);
 			EngineVersion_Length = wcslen(EngineVersion) + 1;
 
-			IntroTitle_RenderCells = (Cell*)GlobalAllocate(Cell, Title_Length        );
-			Version_RenderCells    = (Cell*)GlobalAllocate(Cell, EngineVersion_Length);
+			IntroTitle_RenderCells = Memory::GlobalAllocate<Cell>(Title_Length        );
+			Version_RenderCells    = Memory::GlobalAllocate<Cell>(EngineVersion_Length);
 
 			for (uIntDM cellIndex = 0; cellIndex < Title_Length; cellIndex++)
 			{
@@ -169,13 +169,13 @@ namespace Intro
 
 		Timer_TillTitle.Tick();
 
-		WriteToPersistentSection(4, (WideChar*)L"Intro Time Elapsed: %.7Lf", IntroTimer.Elapsed);
+		WriteToPersistentSection(4, L"Intro Time Elapsed: %.7Lf", IntroTimer.Elapsed);
 
 		if (Timer_TillTitle.Ended())
 		{
 			if (LogTitle)
 			{
-				WriteToLog((WideChar*)L"Title should show up now (Grey).");
+				WriteToLog(L"Title should show up now (Grey).");
 
 				RenderTitle = true;
 
@@ -188,7 +188,7 @@ namespace Intro
 			{
 				ChangeTitleTo_White();
 
-				WriteToLog((WideChar*)L"Title: White attribute set.");
+				WriteToLog(L"Title: White attribute set.");
 
 				Log_ChangeToWhite_Title = false;
 			}
@@ -197,7 +197,7 @@ namespace Intro
 
 			if (LogVersion && Timer_TillVersion.Ended())
 			{
-				WriteToLog((WideChar*)L"Version should show up now.");
+				WriteToLog(L"Version should show up now.");
 
 				RenderVersion = true;
 
@@ -212,7 +212,7 @@ namespace Intro
 				{
 					ChangeEngineVerTo_White();
 
-					WriteToLog((WideChar*)L"Engine Version: White attribute set.");
+					WriteToLog(L"Engine Version: White attribute set.");
 
 					Log_ChangeToWhite_Version = false;
 				}
@@ -229,7 +229,7 @@ namespace Intro
 
 			if (Log_FadeToGrey)
 			{
-				WriteToLog((WideChar*)L"Title should fade to gray now.");
+				WriteToLog(L"Title should fade to gray now.");
 
 				Log_FadeToGrey = false;
 			}
@@ -238,7 +238,7 @@ namespace Intro
 
 			if (LogFade && Timer_Till_FadeOut.Ended())
 			{
-				WriteToLog((WideChar*)L"Title should fade out now.");
+				WriteToLog(L"Title should fade out now.");
 
 				RenderTitle   = false;
 				RenderVersion = false;
@@ -249,7 +249,7 @@ namespace Intro
 
 		if (LogEnd && IntroTimer.Ended() )
 		{
-			WriteToLog((WideChar*)L"Intro Ends now.");
+			WriteToLog(L"Intro Ends now.");
 
 			LogEnd = false;
 
@@ -270,8 +270,8 @@ namespace Intro
 		// Render Title
 		if (RenderTitle)
 		{
-			startingCell.X = (Renderer::BufferWidth / 2) - (Title_Length / 2);
-			endingCell  .X = (Renderer::BufferWidth / 2) + (Title_Length / 2);
+			startingCell.X = (Renderer::BufferWidth / 2) - (SCast<uInt16>(Title_Length) / 2);
+			endingCell  .X = (Renderer::BufferWidth / 2) + (SCast<uInt16>(Title_Length) / 2);
 
 			startingCell.Y = 9;
 			endingCell  .Y = 9;
@@ -282,8 +282,8 @@ namespace Intro
 		// Render Version
 		if (RenderVersion)
 		{
-			startingCell.X = (Renderer::BufferWidth / 2) - (EngineVersion_Length / 2);
-			endingCell  .X = (Renderer::BufferWidth / 2) + (EngineVersion_Length / 2);
+			startingCell.X = (Renderer::BufferWidth / 2) - (SCast<uInt16>(EngineVersion_Length) / 2);
+			endingCell  .X = (Renderer::BufferWidth / 2) + (SCast<uInt16>(EngineVersion_Length) / 2);
 
 			startingCell.Y = 11;
 			endingCell  .Y = 11;

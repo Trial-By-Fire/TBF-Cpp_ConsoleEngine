@@ -49,9 +49,9 @@ namespace OSPlatform
 
 	// Functions
 
-	FILE* StdInput (void);
-	FILE* StdOutput(void);
-	FILE* StdError (void);
+	ptr<FILE> StdInput (void);
+	ptr<FILE> StdOutput(void);
+	ptr<FILE> StdError (void);
 
 	bool Bind_IOBufferTo_Console(void);
 

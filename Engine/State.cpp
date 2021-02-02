@@ -117,17 +117,17 @@ void State::LoadModule(void)
 	Input::SubscribeTo(EKeyCode::Enter     , State_OnKeyTab      );
 }
 
-AState* AState::GetEngineState()
+ptr<AState> AState::GetEngineState()
 {
-	return &EngineState;
+	return getPtr(EngineState);
 }
 
-void AState::SetEngineState(AState* _state)
+void AState::SetEngineState(ptr<AState> _state)
 {
 	EngineState.Set(_state);
 }
 
-void State::Set(AState* _state)
+void State::Set(ptr<AState> _state)
 {
 	if (CurrentState != nullptr)
 	{

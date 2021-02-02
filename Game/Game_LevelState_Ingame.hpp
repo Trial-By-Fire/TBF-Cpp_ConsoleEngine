@@ -10,7 +10,7 @@
 
 namespace Game
 {
-	AState* GetIngameState(void);
+	ptr<AState> GetIngameState(void);
 
 	void Ingame_Reload(void);
 }

@@ -15,9 +15,9 @@ class AState
 public:
 	~AState() {};
 	
-	unbound AState* GetEngineState();
+	unbound ptr<AState> GetEngineState();
 
-	unbound void SetEngineState(AState* _state);
+	unbound void SetEngineState(ptr<AState> _state);
 
 	virtual void Load  (void) = NULL;
 	virtual void Unload(void) = NULL;
@@ -33,7 +33,7 @@ class State : public AState
 
 public:
 
-	void Set(AState* _state);
+	void Set(ptr<AState> _state);
 
 	override void Load  (void);
 	override void Unload(void);
@@ -47,7 +47,7 @@ private:
 	unbound void LoadModule(void);
 
 
-	AState* CurrentState = nullptr;
+	ptr<AState> CurrentState = nullptr;
 };
 
 

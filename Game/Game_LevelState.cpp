@@ -25,12 +25,12 @@ namespace Game
 
 	// Functions
 
-	AState* LevelState::Get(void)
+	ptr<AState> LevelState::Get(void)
 	{
-		return &StateObj;
+		return getPtr(StateObj);
 	}
 
-	void LevelState::Set(AState* _state)
+	void LevelState::Set(ptr<AState> _state)
 	{
 		Substate.Set(_state);
 	}

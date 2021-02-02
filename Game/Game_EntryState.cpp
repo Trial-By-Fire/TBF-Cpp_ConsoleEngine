@@ -49,7 +49,7 @@ namespace Game
 
 	void MainMenu::PressStart(void)
 	{
-		WriteToLog((WideChar*)L"UI Start Selected");
+		WriteToLog(L"UI Start Selected");
 
 		State::SetEngineState(LevelState::Get());
 	}
@@ -65,7 +65,7 @@ namespace Game
 		{
 			case Input::EState::Pressed:
 			{
-				WriteToLog((WideChar*)L"EntryState: On Key Up");
+				WriteToLog(L"EntryState: On Key Up");
 
 				MenuWidget.MoveUp();
 
@@ -80,7 +80,7 @@ namespace Game
 		{
 			case Input::EState::Pressed:
 			{
-				WriteToLog((WideChar*)L"EntryState: On Key Down");
+				WriteToLog(L"EntryState: On Key Down");
 
 				MenuWidget.MoveDown();
 
@@ -95,7 +95,7 @@ namespace Game
 		{
 			case Input::EState::Pressed:
 			{
-				WriteToLog((WideChar*)L"EntryState: On Key Enter");
+				WriteToLog(L"EntryState: On Key Enter");
 
 				MenuWidget.Select();
 
@@ -158,7 +158,7 @@ namespace Game
 
 		if (Log_Load)
 		{
-			WriteToLog((WideChar*)L"Loaded: Main Menu");
+			WriteToLog(L"Loaded: Main Menu");
 
 			Log_Load = false;
 		}
@@ -172,7 +172,7 @@ namespace Game
 
 		if (Log_Unload)
 		{
-			WriteToLog((WideChar*)L"Unload: Main Menu");
+			WriteToLog(L"Unload: Main Menu");
 
 			Log_Unload = false;
 		}
@@ -193,8 +193,8 @@ namespace Engine
 {
 	// Engine Entrypoint
 
-	AState* LoadGame(void)
+	ptr<AState> LoadGame(void)
 	{
-		return &Game::StateObj;
+		return getPtr(Game::StateObj);
 	}
 }

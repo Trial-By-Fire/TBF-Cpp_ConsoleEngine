@@ -92,7 +92,7 @@ void Input::Update(void)
 			}
 		}
 
-		if (latestState != *CurrentState)
+		if (latestState != dref(CurrentState))
 		{
 			dref(CurrentState) = latestState;
 
@@ -102,7 +102,7 @@ void Input::Update(void)
 			{
 				if ( Context.KeyEventSubs[index].Array[subIndex] != nullptr)
 				{
-					Context.KeyEventSubs[index].Array[subIndex](*CurrentState);
+					Context.KeyEventSubs[index].Array[subIndex](dref(CurrentState));
 				}
 			}
 		}
@@ -111,34 +111,34 @@ void Input::Update(void)
 
 void Input::SubscribeTo(EKeyCode _key, EventFunction& _callbackFunction)
 {
-	ptr<Subscriptions> subs = getPtr(Context.KeyEventSubs[GetKeyIndexFromCode(_key)] );
+	Subscriptions& subs = Context.KeyEventSubs[GetKeyIndexFromCode(_key)];
 
-	if (subs->Num == 0)
+	if (subs.Num == 0)
 	{
-		subs->Array = Memory::GlobalAllocate<EventFunctionPtr>(1);
+		subs.Array = new EventFunctionPtr[1];
 
-		subs->Num++;
+		subs.Num++;
 	}
 	else
 	{
-		for (uIntDM subIndex = 0; subIndex < subs->Num; subIndex++)
+		for (uIntDM subIndex = 0; subIndex < subs.Num; subIndex++)
 		{
-			if ( getPtr(subs->Array)[subIndex] == nullptr)
+			if ( getPtr(subs.Array)[subIndex] == nullptr)
 			{
-				subs->Array[subs->Num - 1] = getPtr(_callbackFunction);
+				subs.Array[subs.Num - 1] = getPtr(_callbackFunction);
 
 				return;
 			}
 		}
 
 
-		ptr<EventFunctionPtr> resizeIntermediary = Memory::GlobalReallocate(subs->Array, (subs->Num + 1));
+		ptr<EventFunctionPtr> resizeIntermediary = Memory::GlobalReallocate(subs.Array, (subs.Num + 1));
 
 		if (resizeIntermediary != nullptr)
 		{
-			subs->Array = resizeIntermediary;
+			subs.Array = resizeIntermediary;
 
-			subs->Num++;
+			subs.Num++;
 		}
 		else
 		{
@@ -148,7 +148,7 @@ void Input::SubscribeTo(EKeyCode _key, EventFunction& _callbackFunction)
 		}
 	}
 
-	subs->Array[subs->Num - 1] = &_callbackFunction;
+	subs.Array[subs.Num - 1] = getPtr(_callbackFunction);
 }
 
 void Input::Unsubscribe(EKeyCode _key, EventFunction& _callbackFunction)
@@ -157,7 +157,7 @@ void Input::Unsubscribe(EKeyCode _key, EventFunction& _callbackFunction)
 
 	for (uIntDM subIndex = 0; subIndex < subs->Num; subIndex++)
 	{
-		if (subs->Array[subIndex] == &_callbackFunction)
+		if (subs->Array[subIndex] == getPtr(_callbackFunction))
 		{
 			subs->Array[subIndex] = nullptr;
 		}

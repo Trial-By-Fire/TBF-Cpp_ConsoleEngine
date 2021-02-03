@@ -19,10 +19,10 @@ namespace Game
 		unbound void PressResume    (void);
 		unbound void PressQuitToMenu(void);
 
-		override void Load  (void);
-		override void Unload(void);
-		override void Update(void);
-		override void Render(void);
+		void Load  (void) final;
+		void Unload(void) final;
+		void Update(void) final;
+		void Render(void) final;
 	};
 
 

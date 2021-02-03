@@ -20,10 +20,10 @@ namespace Intro
 	{
 	public:
 
-		override void Load  (void);
-		override void Unload(void);
-		override void Update(void);
-		override void Render(void);
+		void Load  (void) final;
+		void Unload(void) final;
+		void Update(void) final;
+		void Render(void) final;
 	};
 
 
@@ -121,8 +121,8 @@ namespace Intro
 			Title_Length         = wcslen(IntroTitle);
 			EngineVersion_Length = wcslen(EngineVersion) + 1;
 
-			IntroTitle_RenderCells = Memory::GlobalAllocate<Cell>(Title_Length        );
-			Version_RenderCells    = Memory::GlobalAllocate<Cell>(EngineVersion_Length);
+			IntroTitle_RenderCells = new Cell[Title_Length        ];
+			Version_RenderCells    = new Cell[EngineVersion_Length];
 
 			for (uIntDM cellIndex = 0; cellIndex < Title_Length; cellIndex++)
 			{
@@ -144,7 +144,7 @@ namespace Intro
 
 	void IntroState::Unload(void)
 	{
-		Renderer::WriteToLog((WideChar*)L"Intro State: Unloaded");
+		Renderer::WriteToLog(L"Intro State: Unloaded");
 	}
 
 	void IntroState::Update(void)
@@ -296,8 +296,8 @@ namespace Intro
 
 	// Public
 
-	AState* GetState(void)
+	ptr<AState> GetState(void)
 	{
-		return &StateObj;
+		return getPtr(StateObj);
 	}
 }

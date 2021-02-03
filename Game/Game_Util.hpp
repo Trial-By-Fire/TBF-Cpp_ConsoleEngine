@@ -157,7 +157,7 @@ namespace Game
 
 		UI_Text Text;
 
-		Void_Function* Callback = nullptr;
+		ptr<Void_Function> Callback = nullptr;
 	};
 
 	struct UI_Grid

@@ -27,11 +27,14 @@ void Memory::Deallocate(ptr<void> _memoryToDeallocate)
 
 
 
-// Memory Allocation Array
+// Block Array
 
 BlockArray::~BlockArray()
 {
-	if (Array == nullptr) return;
+	if (Array == nullptr) 
+	{
+		return;
+	}
 
 	for (uIntDM index = 0; index < Length; index++)
 	{
@@ -53,11 +56,11 @@ Block& BlockArray::Add()
 	}
 	else
 	{
-		ptr<void> resizeIntermediary = HeapReallocate(Array, sizeof(ptr<Block>) * (Length + 1) );
+		ptr< ptr<Block>> resizeIntermediary = HeapReallocate(Array, (Length + 1));
 
 		if (resizeIntermediary != nullptr)
 		{
-			Array = RCast< ptr<Block>>(resizeIntermediary);
+			Array = resizeIntermediary;
 
 			Length++;
 		}
@@ -69,7 +72,7 @@ Block& BlockArray::Add()
 		}
 	}
 
-	Array[Length - 1] = RCast<Block>( HeapAllocate<Block>(1) );
+	Array[Length - 1] = HeapAllocate<Block>(1);
 
 	return dref(Array[Length - 1]);
 }
@@ -77,4 +80,13 @@ Block& BlockArray::Add()
 Block& BlockArray::LastEntry()
 {
 	return dref(Array[Length - 1]);
+}
+
+
+
+// Operator Overloads
+
+ptr<void> operator new(uIntDM _numberDesired)
+{
+	 return Memory::GlobalAllocate<Byte>(_numberDesired);
 }

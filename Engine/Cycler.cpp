@@ -4,6 +4,7 @@
 
 // Includes
 #include "C_STL.hpp"
+#include "Input.hpp"
 #include "Memory.hpp"
 #include "Renderer.hpp"
 #include "Timing.hpp"

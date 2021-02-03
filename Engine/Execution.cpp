@@ -28,7 +28,6 @@ void PrepareModules(void)
 
 void PrintStartMessage(void)
 {
-	//Renderer::WriteToLog((WideChar*)L"TBF C++ Engine");
 	Renderer::WriteToLog(L"TBF C++ Engine");
 
 	Renderer::WriteToLog(L"" );

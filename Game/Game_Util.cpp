@@ -289,11 +289,11 @@ namespace Game
 
 		// Format the contents.
 
-		Content = Memory::GlobalAllocate<WideChar>(Length);
+		Content = new WideChar[Length];
 
 		wcscpy_s(Content, Length, _content);
 
-		RenderCells = Memory::GlobalAllocate<Cell>(Length);
+		RenderCells = new Cell[Length];
 
 		for (uIntDM cellIndex = 0; cellIndex < Length; cellIndex++)
 		{
@@ -306,8 +306,8 @@ namespace Game
 
 		if (_shouldCenter)
 		{
-			StartingCell.X += (Renderer::BufferWidth / 2) - (static_cast<uInt16>(Length) / 2);
-			EndingCell  .X += (Renderer::BufferWidth / 2) + (static_cast<uInt16>(Length) / 2);
+			StartingCell.X += (Renderer::BufferWidth / 2) - (SCast<uInt16>(Length) / 2);
+			EndingCell  .X += (Renderer::BufferWidth / 2) + (SCast<uInt16>(Length) / 2);
 
 			StartingCell.X--;
 			EndingCell  .X--;
@@ -337,7 +337,7 @@ namespace Game
 	{
 		Text.Create(_text, _startingCell, _endingCell, _shouldCenter);
 
-		Callback = &_callback;
+		Callback = getPtr(_callback);
 	}
 
 	void UI_Button::Press()
@@ -364,7 +364,7 @@ namespace Game
 	{
 		if (Num == 0)
 		{
-			Buttons = Memory::GlobalAllocate<UI_Button>(1);
+			Buttons = new UI_Button[1];
 
 			Num++;
 		}
@@ -400,7 +400,7 @@ namespace Game
 
 	void UI_Grid::MoveUp()
 	{
-		UI_Text* buttonText = &Buttons[CurrentIndex].Text;
+		ptr<UI_Text> buttonText = getPtr(Buttons[CurrentIndex].Text);
 
 		if (CurrentIndex > 0)
 		{
@@ -408,7 +408,7 @@ namespace Game
 
 			CurrentIndex =  CurrentIndex - 1;
 
-			buttonText = &Buttons[CurrentIndex].Text;
+			buttonText = getPtr(Buttons[CurrentIndex].Text);
 
 			ChangeCellsTo_White(buttonText->RenderCells, buttonText->Length);
 		}
@@ -416,7 +416,7 @@ namespace Game
 
 	void UI_Grid::MoveDown()
 	{
-		UI_Text* buttonText = &Buttons[CurrentIndex].Text;
+		ptr<UI_Text> buttonText = getPtr(Buttons[CurrentIndex].Text);
 
 		if (CurrentIndex < (Num - 1))
 		{
@@ -424,7 +424,7 @@ namespace Game
 
 			CurrentIndex = CurrentIndex + 1;
 
-			buttonText = &Buttons[CurrentIndex].Text;
+			buttonText = getPtr(Buttons[CurrentIndex].Text);
 
 			ChangeCellsTo_White(buttonText->RenderCells, buttonText->Length);
 		}
@@ -456,7 +456,7 @@ namespace Game
 	{
 		if (Num_TextUIs == 0)
 		{
-			TextUIs = Memory::GlobalAllocate<UI_Text>(1);
+			TextUIs = new UI_Text[1];
 
 			Num_TextUIs++;
 		}
@@ -480,7 +480,7 @@ namespace Game
 
 		TextUIs[Num_TextUIs - 1].Create
 		( 
-			(WideChar*)_text, 
+			_text, 
 			_startingCell, 
 			_endingCell, 
 			_shouldCenter

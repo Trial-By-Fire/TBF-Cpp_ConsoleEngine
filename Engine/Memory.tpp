@@ -3,6 +3,7 @@
 
 
 
+// C-API
 
 template<typename Type>
 unbound ptr<Type> Memory::HeapAllocate(uIntDM _numberToAllocate)
@@ -28,13 +29,14 @@ ptr<void> Memory::FormatWithData(ptr<Type> _memoryAddress, ptr<ro Type> _dataSou
 	return memcpy(_memoryAddress, _dataSource, _sizeOfData * sizeof(Type));
 }
 
+// Memory Management
 
 template<typename Type>
 ptr<Type> Memory::Allocate(uIntDM _numberToAllocate)
 {
 	BlockArray::Block& newBlock = records.Add();
 
-	newBlock.Size     = sizeof(Type);
+	newBlock.Size     = _numberToAllocate          ;
 	newBlock.Location = HeapAllocate<Type>(_numberToAllocate);
 
 	if (newBlock.Location != nullptr)
@@ -67,6 +69,7 @@ ptr<Type> Memory::GlobalReallocate(ptr<Type> _location, uIntDM _sizeForReallocat
 			if (resizeIntermediary != nullptr)
 			{
 				GlobalMemory.records.Array[index]->Location = resizeIntermediary;
+				GlobalMemory.records.Array[index]->Size     = _sizeForReallocation;
 
 				return RCast<Type>(GlobalMemory.records.Array[index]->Location);
 			}

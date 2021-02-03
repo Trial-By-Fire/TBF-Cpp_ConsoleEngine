@@ -1,13 +1,10 @@
 #pragma once
 
 
+
 // Includes
 
 #include "LAL.hpp"
-#include "CString.hpp"
-#include "Input.hpp"
-#include "Renderer.hpp"
-#include "Timing.hpp"
 
 
 
@@ -30,8 +27,13 @@ public:
 		~BlockArray();
 
 
+		// Functions
+
 		Block& Add       ();
 		Block& LastEntry ();
+
+
+		// Variables
 
 		ptr< ptr<Block>> Array = nullptr;
 
@@ -41,7 +43,6 @@ public:
 
 
 	// Functions
-
 
 	// C-API
 
@@ -66,20 +67,13 @@ private:
 	BlockArray records;
 
 	unbound Memory GlobalMemory;
-
-
-	// Macros
-
-	#define ScopedAllocate(_type, _numberToAllocate)  \
-	scopedMemory.Allocate<_type>(_numberToAllocate)
-
-	#define SmartScope                    \
-	{					                  \
-		Memory scopedMemory;
-
-	#define SmartScope_End \
-	}
 };
+
+
+
+// Operator Overloads
+
+ptr<void> operator new(uIntDM _numberDesired);
 
 
 

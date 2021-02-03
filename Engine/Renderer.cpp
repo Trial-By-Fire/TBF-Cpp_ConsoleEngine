@@ -88,7 +88,7 @@ bool Renderer::FillCellsWithWhitespace(void)
 		(TCHAR)' ',
 		Context.BufferSize,
 		Console_ScreenPos_00,
-		&Context.CharactersWritten
+		getPtr(Context.CharactersWritten)
 	);
 }
 
@@ -100,7 +100,7 @@ bool Renderer::FormatCells(void)
 		Context.CSBI_Instance.wAttributes,
 		Context.BufferSize,
 		Console_ScreenPos_00,
-		&Context.CharactersWritten
+		getPtr(Context.CharactersWritten)
 	);
 }
 
@@ -132,7 +132,7 @@ void Renderer::ProcessTiming()
 void Renderer::RenderFrame(void)
 {
 	// Renders buffer to console.
-	WriteConsoleOutput(Context.Output_Handle, Buffer, Context.CoordSize, Console_ScreenPos_00, &Context.Size);
+	WriteConsoleOutput(Context.Output_Handle, Buffer, Context.CoordSize, Console_ScreenPos_00, getPtr(Context.Size));
 
 	return;
 }
@@ -214,7 +214,7 @@ void Renderer::Update(void)
 				startingCell.Y = PersistentStart + static_cast<uInt16>(index);
 				finalCell   .Y = PersistentStart + static_cast<uInt16>(index);
 
-				WriteToBufferCells((Cell*)&PersistentSection[index], startingCell, finalCell);
+				WriteToBufferCells(RCast<Cell>(getPtr(PersistentSection[index])), startingCell, finalCell);
 			}
 		}
 
@@ -224,7 +224,7 @@ void Renderer::Update(void)
 	}
 }
 
-void Renderer::WriteToBufferCells(Cell* _cell, COORD _initalCell, COORD _finalCell)
+void Renderer::WriteToBufferCells(const ptr<Cell> _cell, COORD _initalCell, COORD _finalCell)
 {
 	uIntDM lineOffset = _initalCell.Y * BufferWidth;
 	uIntDM colOffset  = _initalCell.X;
@@ -255,13 +255,13 @@ void Renderer_DebugLogDynamic_AddLine(void)
 	{
 		if (DebugLogSection_Dynamic.Num == 0)
 		{
-			DebugLogSection_Dynamic.Array = Memory::GlobalAllocate<Line>(1);
+			DebugLogSection_Dynamic.Array = new Line[1];
 
 			DebugLogSection_Dynamic.Num++;
 		}
 		else
 		{
-			ptr<Line> resizeIntermediary = Memory::GlobalReallocate<Line>(DebugLogSection_Dynamic.Array, (DebugLogSection_Dynamic.Num + 1));
+			ptr<Line> resizeIntermediary = Memory::GlobalReallocate(DebugLogSection_Dynamic.Array, (DebugLogSection_Dynamic.Num + 1));
 
 			if (resizeIntermediary != nullptr)
 			{
@@ -331,7 +331,7 @@ void Renderer::WriteToPersistentSection(sInt _row, ptr<ro WideChar> _lineformat,
 	{
 		WideChar TranslationBuffer[BufferWidth];
 
-		Cell* PersistentSubSection = PersistentSection[_row - 1];
+		ptr<Cell> PersistentSubSection = PersistentSection[_row - 1];
 
 		sInt CellsFormatted;
 
@@ -433,7 +433,7 @@ void Renderer::InitalizeData(void)
 	Context.CursorSettings.dwSize   = Console_Cursor_MinSize;
 	Context.CursorSettings.bVisible = Console_Cursor_NotVisible;
 
-	Buffer = Memory::GlobalAllocate<Cell>(BufferWidth * BufferHeight);
+	Buffer = new Cell[BufferWidth * BufferHeight];
 
 	Memory::FormatByFill(Buffer, 0, BufferWidth * BufferHeight);
 
@@ -479,22 +479,22 @@ void Renderer::SetupConsole(void)
 
 bool Renderer::UpdateConsoleInfo(void)
 {
-	return GetConsoleScreenBufferInfo(Context.Output_Handle, &Context.CSBI_Instance);
+	return GetConsoleScreenBufferInfo(Context.Output_Handle, getPtr(Context.CSBI_Instance));
 }
 
 void Renderer::UpdateSizeAndPosition(void)
 {
 	// Set desired cursor preferences.
-	SetConsoleCursorInfo(Context.Output_Handle, &Context.CursorSettings);
+	SetConsoleCursorInfo(Context.Output_Handle, getPtr(Context.CursorSettings));
 
 	// Change the window size.
-	SetConsoleWindowInfo(Context.Output_Handle, true, &Context.Size);
+	SetConsoleWindowInfo(Context.Output_Handle, true, getPtr(Context.Size));
 
 	// Update the buffer size.
 	SetConsoleScreenBufferSize(Context.Output_Handle, Context.CoordSize);
 
 	// Update the window size.
-	SetConsoleWindowInfo(Context.Output_Handle, true, &Context.Size);
+	SetConsoleWindowInfo(Context.Output_Handle, true, getPtr(Context.Size));
 
 	SetWindowPos
 	(

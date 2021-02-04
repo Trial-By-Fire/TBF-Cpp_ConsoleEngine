@@ -277,21 +277,21 @@ namespace Game
 
 	void UI_Text::Create 
 	(
-		ptr<ro WideChar> _content, 
-		COORD            _startingCell, 
-		COORD            _endingCell,
-		bool             _shouldCenter
+		WString _content, 
+		COORD   _startingCell, 
+		COORD   _endingCell,
+		bool    _shouldCenter
 	)
 	{
-		Length = wcslen(_content) + 1;
-		
-		Content = Memory::GlobalAllocate<WideChar>(Length);
+		// Format the contents.
 
-		wcscpy_s(Content, Length, _content);
+		Content = _content;
 
-		RenderCells = Memory::GlobalAllocate<Cell>(Length);
+		uIntDM cellNum = Content.size() + 1;
 
-		for (uIntDM cellIndex = 0; cellIndex < Length; cellIndex++)
+		RenderCells = Memory::GlobalAllocate<Cell>(cellNum);
+
+		for (uIntDM cellIndex = 0; cellIndex < cellNum; cellIndex++)
 		{
 			RenderCells[cellIndex].Char.UnicodeChar = Content[cellIndex];
 			RenderCells[cellIndex].Attributes       = Console_WhiteCell;
@@ -302,15 +302,15 @@ namespace Game
 
 		if (_shouldCenter)
 		{
-			StartingCell.X += (Renderer::BufferWidth / 2) - (SCast<uInt16>(Length) / 2);
-			EndingCell  .X += (Renderer::BufferWidth / 2) + (SCast<uInt16>(Length) / 2);
+			StartingCell.X += (Renderer::BufferWidth / 2) - (SCast<uInt16>(cellNum) / 2);
+			EndingCell  .X += (Renderer::BufferWidth / 2) + (SCast<uInt16>(cellNum) / 2);
 
 			StartingCell.X--;
 			EndingCell  .X--;
 		}
 		else
 		{
-			EndingCell.X += SCast<uInt16>(Length);
+			EndingCell.X += SCast<uInt16>(cellNum);
 		}
 	}
 
@@ -324,11 +324,11 @@ namespace Game
 
 	void UI_Button::Create 
 	(
-		ptr<ro WideChar> _text, 
-		COORD            _startingCell, 
-		COORD            _endingCell, 
-		bool             _shouldCenter,
-		Void_Function&   _callback
+		WString        _text, 
+		COORD          _startingCell, 
+		COORD          _endingCell, 
+		bool           _shouldCenter,
+		Void_Function& _callback
 	)
 	{
 		Text.Create(_text, _startingCell, _endingCell, _shouldCenter);
@@ -351,11 +351,11 @@ namespace Game
 
 	void UI_Grid::Add 
 	(
-		ptr<ro WideChar> _text, 
-		COORD            _startingCell, 
-		COORD            _endingCell, 
-		bool             _shouldCenter,
-		Void_Function&   _callback
+		WString        _text, 
+		COORD          _startingCell, 
+		COORD          _endingCell, 
+		bool           _shouldCenter,
+		Void_Function& _callback
 	)
 	{
 		if (Num == 0)
@@ -386,10 +386,12 @@ namespace Game
 
 		if (Num != 1)
 		{
+			uIntDM cellNum = Buttons[Num -1].Text.Content.size() + 1;
+
 			ChangeCellsTo_Grey
 			(
 				Buttons[Num -1].Text.RenderCells, 
-				Buttons[Num -1].Text.Length
+				cellNum	
 			);
 		}
 	}
@@ -400,13 +402,15 @@ namespace Game
 
 		if (CurrentIndex > 0)
 		{
-			ChangeCellsTo_Grey(buttonText->RenderCells, buttonText->Length);
+			uIntDM cellNum = buttonText->Content.size() + 1;
+
+			ChangeCellsTo_Grey(buttonText->RenderCells, cellNum);
 
 			CurrentIndex =  CurrentIndex - 1;
 
 			buttonText = getPtr(Buttons[CurrentIndex].Text);
 
-			ChangeCellsTo_White(buttonText->RenderCells, buttonText->Length);
+			ChangeCellsTo_White(buttonText->RenderCells, cellNum);
 		}
 	}
 
@@ -416,13 +420,15 @@ namespace Game
 
 		if (CurrentIndex < (Num - 1))
 		{
-			ChangeCellsTo_Grey(buttonText->RenderCells, buttonText->Length);
+			uIntDM cellNum = buttonText->Content.size() + 1;
+
+			ChangeCellsTo_Grey(buttonText->RenderCells, cellNum);
 
 			CurrentIndex = CurrentIndex + 1;
 
 			buttonText = getPtr(Buttons[CurrentIndex].Text);
 
-			ChangeCellsTo_White(buttonText->RenderCells, buttonText->Length);
+			ChangeCellsTo_White(buttonText->RenderCells, cellNum);
 		}
 	}
 
@@ -444,10 +450,10 @@ namespace Game
 
 	void UI_Widget::AddText
 	(
-		ptr<ro WideChar> _text,
-		COORD            _startingCell,
-		COORD            _endingCell,
-		bool             _shouldCenter
+		WString _text,
+		COORD   _startingCell,
+		COORD   _endingCell,
+		bool    _shouldCenter
 	)
 	{
 		if (Num_TextUIs == 0)
@@ -485,11 +491,11 @@ namespace Game
 
 	void UI_Widget::AddButton 
 	(
-		ptr<ro WideChar> _text,
-		COORD            _startingCell,
-		COORD            _endingCell,
-		bool             _shouldCenter,
-		Void_Function&   _callback
+		WString        _text,
+		COORD          _startingCell,
+		COORD          _endingCell,
+		bool           _shouldCenter,
+		Void_Function& _callback
 	)
 	{
 		Grid.Add

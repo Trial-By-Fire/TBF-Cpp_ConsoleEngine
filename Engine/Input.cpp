@@ -115,7 +115,7 @@ void Input::SubscribeTo(EKeyCode _key, EventFunction& _callbackFunction)
 
 	if (subs.Num == 0)
 	{
-		subs.Array = new EventFunctionPtr[1];
+		subs.Array = Memory::GlobalAllocate<EventFunctionPtr>(1);
 
 		subs.Num++;
 	}

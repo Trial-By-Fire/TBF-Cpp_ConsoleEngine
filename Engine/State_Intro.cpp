@@ -43,8 +43,8 @@ namespace Intro
 
 	bool Intro_DoneOnce = false;
 
-	CTS_CWString IntroTitle    = L"Trial By Fire Engine";
-	CTS_CWString EngineVersion = L"Type C++"            ;
+	WString IntroTitle    = L"Trial By Fire Engine";
+	WString EngineVersion = L"Type C++"            ;
 
 	bool 
 		RenderTitle   = false, 
@@ -118,11 +118,11 @@ namespace Intro
 			Timer_TillTitle_ToWhite  .EndTime = 0.134;
 			Timer_TillVersion_ToWhite.EndTime = 0.134;
 
-			Title_Length         = wcslen(IntroTitle);
-			EngineVersion_Length = wcslen(EngineVersion) + 1;
+			Title_Length         = IntroTitle.size();
+			EngineVersion_Length = EngineVersion.size();
 
-			IntroTitle_RenderCells = new Cell[Title_Length        ];
-			Version_RenderCells    = new Cell[EngineVersion_Length];
+			IntroTitle_RenderCells = Memory::GlobalAllocate<Cell>(Title_Length);
+			Version_RenderCells    = Memory::GlobalAllocate<Cell>(EngineVersion_Length);
 
 			for (uIntDM cellIndex = 0; cellIndex < Title_Length; cellIndex++)
 			{

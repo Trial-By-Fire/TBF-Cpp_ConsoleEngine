@@ -6,7 +6,7 @@
 // Includes
 
 #include "C_STL.hpp"
-#include "CString.hpp"
+#include "String.hpp"
 #include "Cycler.hpp"
 #include "Input.hpp"
 #include "Memory.hpp"
@@ -55,6 +55,16 @@ ExitCode EntryPoint(void)
 	Cycler::Initialize();
 	
 	UnloadModules();
+
+	/*try
+	{
+		Memory::GlobalDeallocate();
+	}
+	catch (const std::exception& _what)
+	{
+		
+	}*/
+	
 
 	return ExitCode::Success;
 }

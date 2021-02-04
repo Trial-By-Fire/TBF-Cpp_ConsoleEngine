@@ -122,33 +122,31 @@ namespace Game
 	{
 		void Create 
 		(
-			ptr<ro WideChar> _content, 
-			COORD            _startingCell, 
-			COORD            _endingCell,
-			bool             _shouldCenter
+			WString _content, 
+			COORD   _startingCell, 
+			COORD   _endingCell,
+			bool    _shouldCenter
 		);
 
 		void Render();
 
 
-		ptr<WideChar> Content = nullptr;
-
-		uIntDM Length = 0;
+		WString Content;
 
 		ptr<Cell> RenderCells = nullptr;
 
-		COORD StartingCell { 0, 0 }, EndingCell { 0, 0 };
+		COORD StartingCell { 0, 0}, EndingCell { 0, 0 };
 	};
 
 	struct UI_Button
 	{
 		void Create 
 		(
-			ptr<ro WideChar> _text, 
-			COORD            _startingCell, 
-			COORD            _endingCell, 
-			bool             _shouldCenter,
-			Void_Function&   _callback
+			WString        _text, 
+			COORD          _startingCell, 
+			COORD          _endingCell, 
+			bool           _shouldCenter,
+			Void_Function& _callback
 		);
 
 		void Press ();
@@ -164,11 +162,11 @@ namespace Game
 	{
 		void Add 
 		(
-			ptr<ro WideChar> _text, 
-			COORD            _startingCell, 
-			COORD            _endingCell, 
-			bool             _shouldCenter,
-			Void_Function&   _callback
+			WString        _text, 
+			COORD          _startingCell, 
+			COORD          _endingCell, 
+			bool           _shouldCenter,
+			Void_Function& _callback
 		);
 
 		void MoveUp  ();
@@ -188,19 +186,19 @@ namespace Game
 	{
 		void AddText
 		(
-			ptr<ro WideChar> _text,
-			COORD            _startingCell,
-			COORD            _endingCell,
-			bool             _shouldCenter
+			WString _text,
+			COORD   _startingCell,
+			COORD   _endingCell,
+			bool    _shouldCenter
 		);
 
 		void AddButton 
 		(
-			ptr<ro WideChar> _text,
-			COORD            _startingCell,
-			COORD            _endingCell,
-			bool             _shouldCenter,
-			Void_Function&   _callback
+			WString        _text,
+			COORD          _startingCell,
+			COORD          _endingCell,
+			bool           _shouldCenter,
+			Void_Function& _callback
 		);
 
 		void MoveUp  ();
@@ -212,6 +210,8 @@ namespace Game
 		ptr<UI_Text> TextUIs = nullptr;
 
 		uIntDM Num_TextUIs = 0;
+
+		//Ptr(UI_Grid) Grids;
 
 		UI_Grid Grid;
 	};

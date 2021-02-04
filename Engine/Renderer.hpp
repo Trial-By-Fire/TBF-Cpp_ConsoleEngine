@@ -6,7 +6,7 @@
 
 #include "Config.hpp"
 #include "LAL.hpp"
-#include "CString.hpp"
+#include "String.hpp"
 #include "OSPlatform.hpp"
 #include "Timing.hpp"
 
@@ -57,10 +57,10 @@ public:
 		HANDLE Output_Handle = INVALID_HANDLE_VALUE;
 
 		DWORD      CharactersWritten = 0;
-		COORD      CoordSize         = { BufferWidth, BufferHeight};
+		COORD      CoordSize         = { BufferWidth, BufferHeight };
 		CSBI       CSBI_Instance       {};
 		DWORD      BufferSize        = 0;
-		SMALL_RECT Size              = { 0, 0};
+		SMALL_RECT Num               = { 0, 0};
 
 		CONSOLE_CURSOR_INFO CursorSettings {};
 
@@ -88,9 +88,9 @@ public:
 
 	unbound void WriteToBufferCells(ptr<Cell> _cells, COORD _initalCell, COORD _finalCell);
 
-	unbound void WriteToLog(ptr<ro WideChar> _logString);
+	unbound void WriteToLog(WString _logString);
 
-	unbound void WriteToPersistentSection(sInt _row, ptr<ro WideChar> _lineformat, ...);
+	unbound void WriteToPersistentSection(sInt _row, WString _lineformat, ...);
 
 	unbound void Logs_ScrollUp(void);
 

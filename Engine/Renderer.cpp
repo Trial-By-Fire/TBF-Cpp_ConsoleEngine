@@ -132,7 +132,7 @@ void Renderer::ProcessTiming()
 void Renderer::RenderFrame(void)
 {
 	// Renders buffer to console.
-	WriteConsoleOutput(Context.Output_Handle, Buffer, Context.CoordSize, Console_ScreenPos_00, getPtr(Context.Size));
+	WriteConsoleOutput(Context.Output_Handle, Buffer, Context.CoordSize, Console_ScreenPos_00, getPtr(Context.Num));
 
 	return;
 }
@@ -255,7 +255,7 @@ void Renderer_DebugLogDynamic_AddLine(void)
 	{
 		if (DebugLogSection_Dynamic.Num == 0)
 		{
-			DebugLogSection_Dynamic.Array = new Line[1];
+			DebugLogSection_Dynamic.Array = Memory::GlobalAllocate<Line>(1);
 
 			DebugLogSection_Dynamic.Num++;
 		}
@@ -279,13 +279,12 @@ void Renderer_DebugLogDynamic_AddLine(void)
 	}
 }
 
-void Renderer::WriteToLog(ptr<ro WideChar> _logString)
+void Renderer::WriteToLog(WString _logString)
 {
 	if CompileTime (DebugEnabled)
 	{
 		unbound uInt nextLine = 0;
 
-		uIntDM logLength = wcslen(_logString);
 		uIntDM linePos = 0;
 
 		if (nextLine == 0)
@@ -293,7 +292,7 @@ void Renderer::WriteToLog(ptr<ro WideChar> _logString)
 			Renderer_DebugLogDynamic_AddLine();
 		}
 
-		for (uIntDM index = 0; index < logLength; index++)
+		for (WideChar wChar : _logString)
 		{
 			if (linePos > BufferWidth - 1)
 			{
@@ -304,7 +303,7 @@ void Renderer::WriteToLog(ptr<ro WideChar> _logString)
 				linePos = 0;
 			}
 
-			DebugLogSection_Dynamic.Array[nextLine][linePos].Char.UnicodeChar = _logString[index];
+			DebugLogSection_Dynamic.Array[nextLine][linePos].Char.UnicodeChar = wChar;
 			DebugLogSection_Dynamic.Array[nextLine][linePos].Attributes       = Console_WhiteCell;
 
 			linePos++;
@@ -325,11 +324,13 @@ void Renderer::WriteToLog(ptr<ro WideChar> _logString)
 }
 
 // Note: Row starts at 1.
-void Renderer::WriteToPersistentSection(sInt _row, ptr<ro WideChar> _lineformat, ...)
+void Renderer::WriteToPersistentSection(sInt _row, WString _lineformat, ...)
 {
 	if CompileTime (DebugEnabled)
 	{
-		WideChar TranslationBuffer[BufferWidth];
+		WString TranslationBuffer; 
+		
+		TranslationBuffer.resize(BufferWidth);
 
 		ptr<Cell> PersistentSubSection = PersistentSection[_row - 1];
 
@@ -345,11 +346,11 @@ void Renderer::WriteToPersistentSection(sInt _row, ptr<ro WideChar> _lineformat,
 			// Windows hard coding.
 			_vswprintf_s_l
 			(
-			TranslationBuffer,
-			BufferWidth,
-			_lineformat,
-			nullptr,
-			argList
+				TranslationBuffer.data(),
+				BufferWidth,
+				_lineformat.data(),
+				nullptr,
+				argList
 			);
 
 		va_end(argList);
@@ -425,15 +426,15 @@ void Renderer::InitalizeData(void)
 
 	Context.Window_Handle = GetConsoleWindow();
 
-	Context.Size.Left   = Console_ScreenPos_00.X;
-	Context.Size.Top    = Console_ScreenPos_00.Y;
-	Context.Size.Right  = BufferWidth  - 1;
-	Context.Size.Bottom = BufferHeight - 1;
+	Context.Num.Left   = Console_ScreenPos_00.X;
+	Context.Num.Top    = Console_ScreenPos_00.Y;
+	Context.Num.Right  = BufferWidth  - 1;
+	Context.Num.Bottom = BufferHeight - 1;
 
 	Context.CursorSettings.dwSize   = Console_Cursor_MinSize;
 	Context.CursorSettings.bVisible = Console_Cursor_NotVisible;
 
-	Buffer = new Cell[BufferWidth * BufferHeight];
+	Buffer = Memory::GlobalAllocate<Cell>(BufferWidth * BufferHeight);
 
 	Memory::FormatByFill(Buffer, 0, BufferWidth * BufferHeight);
 
@@ -488,13 +489,13 @@ void Renderer::UpdateSizeAndPosition(void)
 	SetConsoleCursorInfo(Context.Output_Handle, getPtr(Context.CursorSettings));
 
 	// Change the window size.
-	SetConsoleWindowInfo(Context.Output_Handle, true, getPtr(Context.Size));
+	SetConsoleWindowInfo(Context.Output_Handle, true, getPtr(Context.Num));
 
 	// Update the buffer size.
 	SetConsoleScreenBufferSize(Context.Output_Handle, Context.CoordSize);
 
 	// Update the window size.
-	SetConsoleWindowInfo(Context.Output_Handle, true, getPtr(Context.Size));
+	SetConsoleWindowInfo(Context.Output_Handle, true, getPtr(Context.Num));
 
 	SetWindowPos
 	(

@@ -84,10 +84,33 @@ using float64 = double;
 template<typename Type>
 using ptr = Type*;
 
+template<typename Type>
+using uptr = std::unique_ptr<Type>;
+
+
+template<typename Type, class... ArgumentsTypes>
+uptr<Type> MakeUPtr(ArgumentsTypes&&... _arguments)
+{
+	return std::make_unique<Type>(_arguments...);
+}
+
 
 using uIntDM = size_t;   // Data Model Unsigned Integer
 
 using Void_Function = void();
+
+
+template<typename Type>
+using DynamicArray = std::vector<Type>;
+
+
+using CString_13   = char[13];
+using CTS_CString  = char[];
+using WideChar     = wchar_t;
+using CTS_CWString = wchar_t[];
+
+using String  = std::string;
+using WString = std::wstring;
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -133,3 +156,15 @@ ptr<Derived> SCast(ptr<Base> _ref)
 {
 	return static_cast< ptr<Derived>>(_ref);
 }
+
+
+
+//template<typename Type>
+//CompileTime auto move(Type _arg)
+//{
+//	return std::move(_arg);
+//}
+
+
+
+ptr<ro WideChar> operator""_wc(ptr<ro wchar_t> _um, uIntDM _umSize);

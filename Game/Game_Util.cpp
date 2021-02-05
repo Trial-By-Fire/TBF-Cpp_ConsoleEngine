@@ -186,8 +186,6 @@ namespace Game
 
 	void Level::SetCells(COORD _firstCell, COORD _lastCell, ELevelCell _cellType) 
 	{
-		Memory scopedMemory;
-
 		uIntDM lineOffset = _firstCell.Y * Renderer::BufferWidth;
 		uIntDM colOffset  = _firstCell.X;
 
@@ -209,15 +207,15 @@ namespace Game
 
 		if (dataSize == 0) dataSize = 1;
 
-		ptr<Cell> setCellBuffer = scopedMemory.Allocate<Cell>(dataSize);
+		DynamicArray<Cell> setCellBuffer = DynamicArray<Cell>(dataSize);
 
 		for (uIntDM index = 0; index < dataSize; index++)
 		{
-			setCellBuffer[index].Char.UnicodeChar = 0;
-			setCellBuffer[index].Attributes       = (WORD)_cellType;
+			setCellBuffer.at(index).Char.UnicodeChar = 0;
+			setCellBuffer.at(index).Attributes       = (WORD)_cellType;
 		}
 
-		Memory::FormatWithData(bufferOffset, setCellBuffer, dataSize);
+		Memory::FormatWithData(bufferOffset, setCellBuffer.data(), dataSize);
 	}
 
 	void Level::Render()
@@ -277,21 +275,17 @@ namespace Game
 
 	void UI_Text::Create 
 	(
-		ptr<ro WideChar> _content, 
-		COORD            _startingCell, 
-		COORD            _endingCell,
-		bool             _shouldCenter
+		WString _content, 
+		COORD   _startingCell, 
+		COORD   _endingCell,
+		bool    _shouldCenter
 	)
 	{
-		Length = wcslen(_content) + 1;
-		
-		Content = Memory::GlobalAllocate<WideChar>(Length);
+		Content = move(_content);
 
-		wcscpy_s(Content, Length, _content);
+		RenderCells = Memory::GlobalAllocate<Cell>(Content.size() + 1);
 
-		RenderCells = Memory::GlobalAllocate<Cell>(Length);
-
-		for (uIntDM cellIndex = 0; cellIndex < Length; cellIndex++)
+		for (uIntDM cellIndex = 0; cellIndex < Content.size(); cellIndex++)
 		{
 			RenderCells[cellIndex].Char.UnicodeChar = Content[cellIndex];
 			RenderCells[cellIndex].Attributes       = Console_WhiteCell;
@@ -302,15 +296,15 @@ namespace Game
 
 		if (_shouldCenter)
 		{
-			StartingCell.X += (Renderer::BufferWidth / 2) - (SCast<uInt16>(Length) / 2);
-			EndingCell  .X += (Renderer::BufferWidth / 2) + (SCast<uInt16>(Length) / 2);
+			StartingCell.X += (Renderer::BufferWidth / 2) - (SCast<uInt16>(Content.size() + 1) / 2);
+			EndingCell  .X += (Renderer::BufferWidth / 2) + (SCast<uInt16>(Content.size() + 1) / 2);
 
 			StartingCell.X--;
 			EndingCell  .X--;
 		}
 		else
 		{
-			EndingCell.X += SCast<uInt16>(Length);
+			EndingCell.X += SCast<uInt16>(Content.size() + 1);
 		}
 	}
 
@@ -322,13 +316,18 @@ namespace Game
 
 	// Button
 
+	UI_Button::~UI_Button()
+	{
+		Text.~UI_Text();
+	}
+
 	void UI_Button::Create 
 	(
-		ptr<ro WideChar> _text, 
-		COORD            _startingCell, 
-		COORD            _endingCell, 
-		bool             _shouldCenter,
-		Void_Function&   _callback
+		WString        _text, 
+		COORD          _startingCell, 
+		COORD          _endingCell, 
+		bool           _shouldCenter,
+		Void_Function& _callback
 	)
 	{
 		Text.Create(_text, _startingCell, _endingCell, _shouldCenter);
@@ -349,13 +348,21 @@ namespace Game
 
 	// Grid
 
+	UI_Grid::~UI_Grid()
+	{
+		for (uIntDM index = 0; index < Num; index++)
+		{
+			Buttons[index].~UI_Button();
+		}
+	}
+
 	void UI_Grid::Add 
 	(
-		ptr<ro WideChar> _text, 
-		COORD            _startingCell, 
-		COORD            _endingCell, 
-		bool             _shouldCenter,
-		Void_Function&   _callback
+		WString        _text, 
+		COORD          _startingCell, 
+		COORD          _endingCell, 
+		bool           _shouldCenter,
+		Void_Function& _callback
 	)
 	{
 		if (Num == 0)
@@ -389,7 +396,7 @@ namespace Game
 			ChangeCellsTo_Grey
 			(
 				Buttons[Num -1].Text.RenderCells, 
-				Buttons[Num -1].Text.Length
+				Buttons[Num -1].Text.Content.size()
 			);
 		}
 	}
@@ -400,13 +407,13 @@ namespace Game
 
 		if (CurrentIndex > 0)
 		{
-			ChangeCellsTo_Grey(buttonText->RenderCells, buttonText->Length);
+			ChangeCellsTo_Grey(buttonText->RenderCells, buttonText->Content.size());
 
 			CurrentIndex =  CurrentIndex - 1;
 
 			buttonText = getPtr(Buttons[CurrentIndex].Text);
 
-			ChangeCellsTo_White(buttonText->RenderCells, buttonText->Length);
+			ChangeCellsTo_White(buttonText->RenderCells, buttonText->Content.size());
 		}
 	}
 
@@ -416,13 +423,13 @@ namespace Game
 
 		if (CurrentIndex < (Num - 1))
 		{
-			ChangeCellsTo_Grey(buttonText->RenderCells, buttonText->Length);
+			ChangeCellsTo_Grey(buttonText->RenderCells, buttonText->Content.size());
 
 			CurrentIndex = CurrentIndex + 1;
 
 			buttonText = getPtr(Buttons[CurrentIndex].Text);
 
-			ChangeCellsTo_White(buttonText->RenderCells, buttonText->Length);
+			ChangeCellsTo_White(buttonText->RenderCells, buttonText->Content.size());
 		}
 	}
 
@@ -440,14 +447,22 @@ namespace Game
 	}
 
 
-	// Grid
+	// Widget
+
+	UI_Widget::~UI_Widget()
+	{
+		for (uIntDM index = 0; index < Num_TextUIs; index++)
+		{
+			TextUIs[index].~UI_Text();
+		}
+	}
 
 	void UI_Widget::AddText
 	(
-		ptr<ro WideChar> _text,
-		COORD            _startingCell,
-		COORD            _endingCell,
-		bool             _shouldCenter
+		WString _text,
+		COORD   _startingCell,
+		COORD   _endingCell,
+		bool    _shouldCenter
 	)
 	{
 		if (Num_TextUIs == 0)
@@ -485,11 +500,11 @@ namespace Game
 
 	void UI_Widget::AddButton 
 	(
-		ptr<ro WideChar> _text,
-		COORD            _startingCell,
-		COORD            _endingCell,
-		bool             _shouldCenter,
-		Void_Function&   _callback
+		WString        _text,
+		COORD          _startingCell,
+		COORD          _endingCell,
+		bool           _shouldCenter,
+		Void_Function& _callback
 	)
 	{
 		Grid.Add

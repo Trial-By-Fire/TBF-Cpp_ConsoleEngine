@@ -6,7 +6,6 @@
 // Includes
 
 #include "C_STL.hpp"
-#include "String.hpp"
 #include "Cycler.hpp"
 #include "Input.hpp"
 #include "Memory.hpp"

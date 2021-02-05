@@ -130,7 +130,7 @@ namespace Game
 
 			PauseWidget.AddText
 			(
-				L"Paused\0",
+				L"Paused",
 				startCell, 
 				endCell,
 				true   // Should Center
@@ -140,7 +140,7 @@ namespace Game
 
 			PauseWidget.AddButton
 			(
-				L"Resume\0",
+				L"Resume",
 				startCell, endCell,
 				true,
 				Paused::PressResume
@@ -151,7 +151,7 @@ namespace Game
 
 			PauseWidget.AddButton
 			(
-				L"Quit to Menu\0",
+				L"Quit to Menu",
 				startCell, endCell,
 				true,
 				Paused::PressQuitToMenu

@@ -6,7 +6,6 @@
 
 #include "Config.hpp"
 #include "LAL.hpp"
-#include "String.hpp"
 #include "OSPlatform.hpp"
 #include "Timing.hpp"
 

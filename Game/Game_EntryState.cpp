@@ -122,7 +122,7 @@ namespace Game
 
 			MenuWidget.AddText
 			(
-				L"Generic Platformer Demo\0",
+				L"Generic Platformer Demo",
 				startCell, 
 				endCell,
 				true   // Should Center
@@ -132,7 +132,7 @@ namespace Game
 
 			MenuWidget.AddButton
 			(
-				L"Start\0",
+				L"Start",
 				startCell, endCell,
 				true,
 				MainMenu::PressStart
@@ -143,7 +143,7 @@ namespace Game
 
 			MenuWidget.AddButton
 			(
-				L"Quit\0",
+				L"Quit",
 				startCell, endCell,
 				true,
 				MainMenu::PressQuit

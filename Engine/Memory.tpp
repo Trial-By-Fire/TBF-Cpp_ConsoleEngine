@@ -8,13 +8,21 @@
 template<typename Type>
 unbound ptr<Type> Memory::HeapAllocate(uIntDM _numberToAllocate)
 {
-	return RCast<Type>(malloc(sizeof(Type) * _numberToAllocate));
+	return new Type[_numberToAllocate];
 };
 
 template<typename Type>
-ptr<Type> Memory::HeapReallocate(ptr<Type> _memoryToReallocate, uIntDM _numberDesired)
+ptr<Type> Memory::HeapReallocate(ptr<Type> _memoryToReallocate, uIntDM _originalNum, uIntDM _numberDesired)
 {
-	return RCast<Type>(realloc(_memoryToReallocate, _numberDesired * sizeof(Type)) );
+	ptr<Type> resizeIntermediary = new Type[_numberDesired];
+
+	if (resizeIntermediary == nullptr) return nullptr;
+
+	FormatWithData(resizeIntermediary, _memoryToReallocate, _originalNum);
+
+	delete[] _memoryToReallocate;
+
+	return resizeIntermediary;
 }
 
 template<typename Type>
@@ -34,21 +42,13 @@ ptr<void> Memory::FormatWithData(ptr<Type> _memoryAddress, ptr<ro Type> _dataSou
 template<typename Type>
 ptr<Type> Memory::Allocate(uIntDM _numberToAllocate)
 {
-	BlockArray::Block& newBlock = records.Add();
+	records.push_back(Block());
 
-	newBlock.Size     = _numberToAllocate          ;
-	newBlock.Location = HeapAllocate<Type>(_numberToAllocate);
+	Block& newBlock = records.back();
 
-	if (newBlock.Location != nullptr)
-	{
-		return RCast<Type>(newBlock.Location);
-	}
-	else
-	{
-		perror("Failed to scope allocate memory.");
+	newBlock.resize(_numberToAllocate * sizeof(Type));
 
-		exit(1);
-	}
+	return RCast<Type>(newBlock.data());
 }
 
 template<typename Type>
@@ -60,25 +60,16 @@ ptr<Type> Memory::GlobalAllocate(uIntDM _numberToAllocate)
 template<typename Type>
 ptr<Type> Memory::GlobalReallocate(ptr<Type> _location, uIntDM _sizeForReallocation)
 {
-	for (uIntDM index = 0; index < GlobalMemory.records.Length; index++)
+	for (auto& block : GlobalMemory.records)
 	{
-		if (GlobalMemory.records.Array[index]->Location == _location)
+		if (RCast<Type>(block.data()) == _location)
 		{
-			ptr<Type> resizeIntermediary = HeapReallocate(_location, _sizeForReallocation);
+			block.resize(_sizeForReallocation * sizeof(Type));
 
-			if (resizeIntermediary != nullptr)
-			{
-				GlobalMemory.records.Array[index]->Location = resizeIntermediary;
-				GlobalMemory.records.Array[index]->Size     = _sizeForReallocation;
-
-				return RCast<Type>(GlobalMemory.records.Array[index]->Location);
-			}
-			else
-			{
-				return nullptr;
-			}
+			return RCast<Type>(block.data());
 		}
 	}
 
 	return nullptr;
 }
+

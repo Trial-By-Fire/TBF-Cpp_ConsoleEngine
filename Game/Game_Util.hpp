@@ -122,18 +122,16 @@ namespace Game
 	{
 		void Create 
 		(
-			ptr<ro WideChar> _content, 
-			COORD            _startingCell, 
-			COORD            _endingCell,
-			bool             _shouldCenter
+			WString _content, 
+			COORD   _startingCell, 
+			COORD   _endingCell,
+			bool    _shouldCenter
 		);
 
 		void Render();
 
 
-		ptr<WideChar> Content = nullptr;
-
-		uIntDM Length = 0;
+		WString Content;
 
 		ptr<Cell> RenderCells = nullptr;
 
@@ -142,13 +140,15 @@ namespace Game
 
 	struct UI_Button
 	{
+		~UI_Button();
+
 		void Create 
 		(
-			ptr<ro WideChar> _text, 
-			COORD            _startingCell, 
-			COORD            _endingCell, 
-			bool             _shouldCenter,
-			Void_Function&   _callback
+			WString        _text, 
+			COORD          _startingCell, 
+			COORD          _endingCell, 
+			bool           _shouldCenter,
+			Void_Function& _callback
 		);
 
 		void Press ();
@@ -162,13 +162,15 @@ namespace Game
 
 	struct UI_Grid
 	{
+		~UI_Grid();
+
 		void Add 
 		(
-			ptr<ro WideChar> _text, 
-			COORD            _startingCell, 
-			COORD            _endingCell, 
-			bool             _shouldCenter,
-			Void_Function&   _callback
+			WString        _text, 
+			COORD          _startingCell, 
+			COORD          _endingCell, 
+			bool           _shouldCenter,
+			Void_Function& _callback
 		);
 
 		void MoveUp  ();
@@ -186,21 +188,23 @@ namespace Game
 
 	struct UI_Widget
 	{
+		~UI_Widget();
+
 		void AddText
 		(
-			ptr<ro WideChar> _text,
-			COORD            _startingCell,
-			COORD            _endingCell,
-			bool             _shouldCenter
+			WString _text,
+			COORD   _startingCell,
+			COORD   _endingCell,
+			bool    _shouldCenter
 		);
 
 		void AddButton 
 		(
-			ptr<ro WideChar> _text,
-			COORD            _startingCell,
-			COORD            _endingCell,
-			bool             _shouldCenter,
-			Void_Function&   _callback
+			WString        _text,
+			COORD          _startingCell,
+			COORD          _endingCell,
+			bool           _shouldCenter,
+			Void_Function& _callback
 		);
 
 		void MoveUp  ();

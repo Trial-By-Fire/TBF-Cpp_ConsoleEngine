@@ -50,12 +50,8 @@ namespace Intro
 		RenderTitle   = false, 
 		RenderVersion = false ;
 
-	ptr<Renderer::Cell> IntroTitle_RenderCells = nullptr;
-	ptr<Renderer::Cell> Version_RenderCells    = nullptr;
-
-	uIntDM 
-		Title_Length         = 0,
-		EngineVersion_Length = 0 ;
+	DynamicArray<Renderer::Cell> IntroTitle_RenderCells;
+	DynamicArray<Renderer::Cell> Version_RenderCells   ;
 
 
 
@@ -63,35 +59,19 @@ namespace Intro
 
 	// Private
 
-	void ChangeTitleTo_Grey()
+	void ChangeTo_Grey(DynamicArray<Renderer::Cell>& _cells)
 	{
-		for (uIntDM cellIndex = 0; cellIndex < Title_Length; cellIndex++)
+		for (auto& cell : _cells)
 		{
-			IntroTitle_RenderCells[cellIndex].Attributes = FOREGROUND_INTENSITY;
+			cell.Attributes.Set(Renderer::CAttribute::FG_Intensity);
 		}
 	}
 
-	void ChangeEngineVerTo_Grey()
+	void ChangeTo_White(DynamicArray<Renderer::Cell>& _cells)
 	{
-		for (uIntDM cellIndex = 0; cellIndex < EngineVersion_Length; cellIndex++)
+		for (auto& cell : _cells)
 		{
-			Version_RenderCells[cellIndex].Attributes = FOREGROUND_INTENSITY;
-		}
-	}
-
-	void ChangeTitleTo_White()
-	{
-		for (uIntDM cellIndex = 0; cellIndex < Title_Length; cellIndex++)
-		{
-			IntroTitle_RenderCells[cellIndex].Attributes = Console_WhiteCell;
-		}
-	}
-
-	void ChangeEngineVerTo_White()
-	{
-		for (uIntDM cellIndex = 0; cellIndex < EngineVersion_Length; cellIndex++)
-		{
-			Version_RenderCells[cellIndex].Attributes = Console_WhiteCell;
+			cell.Attributes = Console_WhiteCell;
 		}
 	}
 
@@ -106,28 +86,24 @@ namespace Intro
 		{
 			using Cell = Renderer::Cell;
 
-			Title_Length         = IntroTitle.size();
-			EngineVersion_Length = EngineVersion.size();
+			IntroTitle_RenderCells.resize(IntroTitle   .size());
+			Version_RenderCells   .resize(EngineVersion.size());
 
-			IntroTitle_RenderCells = Memory::GlobalAllocate<Cell>(Title_Length);
-			Version_RenderCells    = Memory::GlobalAllocate<Cell>(EngineVersion_Length);
-
-			for (uIntDM cellIndex = 0; cellIndex < Title_Length; cellIndex++)
+			for (uIntDM cellIndex = 0; cellIndex < IntroTitle_RenderCells.size(); cellIndex++)
 			{
-				IntroTitle_RenderCells[cellIndex].Char.UnicodeChar = IntroTitle[cellIndex];
+				IntroTitle_RenderCells[cellIndex].Char = IntroTitle[cellIndex];
 			}
 
-			for (uIntDM cellIndex = 0; cellIndex < EngineVersion_Length; cellIndex++)
+			for (uIntDM cellIndex = 0; cellIndex < Version_RenderCells.size(); cellIndex++)
 			{
-				Version_RenderCells[cellIndex].Char.UnicodeChar = EngineVersion[cellIndex];
+				Version_RenderCells[cellIndex].Char = EngineVersion[cellIndex];
 			}
 
 			Intro_DoneOnce = true;
 		}
 
-		ChangeTitleTo_Grey();
-
-		ChangeEngineVerTo_Grey();
+		ChangeTo_Grey(IntroTitle_RenderCells);
+		ChangeTo_Grey(Version_RenderCells   );
 	}
 
 	void IntroState::Unload(void)
@@ -153,8 +129,7 @@ namespace Intro
 			Log_FadeToGrey = true;
 
 
-		IntroTimer.Tick();
-
+		IntroTimer     .Tick();
 		Timer_TillTitle.Tick();
 
 		WriteToPersistentSection(4, WString(L"Intro Time Elapsed: ") + ToWString(IntroTimer.Elapsed.count()));
@@ -174,7 +149,7 @@ namespace Intro
 
 			if (Log_ChangeToWhite_Title &&  Timer_TillTitle_ToWhite.Ended())
 			{
-				ChangeTitleTo_White();
+				ChangeTo_White(IntroTitle_RenderCells);
 
 				WriteToLog(L"Title: White attribute set.");
 
@@ -198,7 +173,7 @@ namespace Intro
 
 				if (Log_ChangeToWhite_Version && Timer_TillVersion_ToWhite.Ended())
 				{
-					ChangeEngineVerTo_White();
+					ChangeTo_White(Version_RenderCells);
 
 					WriteToLog(L"Engine Version: White attribute set.");
 
@@ -211,9 +186,8 @@ namespace Intro
 
 		if (Timer_TillIntroFadeToGrey.Ended())
 		{
-			ChangeTitleTo_Grey();
-
-			ChangeEngineVerTo_Grey();
+			ChangeTo_Grey(IntroTitle_RenderCells);
+			ChangeTo_Grey(Version_RenderCells   );
 
 			if (Log_FadeToGrey)
 			{
@@ -258,25 +232,25 @@ namespace Intro
 		// Render Title
 		if (RenderTitle)
 		{
-			startingCell.X = (Renderer::BufferWidth / 2) - (SCast<uInt16>(Title_Length) / 2);
-			endingCell  .X = (Renderer::BufferWidth / 2) + (SCast<uInt16>(Title_Length) / 2);
+			startingCell.X = (Renderer::BufferWidth / 2) - (SCast<uInt16>(IntroTitle_RenderCells.size()) / 2);
+			endingCell  .X = (Renderer::BufferWidth / 2) + (SCast<uInt16>(IntroTitle_RenderCells.size()) / 2);
 
 			startingCell.Y = 9;
 			endingCell  .Y = 9;
 
-			WriteToBufferCells(IntroTitle_RenderCells, startingCell, endingCell);
+			WriteToBufferCells(IntroTitle_RenderCells.data(), startingCell, endingCell);
 		}
 
 		// Render Version
 		if (RenderVersion)
 		{
-			startingCell.X = (Renderer::BufferWidth / 2) - (SCast<uInt16>(EngineVersion_Length) / 2);
-			endingCell  .X = (Renderer::BufferWidth / 2) + (SCast<uInt16>(EngineVersion_Length) / 2);
+			startingCell.X = (Renderer::BufferWidth / 2) - (SCast<uInt16>(Version_RenderCells.size()) / 2);
+			endingCell  .X = (Renderer::BufferWidth / 2) + (SCast<uInt16>(Version_RenderCells.size()) / 2);
 
 			startingCell.Y = 11;
 			endingCell  .Y = 11;
 
-			WriteToBufferCells(Version_RenderCells, startingCell, endingCell);
+			WriteToBufferCells(Version_RenderCells.data(), startingCell, endingCell);
 		}
 	}
 

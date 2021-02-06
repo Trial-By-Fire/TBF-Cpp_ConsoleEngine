@@ -5,7 +5,6 @@
 
 // Includes
 
-#include "FloatCompare.hpp"
 #include "Input.hpp"
 #include "Memory.hpp"
 #include "Timing.hpp"
@@ -17,19 +16,19 @@ using OSPlatform::Console_Cursor_MinSize;
 using OSPlatform::Console_Cursor_NotVisible;
 using OSPlatform::Console_WhiteCell;
 
-using Cell       = Renderer::Cell;
 using Data       = Renderer::Data;
 using ScreenInfo = Renderer::ScreenInfo;
 using Line       = Renderer::Line;
 
-CompileTime auto PersistentSize = Renderer::PersistentSize;
 
 
 // Static Data
 
 // Private
 
-ptr<Cell> Buffer;
+using Cell = OSPlatform::ConsoleCell;
+
+DynamicArray<Cell> Buffer;
 
 Data       Renderer::Context;
 ScreenInfo Screen;
@@ -37,23 +36,14 @@ ScreenInfo Screen;
 Line Border_GameDebug    ;
 Line Border_LogPersistent;
 
-// Eliminate these?
-
-struct Lines
-{
-	ptr<Line> Array;
-
-	uIntDM Num;
-};
-	
-Lines DebugLogSection_Dynamic;
+DynamicArray<Line> DebugLogSection_Dynamic;
 
 uInt DebugLogSection_RelativeLastLine = 1;
 
 
 #ifdef BuildDebug 
 
-	Line PersistentSection[PersistentSize];
+	StaticArray<Line, Renderer::PersistentSize> PersistentSection;
 
 #endif
 
@@ -77,7 +67,7 @@ void Renderer::Clear(void)
 	{
 		unbound Cell value = { 0, 0 };
 
-		Memory::FormatByFill<Cell>(Buffer, value, BufferWidth * BufferHeight);
+		Memory::FormatByFill<Cell>(Buffer.data(), value, BufferWidth * BufferHeight);
 	}
 }
 
@@ -117,8 +107,6 @@ void Renderer::LoadModule(void)
 
 	InitalizeData();
 
-	// Setup Console to ideal configuration.
-
 	SetConsoleTitle(Renderer_ConsoleTitle.data());
 
 	UpdateSizeAndPosition();
@@ -134,16 +122,12 @@ void Renderer::ProcessTiming()
 void Renderer::RenderFrame(void)
 {
 	// Renders buffer to console.
-	WriteConsoleOutput(Context.Output_Handle, Buffer, Context.CoordSize, Console_ScreenPos_00, getPtr(Context.Num));
-
-	return;
+	WriteConsoleOutput(Context.Output_Handle, RCast<CHAR_INFO>(Buffer.data()), Context.CoordSize, Console_ScreenPos_00, getPtr(Context.Num));
 }
 
 void Renderer::ResetDrawPosition(void)
 {
 	SetConsoleCursorPosition(Context.Output_Handle, Console_ScreenPos_00);
-
-	return;
 }
 
 void Renderer::UnloadModule(void)
@@ -169,50 +153,54 @@ void Renderer::Update(void)
 
 		State::GetEngineState()->Render();
 
-		//WriteToPersistentSection(1, L"Relative Last Line: %u", DebugLogSection_RelativeLastLine);
-
 		if CompileTime (DebugEnabled)
 		{
 			COORD 
 				startingCell = { 0          , BorderLineRow }, 
 				finalCell    = { BufferWidth, BorderLineRow };
 
-			WriteToBufferCells(RCast<Cell>(getPtr(Border_GameDebug)), startingCell, finalCell);
+			WriteToBufferCells(Border_GameDebug.data(), startingCell, finalCell);
 
 			startingCell.Y = PersistentStart - 1;
 			finalCell   .Y = PersistentStart - 1;
 
-			WriteToBufferCells(RCast<Cell>(getPtr(Border_LogPersistent)), startingCell, finalCell);
+			WriteToBufferCells(Border_LogPersistent.data(), startingCell, finalCell);
 
-			if (DebugLogSection_Dynamic.Num <= 18)
+			startingCell.Y = DebugStart;
+			finalCell   .Y = DebugStart;
+
+			if (DebugLogSection_Dynamic.size() <= 18)
 			{
-				for (uIntDM index = 0; index < DebugLogSection_Dynamic.Num - 1; index++)
+				for (auto& line : DebugLogSection_Dynamic)
 				{
-					startingCell.Y = DebugStart + SCast<uInt16>(index);
-					finalCell   .Y = DebugStart + SCast<uInt16>(index);
+					startingCell.Y++;
+					finalCell   .Y++;
 
-					WriteToBufferCells(DebugLogSection_Dynamic.Array[index], startingCell, finalCell);
+					WriteToBufferCells(line.data(), startingCell, finalCell);
 				}
 			}
 			else
 			{
-				uIntDM LogStart = DebugLogSection_Dynamic.Num - 18 - DebugLogSection_RelativeLastLine;
+				uIntDM LogStart = DebugLogSection_Dynamic.size() - LogSize - DebugLogSection_RelativeLastLine;
 
 				for (uIntDM index = 0; index < LogSize; index++)
 				{
-					startingCell.Y = DebugStart + SCast<uInt16>(index);
-					finalCell   .Y = DebugStart + SCast<uInt16>(index);
+					WriteToBufferCells(DebugLogSection_Dynamic[LogStart + index].data(), startingCell, finalCell);
 
-					WriteToBufferCells(DebugLogSection_Dynamic.Array[LogStart + index], startingCell, finalCell);
+					startingCell.Y++;
+					finalCell   .Y++;
 				}
 			}
 
-			for (uIntDM index = 0; index < PersistentSize; index++)
-			{
-				startingCell.Y = PersistentStart + SCast<uInt16>(index);
-				finalCell   .Y = PersistentStart + SCast<uInt16>(index);
+			startingCell.Y = PersistentStart;
+			finalCell   .Y = PersistentStart;
 
-				WriteToBufferCells(RCast<Cell>(getPtr(PersistentSection[index])), startingCell, finalCell);
+			for (auto& line : PersistentSection)
+			{
+				WriteToBufferCells(line.data(), startingCell, finalCell);
+
+				startingCell.Y++;
+				finalCell   .Y++;
 			}
 		}
 
@@ -247,34 +235,6 @@ void Renderer::WriteToBufferCells(ro ptr<Cell> _cell, COORD _initalCell, COORD _
 	return;
 }
 
-void Renderer_DebugLogDynamic_AddLine(void)
-{
-	if CompileTime (DebugEnabled)
-	{
-		if (DebugLogSection_Dynamic.Num == 0)
-		{
-			DebugLogSection_Dynamic.Array = Memory::GlobalAllocate<Line>(1);
-
-			DebugLogSection_Dynamic.Num++;
-		}
-		else
-		{
-			ptr<Line> resizeIntermediary = Memory::GlobalReallocate(DebugLogSection_Dynamic.Array, (DebugLogSection_Dynamic.Num + 1));
-
-			if (resizeIntermediary != nullptr)
-			{
-				DebugLogSection_Dynamic.Array = resizeIntermediary;
-
-				DebugLogSection_Dynamic.Num++;
-			}
-			else
-			{
-				throw RuntimeError("Failed to globally reallocate log line array.");
-			}
-		}
-	}
-}
-
 void Renderer::WriteToLog(WString _logString)
 {
 	if CompileTime (DebugEnabled)
@@ -285,35 +245,35 @@ void Renderer::WriteToLog(WString _logString)
 
 		if (nextLine == 0)
 		{
-			Renderer_DebugLogDynamic_AddLine();
+			DebugLogSection_Dynamic.resize(1);
 		}
 
-		for (WideChar wChar : _logString)
+		for (WChar wChar : _logString)
 		{
 			if (linePos > BufferWidth - 1)
 			{
 				nextLine++;
 
-				Renderer_DebugLogDynamic_AddLine();
+				DebugLogSection_Dynamic.resize(DebugLogSection_Dynamic.size() + 1);
 
 				linePos = 0;
 			}
 
-			DebugLogSection_Dynamic.Array[nextLine][linePos].Char.UnicodeChar = wChar;
-			DebugLogSection_Dynamic.Array[nextLine][linePos].Attributes       = Console_WhiteCell;
+			DebugLogSection_Dynamic[nextLine][linePos].Char       = wChar;
+			DebugLogSection_Dynamic[nextLine][linePos].Attributes = Console_WhiteCell;
 
 			linePos++;
 		}
 
 		for (uIntDM index = linePos; index < BufferWidth; index++)
 		{
-			DebugLogSection_Dynamic.Array[nextLine][index].Char.UnicodeChar = 0;
-			DebugLogSection_Dynamic.Array[nextLine][index].Attributes       = 0;
+			DebugLogSection_Dynamic[nextLine][index].Char = 0;
+			DebugLogSection_Dynamic[nextLine][index].Attributes.Reset();
 		}
 
 		nextLine++;
 
-		Renderer_DebugLogDynamic_AddLine();
+		DebugLogSection_Dynamic.resize(DebugLogSection_Dynamic.size() + 1);
 
 		DebugLogSection_RelativeLastLine = 1;
 	}
@@ -324,18 +284,18 @@ void Renderer::WriteToPersistentSection(sInt _row, WString _lineformat, ...)
 {
 	if CompileTime (DebugEnabled)
 	{
-		ptr<Cell> PersistentSubSection = PersistentSection[_row - 1];
+		ptr<Cell> PersistentSubSection = PersistentSection[_row - 1].data();
 
 		for (uIntDM index = 0; index < _lineformat.size(); index++)
 		{
-			PersistentSubSection[index].Char.UnicodeChar = _lineformat[index];
-			PersistentSubSection[index].Attributes       = Console_WhiteCell;
+			PersistentSubSection[index].Char       = _lineformat[index];
+			PersistentSubSection[index].Attributes = Console_WhiteCell;
 		}
 
 		for (uIntDM index = _lineformat.size() + 1; index < BufferWidth; index++)
 		{
-			PersistentSubSection[index].Char.UnicodeChar = NULL;
-			PersistentSubSection[index].Attributes       = NULL;
+			PersistentSubSection[index].Char = 0;
+			PersistentSubSection[index].Attributes.Reset();
 		}
 	}
 }
@@ -348,23 +308,15 @@ void Renderer::DrawGameScanlines(void)
 {
 	unbound COORD cellIndex = { 0, 0 };
 
-	ro WideChar blockChar = '-';
+	StaticArray<Cell, BufferWidth> cellLine;
 
-	Cell cellUnit;
+	Cell cellUnit('-', CAttribute::FG_Intensity);
 
-	cellUnit.Char.UnicodeChar = blockChar;
-	cellUnit.Attributes       = FOREGROUND_INTENSITY;
-
-	Cell cellLine[BufferWidth];
-
-	for (uIntDM index = 0; index < BufferWidth; index++)
-	{
-		cellLine[index] = cellUnit;
-	}
+	Memory::FormatByFill(cellLine.data(), cellUnit, BufferWidth);
 
 	COORD cellIndex_End = { BufferWidth, cellIndex.Y };
 
-	WriteToBufferCells(RCast<Cell>(getPtr(cellLine)), cellIndex, cellIndex_End);
+	WriteToBufferCells(cellLine.data(), cellIndex, cellIndex_End);
 
 	cellIndex.Y++;
 
@@ -405,17 +357,10 @@ void Renderer::InitalizeData(void)
 	Context.CursorSettings.dwSize   = Console_Cursor_MinSize;
 	Context.CursorSettings.bVisible = Console_Cursor_NotVisible;
 
-	Buffer = Memory::GlobalAllocate<Cell>(BufferWidth * BufferHeight);
+	Buffer.resize(BufferWidth * BufferHeight);
 
-	unbound Cell cellInitValue = { 0, 0 };
-
-	Memory::FormatByFill(Buffer, cellInitValue, BufferWidth * BufferHeight);
-
-	Cell borderCell; 
+	Cell borderCell = { '=', Console_WhiteCell }; 
 	
-	borderCell.Char.UnicodeChar = '='; 
-	borderCell.Attributes       = Console_WhiteCell;
-
 	if CompileTime (DebugEnabled)
 	{
 		for (size_t index = 0; index < BufferWidth; index++)
@@ -423,9 +368,6 @@ void Renderer::InitalizeData(void)
 			Border_GameDebug    [index] = borderCell;
 			Border_LogPersistent[index] = borderCell;
 		}
-
-		DebugLogSection_Dynamic.Array = nullptr;
-		DebugLogSection_Dynamic.Num   = 0;
 	}
 
 	return;
@@ -484,7 +426,7 @@ void Renderer::Logs_ScrollUp(void)
 {
 	if CompileTime (DebugEnabled)
 	{
-		if (DebugLogSection_RelativeLastLine < DebugLogSection_Dynamic.Num)
+		if (DebugLogSection_RelativeLastLine < (DebugLogSection_Dynamic.size() - LogSize))
 		{
 			DebugLogSection_RelativeLastLine++;
 		}

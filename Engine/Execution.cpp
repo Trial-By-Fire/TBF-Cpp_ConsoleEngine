@@ -17,8 +17,6 @@
 
 void PrepareModules(void)
 {
-	Cycler  ::LoadModule();
-	Input   ::LoadModule();
 	Renderer::LoadModule();
 	State   ::LoadModule();
 }

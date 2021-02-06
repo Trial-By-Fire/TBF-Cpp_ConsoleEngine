@@ -5,7 +5,6 @@
 // Includes
 
 #include "OSPlatform.hpp"
-#include "FloatCompare.hpp"
 #include "LAL.hpp"
 
 

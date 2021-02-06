@@ -33,9 +33,10 @@ public:
 
 	// Aliases (Typedefs)
 
-	using CSBI = CONSOLE_SCREEN_BUFFER_INFO;
-	using Cell = CHAR_INFO;
-	using Line = Cell[BufferWidth];
+	using CAttribute = OSPlatform::CAttribute;
+	using Cell       = OSPlatform::ConsoleCell;
+	using CSBI       = CONSOLE_SCREEN_BUFFER_INFO;
+	using Line       = StaticArray<Cell, BufferWidth>;
 
 
 
@@ -58,6 +59,7 @@ public:
 		DWORD      CharactersWritten = 0;
 		COORD      CoordSize         = { BufferWidth, BufferHeight };
 		CSBI       CSBI_Instance       {};
+
 		DWORD      BufferSize        = 0;
 		SMALL_RECT Num               = { 0, 0};
 

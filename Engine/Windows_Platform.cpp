@@ -22,12 +22,12 @@ namespace OSPlatform
 
 	// Static Data
 
-	CTS_CString SConsole_In   = "CONIN$";
-	CTS_CString SConsole_Out  = "CONOUT$";
-	CTS_CString SConsole_Null = "NUL:";
+	CompileTime char SConsole_In  [] = "CONIN$";
+	CompileTime char SConsole_Out [] = "CONOUT$";
+	CompileTime char SConsole_Null[] = "NUL:";
 
-	CTS_CString SReadCode  = "r";
-	CTS_CString SWriteCode = "w";
+	CompileTime char SReadCode [] = "r";
+	CompileTime char SWriteCode[] = "w";
 
 
 

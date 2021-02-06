@@ -35,10 +35,6 @@ uIntDM   GetKeyIndexFromCode(EKeyCode _key);
 
 // Public
 
-void Input::LoadModule(void)
-{
-}
-
 ro Input::Data& Input::GetContext(void)
 {
 	return Context;
@@ -62,7 +58,7 @@ void Input::Update(void)
 
 		// Determine latest key state.
 
-		ptr<EState> CurrentState = getPtr(Context.KeyStates[index]);
+		EState& CurrentState = Context.KeyStates[index];
 				
 		EState latestState = EState::None;
 
@@ -74,7 +70,7 @@ void Input::Update(void)
 			}
 			else
 			{
-				if (dref(CurrentState) != EState::PressHeld)
+				if (CurrentState != EState::PressHeld)
 				{
 					latestState = EState::None;
 				}
@@ -92,17 +88,15 @@ void Input::Update(void)
 			}
 		}
 
-		if (latestState != dref(CurrentState))
+		if (latestState != CurrentState)
 		{
-			dref(CurrentState) = latestState;
+			CurrentState = latestState;
 
-			uIntDM num = Context.KeyEventSubs[index].Num;
-
-			for (uIntDM subIndex = 0; subIndex < num; subIndex++)
+			for (auto& sub : Context.KeyEventSubs[index])
 			{
-				if ( Context.KeyEventSubs[index].Array[subIndex] != nullptr)
+				if (sub != nullptr)
 				{
-					Context.KeyEventSubs[index].Array[subIndex](dref(CurrentState));
+					dref(sub)(CurrentState);
 				}
 			}
 		}
@@ -113,51 +107,18 @@ void Input::SubscribeTo(EKeyCode _key, EventFunction& _callbackFunction)
 {
 	Subscriptions& subs = Context.KeyEventSubs[GetKeyIndexFromCode(_key)];
 
-	if (subs.Num == 0)
-	{
-		subs.Array = Memory::GlobalAllocate<EventFunctionPtr>(1);
-
-		subs.Num++;
-	}
-	else
-	{
-		for (uIntDM subIndex = 0; subIndex < subs.Num; subIndex++)
-		{
-			if ( getPtr(subs.Array)[subIndex] == nullptr)
-			{
-				subs.Array[subs.Num - 1] = getPtr(_callbackFunction);
-
-				return;
-			}
-		}
-
-
-		ptr<EventFunctionPtr> resizeIntermediary = Memory::GlobalReallocate(subs.Array, (subs.Num + 1));
-
-		if (resizeIntermediary != nullptr)
-		{
-			subs.Array = resizeIntermediary;
-
-			subs.Num++;
-		}
-		else
-		{
-			throw RuntimeError("Failed to globally reallocate subscription array.");
-		}
-	}
-
-	subs.Array[subs.Num - 1] = getPtr(_callbackFunction);
+	subs.push_back(getPtr(_callbackFunction));
 }
 
 void Input::Unsubscribe(EKeyCode _key, EventFunction& _callbackFunction)
 {
-	ptr<Subscriptions> subs = getPtr(Context.KeyEventSubs[GetKeyIndexFromCode(_key)] );
+	Subscriptions& subs = Context.KeyEventSubs[GetKeyIndexFromCode(_key)];
 
-	for (uIntDM subIndex = 0; subIndex < subs->Num; subIndex++)
+	for (auto& sub : subs)
 	{
-		if (subs->Array[subIndex] == getPtr(_callbackFunction))
+		if (sub == _callbackFunction)
 		{
-			subs->Array[subIndex] = nullptr;
+			sub = nullptr;
 		}
 	}
 }

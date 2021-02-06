@@ -24,13 +24,10 @@ bool Exist = false;   // Sentinel value use to exist core engine loop.
 
 // Public
 
-void Cycler::Lapse(void)
-{
-	Exist = false;
-}
-
 void Cycler::Initialize(void)
 {
+	Exist = true;
+
 	while (Exist == true)
 	{
 		Timing::TakeInitialSnapshot();
@@ -55,8 +52,7 @@ void Cycler::Initialize(void)
 	}
 }
 
-void Cycler::LoadModule(void)
+void Cycler::Lapse()
 {
-	Exist = true;
+	Exist = false;
 }
-

@@ -18,7 +18,7 @@ namespace Game
 
 		collisionPostion.Y -= 0.085f;
 
-		sInt cellCollided = _level.GetCellAtPosition(collisionPostion);
+		ELevelCell cellCollided = ELevelCell(WORD(_level.GetCellAtPosition(collisionPostion).Attributes));
 
 		return cellCollided == ELevelCell::Finish;
 	}
@@ -29,18 +29,14 @@ namespace Game
 
 		collisionPostion.Y -= 0.085f;
 
-		sInt cellCollided = _level.GetCellAtPosition(collisionPostion);
+		ELevelCell cellCollided = ELevelCell(WORD(_level.GetCellAtPosition(collisionPostion).Attributes));
 
 		return cellCollided == ELevelCell::Ground || cellCollided == ELevelCell::Finish;
 	}
 
 	void Character::Load()
 	{
-		Sprite =
-		{
-			0,
-			BACKGROUND_INTENSITY | BACKGROUND_RED | BACKGROUND_GREEN | BACKGROUND_BLUE
-		};
+		Sprite = Cell(0, CAttributeField(CAttribute::BG_Intensity, CAttribute::BG_Red, CAttribute::BG_Green, CAttribute::BG_Blue));
 
 		Position = { -0.975f, 0.075f };
 
@@ -57,8 +53,7 @@ namespace Game
 	{
 		if (Fell == true) return;
 
-
-		ro float32 deltaTime = SCast<ro float32>(Timing::GetContext().DeltaTime.count());
+		float32 deltaTime = SCast<ro float32>(Timing::GetContext().DeltaTime.count());
 
 		unbound float32 velocity = 1.0f;
 		unbound float32 gravity  = 0.00004f;
@@ -67,9 +62,9 @@ namespace Game
 
 		collisionPostion.Y -= 0.085f;
 
-		sInt cellCollided = _level.GetCellAtPosition(collisionPostion);
+		ELevelCell cellTypeCollided =  ELevelCell(WORD(_level.GetCellAtPosition(collisionPostion).Attributes));
 
-		if (cellCollided == ELevelCell::Ground || cellCollided == ELevelCell::Finish)
+		if (cellTypeCollided == ELevelCell::Ground || cellTypeCollided == ELevelCell::Finish)
 		{
 			VerticalVelocity = 0.0f;
 
@@ -77,7 +72,7 @@ namespace Game
 
 			Active_MoveState = MoveState;
 		}
-		else if (cellCollided == ELevelCell::Pit)
+		else if (cellTypeCollided == ELevelCell::Pit)
 		{
 			VerticalVelocity = 0.0f;
 
@@ -92,9 +87,9 @@ namespace Game
 			Position.Y += VerticalVelocity;
 		}
 
-		if (cellCollided == ELevelCell::Finish) return;
+		if (cellTypeCollided == ELevelCell::Finish) return;
 
-		if (ShouldJump && cellCollided == ELevelCell::Ground)
+		if (ShouldJump && cellTypeCollided == ELevelCell::Ground)
 		{
 			WriteToLog(L"Giving character jump velocity");
 
@@ -147,11 +142,7 @@ namespace Game
 
 		if CompileTime (DebugEnabled)
 		{
-			unbound Cell colliderView = 
-			{
-				0,
-				BACKGROUND_INTENSITY | BACKGROUND_RED | BACKGROUND_GREEN
-			};
+			unbound Cell colliderView(0, CAttributeField(CAttribute::BG_Intensity, CAttribute::BG_Red, CAttribute::BG_Green));
 
 			COORD colliderViewCoord;
 
@@ -170,54 +161,34 @@ namespace Game
 
 	// Level
 
-	sInt Level::GetCellAtPosition(Vector2D _position)
+	Cell Level::GetCellAtPosition(Vector2D _position)
 	{
 		COORD renderCoord = Convert_Vector2D_ToRenderCoord(_position);
 
-		ptr<Cell> cellBuffer = RCast<Cell>(this);
-
-		uIntDM lineOffset = renderCoord.Y * Renderer::BufferWidth;
-		uIntDM colOffset  = renderCoord.X;
-
-		uIntDM totalOffset = lineOffset + colOffset;
-
-		return cellBuffer[totalOffset].Attributes;
+		return Content[renderCoord.Y][renderCoord.X];
 	}
 
 	void Level::SetCells(COORD _firstCell, COORD _lastCell, ELevelCell _cellType) 
 	{
-		uIntDM lineOffset = _firstCell.Y * Renderer::BufferWidth;
+		uIntDM lineOffset = _firstCell.Y;
 		uIntDM colOffset  = _firstCell.X;
 
-		uIntDM totalOffset = lineOffset + colOffset;
+		ptr<Cell> bufferOffset = getPtr(Content[lineOffset][colOffset]);
 
-		ptr<Cell> levelCellBuffer = RCast<Cell>(this);
+		uIntDM cellsSkipped = lineOffset * Renderer::BufferWidth + colOffset;
 
-		ptr<Cell> bufferOffset = getPtr(levelCellBuffer[totalOffset]);
-
-		uIntDM dataSize = totalOffset;
-
-		lineOffset = _lastCell.Y * Renderer::BufferWidth;
-
+		lineOffset = _lastCell.Y;
 		colOffset  = _lastCell.X;
 
-		totalOffset = lineOffset + colOffset;
+		uIntDM totalOffset = lineOffset * Renderer::BufferWidth + colOffset;
 
-		dataSize = totalOffset - dataSize;
+		uIntDM dataSize = totalOffset - cellsSkipped;
 
 		if (dataSize == 0) dataSize = 1;
 
-		unbound DynamicArray<Cell> setCellBuffer;
-		
-		setCellBuffer.resize(dataSize);
+		Cell cellFormat(0, CAttributeField(WORD(_cellType)));
 
-		for (uIntDM index = 0; index < dataSize; index++)
-		{
-			setCellBuffer.at(index).Char.UnicodeChar = 0;
-			setCellBuffer.at(index).Attributes       = (WORD)_cellType;
-		}
-
-		Memory::FormatWithData(bufferOffset, setCellBuffer.data(), dataSize);
+		Memory::FormatByFill(bufferOffset, cellFormat, dataSize);
 	}
 
 	void Level::Render()
@@ -246,7 +217,8 @@ namespace Game
 		renderingCoord.X = SCast<sInt16>(convertedX + offsetX   );	
 		renderingCoord.Y = SCast<sInt16>(offsetY    - convertedY);
 
-		if (renderingCoord.X >= Renderer::BufferWidth) renderingCoord.X = Renderer::BufferWidth - 1;
+		if (renderingCoord.Y <  0                     ) renderingCoord.Y = 0;
+		if (renderingCoord.X >= Renderer::BufferWidth ) renderingCoord.X = Renderer::BufferWidth  - 1;
 
 		return renderingCoord;
 	}
@@ -254,21 +226,7 @@ namespace Game
 
 	// General Rendering
 
-	void ChangeCellsTo_Grey(ptr<Cell> _renderCells, uIntDM _length)
-	{
-		for (uIntDM cellIndex = 0; cellIndex < _length; cellIndex++)
-		{
-			_renderCells[cellIndex].Attributes = FOREGROUND_INTENSITY;
-		}
-	}
 
-	void ChangeCellsTo_White(ptr<Cell> _renderCells, uIntDM _length)
-	{
-		for (uIntDM cellIndex = 0; cellIndex < _length; cellIndex++)
-		{
-			_renderCells[cellIndex].Attributes = Console_WhiteCell;
-		}
-	}
 
 
 	// UI
@@ -285,12 +243,12 @@ namespace Game
 	{
 		Content = move(_content);
 
-		RenderCells = Memory::GlobalAllocate<Cell>(Content.size() + 1);
+		RenderCells.resize(Content.size() + 1);
 
 		for (uIntDM cellIndex = 0; cellIndex < Content.size(); cellIndex++)
 		{
-			RenderCells[cellIndex].Char.UnicodeChar = Content[cellIndex];
-			RenderCells[cellIndex].Attributes       = Console_WhiteCell;
+			RenderCells[cellIndex].Char       = Content[cellIndex];
+			RenderCells[cellIndex].Attributes = Console_WhiteCell;
 		}
 
 		StartingCell = _startingCell;
@@ -310,18 +268,29 @@ namespace Game
 		}
 	}
 
+	void UI_Text::SetToGrey()
+	{
+		for (auto& cell : RenderCells)
+		{
+			cell.Attributes.Set(CAttribute::FG_Intensity);
+		}
+	}
+
+	void UI_Text::SetToWhite()
+	{
+		for (auto& cell : RenderCells)
+		{
+			cell.Attributes = Console_WhiteCell;
+		}
+	}
+
 	void UI_Text::Render()
 	{
-		WriteToBufferCells(RenderCells, StartingCell, EndingCell);
+		WriteToBufferCells(RenderCells.data(), StartingCell, EndingCell);
 	}
 
 
 	// Button
-
-	UI_Button::~UI_Button()
-	{
-		Text.~UI_Text();
-	}
 
 	void UI_Button::Create 
 	(
@@ -344,19 +313,11 @@ namespace Game
 
 	void UI_Button::Render()
 	{
-		WriteToBufferCells(Text.RenderCells, Text.StartingCell, Text.EndingCell);
+		Text.Render();
 	}
 
 
 	// Grid
-
-	UI_Grid::~UI_Grid()
-	{
-		for (uIntDM index = 0; index < Num; index++)
-		{
-			Buttons[index].~UI_Button();
-		}
-	}
 
 	void UI_Grid::Add 
 	(
@@ -367,37 +328,13 @@ namespace Game
 		Void_Function& _callback
 	)
 	{
-		if (Num == 0)
+		Buttons.push_back(UI_Button());
+
+		Buttons.back().Create(_text, _startingCell, _endingCell, _shouldCenter, _callback);
+
+		if (Buttons.size() != 1)
 		{
-			Buttons = Memory::GlobalAllocate<UI_Button>(1);
-
-			Num++;
-		}
-		else
-		{
-			ptr<UI_Button> resizeIntermediary = Memory::GlobalReallocate(Buttons, (Num + 1));
-
-			if (resizeIntermediary != NULL)
-			{
-				Buttons = resizeIntermediary;
-
-				Num++;
-			}
-			else
-			{
-				throw RuntimeError("Failed to globally reallocate subscription array.");
-			}
-		}
-
-		Buttons[Num - 1].Create(_text, _startingCell, _endingCell, _shouldCenter, _callback);
-
-		if (Num != 1)
-		{
-			ChangeCellsTo_Grey
-			(
-				Buttons[Num -1].Text.RenderCells, 
-				Buttons[Num -1].Text.Content.size()
-			);
+			Buttons.back().Text.SetToGrey();
 		}
 	}
 
@@ -407,13 +344,13 @@ namespace Game
 
 		if (CurrentIndex > 0)
 		{
-			ChangeCellsTo_Grey(buttonText->RenderCells, buttonText->Content.size());
+			buttonText->SetToGrey();
 
 			CurrentIndex =  CurrentIndex - 1;
 
 			buttonText = getPtr(Buttons[CurrentIndex].Text);
 
-			ChangeCellsTo_White(buttonText->RenderCells, buttonText->Content.size());
+			buttonText->SetToWhite();
 		}
 	}
 
@@ -421,15 +358,15 @@ namespace Game
 	{
 		ptr<UI_Text> buttonText = getPtr(Buttons[CurrentIndex].Text);
 
-		if (CurrentIndex < (Num - 1))
+		if (CurrentIndex < (Buttons.size() - 1))
 		{
-			ChangeCellsTo_Grey(buttonText->RenderCells, buttonText->Content.size());
+			buttonText->SetToGrey();
 
 			CurrentIndex = CurrentIndex + 1;
 
 			buttonText = getPtr(Buttons[CurrentIndex].Text);
 
-			ChangeCellsTo_White(buttonText->RenderCells, buttonText->Content.size());
+			buttonText->SetToWhite();
 		}
 	}
 
@@ -440,22 +377,14 @@ namespace Game
 
 	void UI_Grid::Render()
 	{
-		for (uIntDM index = 0; index < Num; index++)
+		for (auto& button : Buttons)
 		{
-			Buttons[index].Render();
+			button.Render();
 		}
 	}
 
 
 	// Widget
-
-	UI_Widget::~UI_Widget()
-	{
-		for (uIntDM index = 0; index < Num_TextUIs; index++)
-		{
-			TextUIs[index].~UI_Text();
-		}
-	}
 
 	void UI_Widget::AddText
 	(
@@ -465,31 +394,9 @@ namespace Game
 		bool    _shouldCenter
 	)
 	{
-		if (Num_TextUIs == 0)
-		{
-			TextUIs = Memory::GlobalAllocate<UI_Text>(1);
+		TextUIs.push_back(UI_Text());
 
-			Num_TextUIs++;
-		}
-		else
-		{
-			ptr<UI_Text> resizeIntermediary = Memory::GlobalReallocate(TextUIs, (Num_TextUIs + 1));
-
-			if (resizeIntermediary != NULL)
-			{
-				TextUIs = resizeIntermediary;
-
-				Num_TextUIs++;
-			}
-			else
-			{
-				throw RuntimeError("Failed to globally reallocate subscription array.");
-
-				exit(1);
-			}
-		}
-
-		TextUIs[Num_TextUIs - 1].Create
+		TextUIs.back().Create
 		( 
 			_text, 
 			_startingCell, 
@@ -534,9 +441,9 @@ namespace Game
 
 	void UI_Widget::Render()
 	{
-		for (uIntDM index = 0; index < Num_TextUIs; index++)
+		for (auto& textUI : TextUIs)
 		{
-			TextUIs[index].Render();
+			textUI.Render();
 		}
 
 		Grid.Render();

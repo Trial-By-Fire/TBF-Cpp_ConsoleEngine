@@ -33,6 +33,8 @@ public:
 	using EventFunction = void(EState);
 
 	using EventFunctionPtr = ptr<EventFunction>;
+	
+	using Subscriptions = DynamicArray<EventFunctionPtr>;
 
 
 	// Constants
@@ -44,8 +46,7 @@ public:
 
 	struct SignalState
 	{
-		SignalState()
-		{}
+		SignalState() {};
 
 		struct StructOf_KeySignals
 		{
@@ -57,7 +58,7 @@ public:
 			bool Tab   = false;
 		};
 
-		using BoolArray_KeySignals = bool[Keys_NumTracked];
+		using BoolArray_KeySignals = StaticArray<bool, Keys_NumTracked>;
 
 
 		union
@@ -67,13 +68,6 @@ public:
 		};
 	};
 
-	struct Subscriptions
-	{
-		ptr< EventFunctionPtr> Array = nullptr;
-
-		size_t Num = 0;
-	};
-
 	struct Data
 	{
 		// Signal Buffer
@@ -81,11 +75,11 @@ public:
 		SignalState CurrentSignalState ;
 		SignalState PreviousSignalState;
 
-		EState KeyStates[Keys_NumTracked];
+		StaticArray<EState, Keys_NumTracked> KeyStates;
 
 		// Key Event Subscriptions
 
-		Subscriptions KeyEventSubs[Keys_NumTracked];
+		StaticArray<Subscriptions, Keys_NumTracked> KeyEventSubs;
 	};
 
 
@@ -93,8 +87,6 @@ public:
 	// Functions
 
 	unbound ro Data& GetContext(void);
-
-	unbound void LoadModule(void);
 
 	unbound void Update(void);
 

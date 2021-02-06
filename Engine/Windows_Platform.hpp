@@ -22,7 +22,7 @@ namespace OSPlatform
 
 	CompileTime bool Console_Cursor_NotVisible = 0;
 
-	CompileTime WORD Console_WhiteCell = FOREGROUND_RED | FOREGROUND_GREEN | FOREGROUND_BLUE | FOREGROUND_INTENSITY;
+	
 
 	namespace StdHandle
 	{
@@ -32,7 +32,6 @@ namespace OSPlatform
 
 		HANDLE Invalid();
 	}
-
 
 
 	// Enums
@@ -46,6 +45,44 @@ namespace OSPlatform
 		Arrow_Right = VK_RIGHT,
 		Enter       = VK_RETURN,
 		Tab         = VK_TAB,
+	};
+
+	enum class CAttribute : WORD
+	{
+		FG_Red       = FOREGROUND_RED,
+		FG_Green     = FOREGROUND_GREEN,
+		FG_Blue      = FOREGROUND_BLUE,
+		FG_Intensity = FOREGROUND_INTENSITY,
+		BG_Red       = BACKGROUND_RED,
+		BG_Green     = BACKGROUND_GREEN,
+		BG_Blue      = BACKGROUND_BLUE,
+		BG_Intensity = BACKGROUND_INTENSITY,
+
+		SpecifyBitmaskable
+	};
+
+
+	using CAttributeField = Bitfield<CAttribute, WORD>;
+
+	CompileTime CAttributeField Console_WhiteCell(CAttribute::FG_Red, CAttribute::FG_Green, CAttribute::FG_Blue, CAttribute::FG_Intensity);
+
+	struct ConsoleCell
+	{
+		ConsoleCell() = default;
+
+		ConsoleCell(WChar _char, CAttributeField _attributes) :
+			Char(_char), Attributes(_attributes)
+		{}
+
+		operator CHAR_INFO()
+		{
+			CHAR_INFO result = { Char, Attributes };
+
+			return result;
+		}
+
+		WChar           Char;
+		CAttributeField Attributes;
 	};
 
 

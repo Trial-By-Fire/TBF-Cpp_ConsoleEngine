@@ -18,7 +18,5 @@ public:
 	unbound void Initialize(void);
 
 	unbound void Lapse(void);
-
-	unbound void LoadModule(void);
 };
 

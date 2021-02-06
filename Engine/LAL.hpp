@@ -56,6 +56,7 @@ using sInt64 = signed long long int  ;
 using uInt   = unsigned            int;
 using uInt16 = unsigned short      int;
 using uInt64 = unsigned long  long int;
+using uIntDM = size_t                 ;   // Data Model Unsigned Integer
 
 using sInt = signed int;
 
@@ -64,71 +65,29 @@ using Key = char;
 using float32 = float;
 using float64 = double;
 
-
-template<typename Type>
-using ptr = Type*;
-
-template<typename Type>
-using uptr = std::unique_ptr<Type>;
-
-
-template<typename Type, class... ArgumentsTypes>
-uptr<Type> MakeUPtr(ArgumentsTypes&&... _arguments)
-{
-	return std::make_unique<Type>(_arguments...);
-}
-
-
-using uIntDM = size_t;   // Data Model Unsigned Integer
+using WChar = wchar_t;
 
 using Void_Function = void();
 
-
-template<typename Type>
-using DynamicArray = std::vector<Type>;
-
-
-using CString_13   = char[13];
-using CTS_CString  = char[];
-using WideChar     = wchar_t;
-using CTS_CWString = wchar_t[];
+template<typename Type, uIntDM _size> using StaticArray  = std::array <Type, _size>;
+template<typename Type              > using DynamicArray = std::vector<Type       >;
 
 using String  = std::string;
 using WString = std::wstring;
 
-//template<typename Type>
-//String ToString(Type _obj) { return std::to_String(_obj): };
-
-inline String ToString(int                _val) { return std::to_string(_val); };
-inline String ToString(long               _val) { return std::to_string(_val); };
-inline String ToString(long long          _val) { return std::to_string(_val); };
-inline String ToString(unsigned           _val) { return std::to_string(_val); };
-inline String ToString(unsigned long      _val) { return std::to_string(_val); };
-inline String ToString(unsigned long long _val) { return std::to_string(_val); };
-inline String ToString(float              _val) { return std::to_string(_val); };
-inline String ToString(double             _val) { return std::to_string(_val); };
-inline String ToString(long double        _val) { return std::to_string(_val); };
-
-template<typename Type>
-WString ToWString(Type _obj) { return std::to_wstring(_obj); };
-
-using StringStream  = std::stringstream;
-using WStringStream = std::wstringstream;
-
-template<typename Type>
-using NumLimits = std::numeric_limits<Type>;
-
-
-using Exception = std::exception;
-
-using RuntimeError = std::runtime_error;
+template<typename Type> String  ToString (Type _obj) { return std::to_string (_obj); };
+template<typename Type> WString ToWString(Type _obj) { return std::to_wstring(_obj); };
 
 using std::cout;
 using std::cerr;
 using std::cin;
-
 using std::endl;
 
+template<typename Type>
+using NumLimits = std::numeric_limits<Type>;
+
+using Exception    = std::exception;
+using RuntimeError = std::runtime_error;
 
 using SystemClock      = std::chrono::system_clock;
 using SystemTimePeriod = SystemClock::period      ;
@@ -160,12 +119,23 @@ using Miliseconds  = std::chrono::nanoseconds ;
 // Memory
 
 using std::fill_n;
-
 using std::copy_n;
 
+template<typename Type>
+using uptr = std::unique_ptr<Type>;
+
+template<typename Type, class... ArgumentsTypes>
+uptr<Type> MakeUPtr(ArgumentsTypes&&... _arguments)
+{
+	return std::make_unique<Type>(_arguments...);
+}
 
 
 // Indirection
+
+template<typename Type>
+using ptr = Type*;
+
 
 template<typename Type>
 ptr<Type> getPtr(Type& _ref)
@@ -207,4 +177,158 @@ ptr<Derived> SCast(ptr<Base> _ref)
 }
 
 
-ptr<ro WideChar> operator""_wc(ptr<ro wchar_t> _um, uIntDM _umSize);
+ptr<ro WChar> operator""_wc(ptr<ro wchar_t> _um, uIntDM _umSize);
+
+
+
+template<typename Enum, typename = void>
+/**
+@brief Used when the enum does not meet the criteria for bitmaskable.
+*/
+struct IsBitmaskable : std::false_type
+{};
+
+template<typename Enum>
+/**
+@brief Will be defined with a true_type when enum has the SpecifyBitmaskable enum value.
+*/
+struct IsBitmaskable<Enum, decltype(static_cast<void>(Enum::SpecifyBitmaskable))> : std::is_enum<Enum>
+{};
+
+template <typename Enum>
+/**
+@brief Returns true if IsBitmaskable is false.
+*/
+constexpr typename std::enable_if<IsBitmaskable<Enum>::value, bool>::
+type Bitmaskable() noexcept
+{
+	return static_cast<std::size_t>(Enum::SpecifyBitmaskable) > std::size_t(0) ? true : false;
+}
+
+template <typename Enum> 
+/**
+@brief Returns false if bitmaskable is false (Default case).
+*/
+constexpr typename std::enable_if<!IsBitmaskable<Enum>::value, bool>::
+type Bitmaskable() noexcept
+{
+	return false;
+}
+
+template
+<
+	typename EnumType             ,
+	typename BitmaskRepresentation
+>
+class Bitfield
+{
+private:
+	static_assert(Bitmaskable<EnumType>(), "EnumType must be of Bitmaskable type.");
+
+	using _ThisType = Bitfield<EnumType, BitmaskRepresentation>;
+
+public:
+
+	using Enum           = EnumType             ;
+	using Representation = BitmaskRepresentation;
+
+	Bitfield() : mask(0) {}
+
+	CompileTime Bitfield(Representation _mask) : mask(_mask)
+	{}
+
+	template<typename... BitTypes>
+	CompileTime Bitfield(const BitTypes... _bits) : mask(0)
+	{
+		mask = (Representation(_bits) | ...);
+	}
+
+	template<typename... BitType>
+	void Add(const BitType... _bits)
+	{
+		mask |= (Representation(_bits) | ...);
+	}
+
+	template<typename... BitType>
+	bool CheckForEither(const BitType... _bits) const
+	{
+		return (mask & (Representation(_bits) | ...)) != 0;
+	}
+
+	template<typename... BitType>
+	void Clear(const BitType... _bits)
+	{
+		if (mask <= 0) return;
+
+		mask &= ~(Representation(_bits) | ...);
+	}
+
+	bool HasFlag(const Enum _bit) const
+	{
+		return (mask & Representation(_bit)) == Representation(_bit);
+	}
+
+	template<typename... BitType>
+	bool HasExactly(const BitType... _bits) const
+	{
+		return (mask & (Representation(_bits) | ...)) == mask;
+	}
+
+	bool HasAnyFlag() const { return mask != 0 ? true : false; }
+	bool IsZero    () const { return mask == 0 ? true : false; }	
+
+	void Reset() { mask = 0; }
+
+	template<typename... BitType>
+	void Set(const BitType... _bits)
+	{
+		mask = (Representation(_bits) | ...);
+	}
+
+	template<typename... BitType>
+	void Toggle(const BitType... _bits)
+	{
+		mask ^= (Representation(_bits) | ...);
+	}
+
+	operator Representation() const { return mask; }
+
+	_ThisType& operator= (const Representation _mask ) { mask = _mask      ; return *this; }
+	_ThisType& operator= (const _ThisType      _other) { mask = _other.mask; return *this; }
+
+	_ThisType& operator&= (const Representation _mask ) { mask &= mask       ; return *this; }
+	_ThisType& operator&= (const _ThisType      _other) { mask &= _other.mask; return *this; }
+
+	_ThisType& operator|= (const Representation _mask ) { mask |= mask       ; return *this; }
+	_ThisType& operator|= (const _ThisType      _other) { mask |= _other.mask; return *this; }	
+
+	_ThisType& operator^= (const Representation _mask ) { mask ^= mask       ; return *this; }
+	_ThisType& operator^= (const _ThisType      _other) { mask ^= _other.mask; return *this; }	
+
+	_ThisType& operator<<= (const Representation _mask ) { mask <<= mask       ; return *this; }
+	_ThisType& operator>>= (const _ThisType      _other) { mask >>= _other.mask; return *this; }	
+
+	_ThisType operator~ () const { return ~mask; }
+
+	Representation operator& (const Representation _other) const { return mask & _other     ; }
+	_ThisType      operator& (const _ThisType      _other) const { return mask & _other.mask; }
+
+	Representation operator| (const Representation _other) const { return mask | _other     ; }
+	_ThisType      operator| (const _ThisType      _other) const { return mask | _other.mask; }
+
+	Representation operator^ (const Representation _other) const { return mask ^ _other     ; }
+	_ThisType      operator^ (const _ThisType      _other) const { return mask ^ _other.mask; }
+
+	Representation operator<< (const Representation _other) const { return mask << _other     ; }
+	_ThisType      operator>> (const _ThisType      _other) const { return mask >> _other.mask; }
+
+	bool operator== (const Representation _other) const { return mask == _other     ; }
+	bool operator== (const _ThisType      _other) const { return mask == _other.mask; }
+
+	bool operator!= (const Representation _other) const { return mask != _other     ; }
+	bool operator!= (const _ThisType      _other) const { return mask != _other.mask; }
+
+private:
+
+	Representation mask;
+};

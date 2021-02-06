@@ -168,7 +168,7 @@ namespace Game
 
 			Level1.SetCells(start, end, ELevelCell::Ground);
 
-			start.X = 0;                    start.Y = Renderer::GameEnd;
+			start.X = 0;                          start.Y = Renderer::GameEnd;
 			end  .X = Renderer::BufferWidth - 70; end  .Y = Renderer::GameEnd;
 
 			Level1.SetCells(start, end, ELevelCell::Ground);

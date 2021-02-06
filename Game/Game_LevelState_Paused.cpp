@@ -37,8 +37,6 @@ namespace Game
 
 	bool Paused_DoneOnce = false;
 
-	uInt PauseUI_Index = 0;
-
 
 
 	// Enums
@@ -112,17 +110,8 @@ namespace Game
 
 	void Paused::Load(void)
 	{
-		PauseUI_Index = 0;
-
 		if (! Paused_DoneOnce)
 		{
-			PauseWidget.TextUIs           = nullptr;
-			PauseWidget.Num_TextUIs       = 0;
-			PauseWidget.Grid.Buttons      = nullptr;
-			PauseWidget.Grid.Num          = 0;
-			PauseWidget.Grid.CurrentIndex = 0;
-
-
 			COORD startCell, endCell;
 
 			startCell.X = 0; endCell.X = 0;

@@ -37,10 +37,6 @@ namespace Game
 
 	bool Menu_DoneOnce = false;
 
-	bool 
-		Log_Load   = true,
-		Log_Unload = true ;
-
 
 
 	// Functions
@@ -108,12 +104,6 @@ namespace Game
 	{
 		if (! Menu_DoneOnce)
 		{
-			MenuWidget.TextUIs           = nullptr;
-			MenuWidget.Num_TextUIs       = 0;
-			MenuWidget.Grid.Buttons      = nullptr;
-			MenuWidget.Grid.Num          = 0;
-			MenuWidget.Grid.CurrentIndex = 0;
-
 			COORD startCell, endCell;
 
 			startCell.X = 0; endCell.X = 0;
@@ -156,12 +146,7 @@ namespace Game
 		Input::SubscribeTo(EKeyCode::Arrow_Down, Game_EntryState_OnKeyArrowDown);
 		Input::SubscribeTo(EKeyCode::Enter     , Game_EntryState_OnKeyEnter    );
 
-		if (Log_Load)
-		{
-			WriteToLog(L"Loaded: Main Menu");
-
-			Log_Load = false;
-		}
+		WriteToLog(L"Loaded: Main Menu");
 	}
 
 	void MainMenu::Unload(void)
@@ -170,12 +155,7 @@ namespace Game
 		Input::Unsubscribe(EKeyCode::Arrow_Down, Game_EntryState_OnKeyArrowDown);
 		Input::Unsubscribe(EKeyCode::Enter     , Game_EntryState_OnKeyEnter    );
 
-		if (Log_Unload)
-		{
-			WriteToLog(L"Unload: Main Menu");
-
-			Log_Unload = false;
-		}
+		WriteToLog(L"Unload: Main Menu");
 	}
 
 	void MainMenu::Update(void)

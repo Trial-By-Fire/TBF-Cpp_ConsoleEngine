@@ -30,13 +30,17 @@ namespace Game
 		Left ,
 		Right
 	};
+		
+	using CAttribute      = Renderer::CAttribute;
+	using CAttributeField = OSPlatform::CAttributeField;
 
-	enum ELevelCell
+	enum class ELevelCell : WORD
 	{
+
 		Empty  = 0,
-		Pit    = BACKGROUND_BLUE,
-		Ground = BACKGROUND_GREEN,
-		Finish = BACKGROUND_RED
+		Pit    = WORD(CAttribute::BG_Blue ),
+		Ground = WORD(CAttribute::BG_Green),
+		Finish = WORD(CAttribute::BG_Red  )
 	};
 
 
@@ -45,9 +49,7 @@ namespace Game
 
 	// Level
 
-	using GameScreenBuffer = Line[Renderer::GameEnd + 1];
-
-	//using Level = GameScreenBuffer;
+	using GameScreenBuffer = StaticArray<Line, Renderer::GameEnd + 1>;
 
 
 
@@ -67,7 +69,7 @@ namespace Game
 	{
 		// Functions
 
-		sInt GetCellAtPosition(Vector2D _position);
+		Cell GetCellAtPosition(Vector2D _position);
 
 		void SetCells(COORD _firstCell, COORD _lastCell, ELevelCell _cellType);
 
@@ -98,11 +100,17 @@ namespace Game
 
 		// Variables
 
-		Cell Sprite = 
-		{ 
+		Cell Sprite = Cell
+		(
 			0, 
-			BACKGROUND_INTENSITY | BACKGROUND_RED | BACKGROUND_GREEN | BACKGROUND_BLUE 
-		};
+			CAttributeField
+			(
+				CAttribute::BG_Intensity, 
+				CAttribute::BG_Red, 
+				CAttribute::BG_Green, 
+				CAttribute::BG_Blue
+			)
+		);
 
 		Vector2D Position = { -0.975f, 0.075f };
 
@@ -130,18 +138,19 @@ namespace Game
 
 		void Render();
 
+		void SetToGrey ();
+		void SetToWhite();
+
 
 		WString Content;
 
-		ptr<Cell> RenderCells = nullptr;
+		DynamicArray<Cell> RenderCells;
 
 		COORD StartingCell { 0, 0 }, EndingCell { 0, 0 };
 	};
 
 	struct UI_Button
 	{
-		~UI_Button();
-
 		void Create 
 		(
 			WString        _text, 
@@ -162,8 +171,6 @@ namespace Game
 
 	struct UI_Grid
 	{
-		~UI_Grid();
-
 		void Add 
 		(
 			WString        _text, 
@@ -179,17 +186,13 @@ namespace Game
 		void Render  ();
 
 
-		ptr<UI_Button> Buttons = nullptr;
-
-		uIntDM Num = 0;
+		DynamicArray<UI_Button> Buttons;
 
 		uIntDM CurrentIndex = 0;
 	};
 
 	struct UI_Widget
 	{
-		~UI_Widget();
-
 		void AddText
 		(
 			WString _text,
@@ -213,9 +216,7 @@ namespace Game
 		void Render  ();
 
 
-		ptr<UI_Text> TextUIs = nullptr;
-
-		uIntDM Num_TextUIs = 0;
+		DynamicArray<UI_Text> TextUIs;
 
 		UI_Grid Grid;
 	};

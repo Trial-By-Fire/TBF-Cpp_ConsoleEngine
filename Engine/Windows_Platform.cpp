@@ -102,6 +102,17 @@ namespace OSPlatform
 			}
 		}
 
+		// Make C++ standard streams point to console as well.
+		std::ios::sync_with_stdio(true);
+
+		// Clear the error state for each of the C++ standard streams.
+		std::wcout.clear();
+		std::cout .clear();
+		std::wcerr.clear();
+		std::cerr .clear();
+		std::wcin .clear();
+		std::cin  .clear();
+
 		return true;
 	}
 

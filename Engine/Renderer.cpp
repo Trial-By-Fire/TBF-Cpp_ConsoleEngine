@@ -43,7 +43,7 @@ struct Lines
 {
 	ptr<Line> Array;
 
-	size_t Num;
+	uIntDM Num;
 };
 	
 Lines DebugLogSection_Dynamic;
@@ -57,7 +57,7 @@ uInt DebugLogSection_RelativeLastLine = 1;
 
 #endif
 
-ro CTS_CWString Renderer_ConsoleTitle = L"TBF C++ Engine";
+ro WString Renderer_ConsoleTitle = L"TBF C++ Engine";
 
 ro COORD Console_ScreenPos_00 = 
 {
@@ -75,7 +75,9 @@ void Renderer::Clear(void)
 {
 	if (UpdateConsoleInfo())
 	{
-		Memory::FormatByFill(Buffer, 0, BufferWidth * BufferHeight);
+		unbound Cell value = { 0, 0 };
+
+		Memory::FormatByFill<Cell>(Buffer, value, BufferWidth * BufferHeight);
 	}
 }
 
@@ -117,7 +119,7 @@ void Renderer::LoadModule(void)
 
 	// Setup Console to ideal configuration.
 
-	SetConsoleTitle(Renderer_ConsoleTitle);
+	SetConsoleTitle(Renderer_ConsoleTitle.data());
 
 	UpdateSizeAndPosition();
 
@@ -148,16 +150,12 @@ void Renderer::UnloadModule(void)
 {
 	if (OSPlatform::Unbind_IOBufferTo_Console() != true)
 	{
-		perror("Failed to unbind standard IO from renderer console");
-
-		exit(1);
+		throw RuntimeError("Failed to unbind standard IO from renderer console");
 	}
 
 	if (static_cast<bool>(FreeConsole()) != true)
 	{
-		perror("Failed to free renderer console properly.");
-
-		exit(1);
+		throw RuntimeError("Failed to free renderer console properly.");
 	}
 }
 
@@ -190,8 +188,8 @@ void Renderer::Update(void)
 			{
 				for (uIntDM index = 0; index < DebugLogSection_Dynamic.Num - 1; index++)
 				{
-					startingCell.Y = DebugStart + static_cast<uInt16>(index);
-					finalCell   .Y = DebugStart + static_cast<uInt16>(index);
+					startingCell.Y = DebugStart + SCast<uInt16>(index);
+					finalCell   .Y = DebugStart + SCast<uInt16>(index);
 
 					WriteToBufferCells(DebugLogSection_Dynamic.Array[index], startingCell, finalCell);
 				}
@@ -202,8 +200,8 @@ void Renderer::Update(void)
 
 				for (uIntDM index = 0; index < LogSize; index++)
 				{
-					startingCell.Y = DebugStart + static_cast<uInt16>(index);
-					finalCell   .Y = DebugStart + static_cast<uInt16>(index);
+					startingCell.Y = DebugStart + SCast<uInt16>(index);
+					finalCell   .Y = DebugStart + SCast<uInt16>(index);
 
 					WriteToBufferCells(DebugLogSection_Dynamic.Array[LogStart + index], startingCell, finalCell);
 				}
@@ -211,8 +209,8 @@ void Renderer::Update(void)
 
 			for (uIntDM index = 0; index < PersistentSize; index++)
 			{
-				startingCell.Y = PersistentStart + static_cast<uInt16>(index);
-				finalCell   .Y = PersistentStart + static_cast<uInt16>(index);
+				startingCell.Y = PersistentStart + SCast<uInt16>(index);
+				finalCell   .Y = PersistentStart + SCast<uInt16>(index);
 
 				WriteToBufferCells(RCast<Cell>(getPtr(PersistentSection[index])), startingCell, finalCell);
 			}
@@ -224,7 +222,7 @@ void Renderer::Update(void)
 	}
 }
 
-void Renderer::WriteToBufferCells(const ptr<Cell> _cell, COORD _initalCell, COORD _finalCell)
+void Renderer::WriteToBufferCells(ro ptr<Cell> _cell, COORD _initalCell, COORD _finalCell)
 {
 	uIntDM lineOffset = _initalCell.Y * BufferWidth;
 	uIntDM colOffset  = _initalCell.X;
@@ -271,9 +269,7 @@ void Renderer_DebugLogDynamic_AddLine(void)
 			}
 			else
 			{
-				perror("Failed to globally reallocate log line array.");
-
-				exit(1);
+				throw RuntimeError("Failed to globally reallocate log line array.");
 			}
 		}
 	}
@@ -328,40 +324,15 @@ void Renderer::WriteToPersistentSection(sInt _row, WString _lineformat, ...)
 {
 	if CompileTime (DebugEnabled)
 	{
-		WString TranslationBuffer; 
-		
-		TranslationBuffer.resize(BufferWidth);
-
 		ptr<Cell> PersistentSubSection = PersistentSection[_row - 1];
 
-		sInt CellsFormatted;
-
-		va_list argList;
-
-
-		va_start(argList, _lineformat);
-
-		CellsFormatted =
-
-			// Windows hard coding.
-			_vswprintf_s_l
-			(
-				TranslationBuffer.data(),
-				BufferWidth,
-				_lineformat.data(),
-				nullptr,
-				argList
-			);
-
-		va_end(argList);
-
-		for (uIntDM index = 0; index < CellsFormatted; index++)
+		for (uIntDM index = 0; index < _lineformat.size(); index++)
 		{
-			PersistentSubSection[index].Char.UnicodeChar = TranslationBuffer[index];
+			PersistentSubSection[index].Char.UnicodeChar = _lineformat[index];
 			PersistentSubSection[index].Attributes       = Console_WhiteCell;
 		}
 
-		for (uIntDM index = CellsFormatted + 1; index < BufferWidth; index++)
+		for (uIntDM index = _lineformat.size() + 1; index < BufferWidth; index++)
 		{
 			PersistentSubSection[index].Char.UnicodeChar = NULL;
 			PersistentSubSection[index].Attributes       = NULL;
@@ -436,7 +407,9 @@ void Renderer::InitalizeData(void)
 
 	Buffer = Memory::GlobalAllocate<Cell>(BufferWidth * BufferHeight);
 
-	Memory::FormatByFill(Buffer, 0, BufferWidth * BufferHeight);
+	unbound Cell cellInitValue = { 0, 0 };
+
+	Memory::FormatByFill(Buffer, cellInitValue, BufferWidth * BufferHeight);
 
 	Cell borderCell; 
 	
@@ -463,16 +436,12 @@ void Renderer::SetupConsole(void)
 {
 	if (OSPlatform::RequestConsole() != true)
 	{
-		perror("Failed to get console for rendering from operating system.");
-
-		exit(1);
+		throw RuntimeError("Failed to get console for rendering from operating system.");
 	}
 
 	if (OSPlatform::Bind_IOBufferTo_Console() != true)
 	{
-		perror("Failed to bind standard IO to renderer console.");
-
-		exit(1);
+		throw RuntimeError("Failed to bind standard IO to renderer console.");
 	}
 
 	return;

@@ -29,16 +29,16 @@ namespace Intro
 
 	IntroState StateObj;
 
-	Timer IntroTimer;
+	Timer IntroTimer(7.0);
 
-	Timer Timer_TillTitle;
-	Timer Timer_TillVersion;
-	Timer Timer_TillIntroFadeToGrey;
+	Timer Timer_TillTitle          (2.0);
+	Timer Timer_TillVersion        (1.2);
+	Timer Timer_TillIntroFadeToGrey(Timer_TillTitle.EndTime.count() + 4.2);
 
-	Timer Timer_TillTitle_ToWhite;
-	Timer Timer_TillVersion_ToWhite;
+	Timer Timer_TillTitle_ToWhite  (0.134);
+	Timer Timer_TillVersion_ToWhite(0.134);
 
-	Timer Timer_Till_FadeOut;
+	Timer Timer_Till_FadeOut(0.134);
 
 
 	bool Intro_DoneOnce = false;
@@ -106,18 +106,6 @@ namespace Intro
 		{
 			using Cell = Renderer::Cell;
 
-			IntroTimer.EndTime = 7.0L;
-
-			Timer_TillTitle    .EndTime = 2.0;
-			Timer_TillVersion  .EndTime = 1.2;
-
-			Timer_TillIntroFadeToGrey.EndTime = Timer_TillTitle.EndTime + 4.2;
-
-			Timer_Till_FadeOut.EndTime = 0.134;
-
-			Timer_TillTitle_ToWhite  .EndTime = 0.134;
-			Timer_TillVersion_ToWhite.EndTime = 0.134;
-
 			Title_Length         = IntroTitle.size();
 			EngineVersion_Length = EngineVersion.size();
 
@@ -153,7 +141,7 @@ namespace Intro
 		unbound CompileTime auto WriteToPersistentSection =  Renderer::WriteToPersistentSection;
 
 
-		static bool 
+		unbound bool 
 			LogTitle   = true, 
 			LogVersion = true, 
 			LogFade    = true, 
@@ -169,7 +157,7 @@ namespace Intro
 
 		Timer_TillTitle.Tick();
 
-		WriteToPersistentSection(4, L"Intro Time Elapsed: %.7Lf", IntroTimer.Elapsed);
+		WriteToPersistentSection(4, WString(L"Intro Time Elapsed: ") + ToWString(IntroTimer.Elapsed.count()));
 
 		if (Timer_TillTitle.Ended())
 		{

@@ -26,72 +26,43 @@ ro Timing::Data& Timing::GetContext(void)
 	return Context;
 }
 
-void Timing::LoadModule(void)
-{
-	InitalizeData();
-}
-
 void Timing::TakeInitialSnapshot(void)
 {
-	QueryPerformanceCounter(getPtr(Context.TimeSnapshot_Initial));
+	Context.TimeSnapshot_Initial = SteadyClock::now();
 }
 
 void Timing::TakeEndingSnapshot(void)
 {
-	QueryPerformanceCounter(getPtr(Context.TimeSnapshot_End));
+	Context.TimeSnapshot_End = SteadyClock::now();
 }
 
 void Timing::Update(void)
 {
-	Context.Cycle_TicksElapsed = Context.TimeSnapshot_End.QuadPart - Context.TimeSnapshot_Initial.QuadPart;
-
-	Context.Cycle_Microseconds = SCast<float64>( Context.Cycle_TicksElapsed * TickToMicroseconds );
-
-	Context.Cycle_Microseconds = Context.Cycle_Microseconds / SCast<float64>(Context.TimeFrequency.QuadPart);
-
-	Context.DeltaTime = SCast<float64>(Context.Cycle_TicksElapsed) / SCast<float64>(MicrosecondToSecond);
+	Context.DeltaTime = std::chrono::duration_cast<Duration64>(Context.TimeSnapshot_End - Context.TimeSnapshot_Initial);
 
 	Renderer::ProcessTiming();
-}
-
-// Private
-
-void Timing::InitalizeData(void)
-{
-	QueryPerformanceFrequency(getPtr(Context.TimeFrequency));
-
-	return;
 }
 
 
 
 // Timer
 
+Timer::Timer(float64 _endTime) :
+	EndTime(_endTime)
+{}
+
 bool Timer::Ended()
 {
-	return
-		Float64_ApproxGreater(Elapsed, EndTime) ||
-		Float64_ApproxEqual  (Elapsed, EndTime);
+	return Elapsed >= EndTime;
 }
 
 void Timer::Reset()
 {
-	Elapsed = 0.0L;
+	Elapsed = Duration64(0.0);
 }
 
 void Timer::Tick()
 {
-	if (Float64_ApproxEqual(Timing::Context.DeltaTime, 0.000001) || Float64_ApproxLess(Timing::Context.DeltaTime, 0.000001))
-	{
-		Elapsed = Elapsed + 0.000001;
-
-		return;
-	}
-	else
-	{
-		Elapsed = Elapsed + Timing::Context.DeltaTime;
-
-		return;
-	}
+	Elapsed += Timing::Context.DeltaTime;
 }
 

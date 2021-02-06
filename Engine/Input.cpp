@@ -142,9 +142,7 @@ void Input::SubscribeTo(EKeyCode _key, EventFunction& _callbackFunction)
 		}
 		else
 		{
-			perror("Failed to globally reallocate subscription array.");
-
-			exit(1);
+			throw RuntimeError("Failed to globally reallocate subscription array.");
 		}
 	}
 
@@ -231,6 +229,6 @@ uIntDM GetKeyIndexFromCode(EKeyCode _key)
 		}
 	}
 
-	return ULONG_MAX;
+	return NumLimits<uIntDM>::max();
 }
 

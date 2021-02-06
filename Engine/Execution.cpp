@@ -5,7 +5,6 @@
 
 // Includes
 
-#include "C_STL.hpp"
 #include "Cycler.hpp"
 #include "Input.hpp"
 #include "Memory.hpp"
@@ -19,7 +18,6 @@
 void PrepareModules(void)
 {
 	Cycler  ::LoadModule();
-	Timing  ::LoadModule();
 	Input   ::LoadModule();
 	Renderer::LoadModule();
 	State   ::LoadModule();
@@ -43,27 +41,49 @@ void UnloadModules(void)
 
 ExitCode EntryPoint(void)
 {
-	// Setup engine components.
-
-	PrepareModules();
-
-	PrintStartMessage();	
-
-	// Core Engine Loop
-
-	Cycler::Initialize();
-	
-	UnloadModules();
-
-	/*try
+	if CompileTime(DebugEnabled)
 	{
-		Memory::GlobalDeallocate();
+		try
+		{
+			// Setup engine components.
+
+			PrepareModules();
+
+			PrintStartMessage();
+
+			// Core Engine Loop
+
+			Cycler::Initialize();
+
+			// Shutdown
+
+			UnloadModules();
+
+			return ExitCode::Success;
+		}
+		catch (ro Exception& _exception)
+		{
+			cerr << _exception.what() << endl;
+
+			exit(1);
+		}
 	}
-	catch (const std::exception& _what)
+	else
 	{
-		
-	}*/
-	
+		// Setup engine components.
 
-	return ExitCode::Success;
+		PrepareModules();
+
+		PrintStartMessage();
+
+		// Core Engine Loop
+
+		Cycler::Initialize();
+
+		// Shutdown
+
+		UnloadModules();
+
+		return ExitCode::Success;
+	}
 }

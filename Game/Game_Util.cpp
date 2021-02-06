@@ -58,7 +58,7 @@ namespace Game
 		if (Fell == true) return;
 
 
-		ro float32 deltaTime = SCast<ro float32>(Timing::GetContext().DeltaTime);
+		ro float32 deltaTime = SCast<ro float32>(Timing::GetContext().DeltaTime.count());
 
 		unbound float32 velocity = 1.0f;
 		unbound float32 gravity  = 0.00004f;
@@ -134,11 +134,11 @@ namespace Game
 
 		COORD renderCoord = Convert_Vector2D_ToRenderCoord(Position);
 
-		WriteToPersistentSection(1, L"Pos X: %f", Position.X);
-		WriteToPersistentSection(3, L"Pos Y: %f", Position.Y);
+		WriteToPersistentSection(1, WString(L"Pos X: ") + ToWString(Position.X));
+		WriteToPersistentSection(3, WString(L"Pos Y: ") + ToWString(Position.Y));
 
-		WriteToPersistentSection(2, L"RC  X: %u", renderCoord.X);
-		WriteToPersistentSection(4, L"RC  Y: %u", renderCoord.Y);
+		WriteToPersistentSection(2, WString(L"RC  X: ") + ToWString(renderCoord.X));
+		WriteToPersistentSection(4, WString(L"RC  Y: ") + ToWString(renderCoord.Y));
 
 		if (renderCoord.Y < 0                ) renderCoord.Y = 0;
 		if (renderCoord.Y > Renderer::GameEnd) renderCoord.Y = Renderer::GameEnd;
@@ -207,7 +207,9 @@ namespace Game
 
 		if (dataSize == 0) dataSize = 1;
 
-		DynamicArray<Cell> setCellBuffer = DynamicArray<Cell>(dataSize);
+		unbound DynamicArray<Cell> setCellBuffer;
+		
+		setCellBuffer.resize(dataSize);
 
 		for (uIntDM index = 0; index < dataSize; index++)
 		{
@@ -383,9 +385,7 @@ namespace Game
 			}
 			else
 			{
-				perror("Failed to globally reallocate subscription array.");
-
-				exit(1);
+				throw RuntimeError("Failed to globally reallocate subscription array.");
 			}
 		}
 
@@ -483,7 +483,7 @@ namespace Game
 			}
 			else
 			{
-				perror("Failed to globally reallocate subscription array.");
+				throw RuntimeError("Failed to globally reallocate subscription array.");
 
 				exit(1);
 			}

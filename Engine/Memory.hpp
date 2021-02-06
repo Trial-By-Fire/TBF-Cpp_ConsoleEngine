@@ -16,7 +16,6 @@ public:
 	using Block      = DynamicArray<Byte >;
 	using BlockArray = DynamicArray<Block>;
 
-	~Memory() {};
 
 
 	// Functions
@@ -27,7 +26,7 @@ public:
 	template<typename Type>	unbound ptr<Type> HeapReallocate(ptr<Type> _memoryToReallocate, uIntDM _originalNum, uIntDM _numberDesired);
 	                        unbound void      Deallocate    (ptr<void> _memoryToDeallocate                                            );
 
-	template<typename Type>	unbound ptr<void> FormatByFill  (ptr<Type> _memoryAddress, sInt         _fillValue , uIntDM _sizeOfData);
+	template<typename Type>	unbound ptr<void> FormatByFill  (ptr<Type> _memoryAddress, Type&        _fillValue , uIntDM _sizeOfData);
 	template<typename Type> unbound ptr<void> FormatWithData(ptr<Type> _memoryAddress, ptr<ro Type> _dataSource, uIntDM _sizeOfData);
 
 	// Memory Management

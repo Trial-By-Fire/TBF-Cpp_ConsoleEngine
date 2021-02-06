@@ -53,7 +53,7 @@ public:
 		// Console Data
 
 		HWND   Window_Handle = nullptr;
-		HANDLE Output_Handle = INVALID_HANDLE_VALUE;
+		HANDLE Output_Handle = OSPlatform::StdHandle::Invalid();
 
 		DWORD      CharactersWritten = 0;
 		COORD      CoordSize         = { BufferWidth, BufferHeight };
@@ -65,7 +65,7 @@ public:
 
 		Vec2D_Int ScreenPosition {};
 
-		Timer RefreshTimer { 0.0L, 1.0L / 60.0L };
+		Timer RefreshTimer = Timer(1.0 / 60.0);
 	};
 
 	struct ScreenInfo

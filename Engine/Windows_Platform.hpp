@@ -5,7 +5,10 @@
 // Windows Library
 
 #include <conio.h>
-#include <Windows.h>
+
+#define NOMINMAX
+#define WIN32_LEAN_AND_MEAN
+#include <windows.h>
 
 // Engine
 

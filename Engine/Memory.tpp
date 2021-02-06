@@ -26,15 +26,17 @@ ptr<Type> Memory::HeapReallocate(ptr<Type> _memoryToReallocate, uIntDM _original
 }
 
 template<typename Type>
-ptr<void> Memory::FormatByFill(ptr<Type> _memoryAddress, sInt _fillValue, uIntDM _sizeOfData)
+ptr<void> Memory::FormatByFill(ptr<Type> _memoryAddress, Type& _fillValue, uIntDM _sizeOfData)
 {
-	return memset(_memoryAddress, _fillValue, _sizeOfData * sizeof(Type));
+	//return memset(_memoryAddress, _fillValue, _sizeOfData * sizeof(Type));
+	return fill_n(_memoryAddress, _sizeOfData, _fillValue);
 }
 
 template<typename Type>
 ptr<void> Memory::FormatWithData(ptr<Type> _memoryAddress, ptr<ro Type> _dataSource, uIntDM _sizeOfData)
 {
-	return memcpy(_memoryAddress, _dataSource, _sizeOfData * sizeof(Type));
+	//return memcpy(_memoryAddress, _dataSource, _sizeOfData * sizeof(Type));
+	return copy_n(_dataSource, _sizeOfData, _memoryAddress);
 }
 
 // Memory Management

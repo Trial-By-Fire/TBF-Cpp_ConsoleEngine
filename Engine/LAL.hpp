@@ -10,7 +10,6 @@ Language Abstraction Layer
 
 
 
-#include "C_STL.hpp"
 #include "Cpp_STL.hpp"
 
 
@@ -21,9 +20,6 @@ Language Abstraction Layer
 
 #define CompileTime constexpr
 
-//#define override virtual
-
-
 // Memory
 
 /*
@@ -33,18 +29,6 @@ const are put in read only memory.
 */
 #define ro \
 const
-
-// Stores the address for a data instance of the specified type. (Pointer declaration, using indirection operator)
-//#define Ptr(_type) 
-//_type*
-
-//Provides a more explicit method for getting a reference.
-//#define getPtr(_instance) 
-//&_instance
-
-// Gets the data instance from the specified address (AKA Dereference, using indirection operator)
-//#define dref(_address) 
-//*_address
 
 // Creates a static duration variable accessible to any file or linkage. (Global/File scope Only)
 #define foreign \
@@ -112,7 +96,72 @@ using CTS_CWString = wchar_t[];
 using String  = std::string;
 using WString = std::wstring;
 
+//template<typename Type>
+//String ToString(Type _obj) { return std::to_String(_obj): };
+
+inline String ToString(int                _val) { return std::to_string(_val); };
+inline String ToString(long               _val) { return std::to_string(_val); };
+inline String ToString(long long          _val) { return std::to_string(_val); };
+inline String ToString(unsigned           _val) { return std::to_string(_val); };
+inline String ToString(unsigned long      _val) { return std::to_string(_val); };
+inline String ToString(unsigned long long _val) { return std::to_string(_val); };
+inline String ToString(float              _val) { return std::to_string(_val); };
+inline String ToString(double             _val) { return std::to_string(_val); };
+inline String ToString(long double        _val) { return std::to_string(_val); };
+
+template<typename Type>
+WString ToWString(Type _obj) { return std::to_wstring(_obj); };
+
+using StringStream  = std::stringstream;
+using WStringStream = std::wstringstream;
+
+template<typename Type>
+using NumLimits = std::numeric_limits<Type>;
+
+
+using Exception = std::exception;
+
+using RuntimeError = std::runtime_error;
+
+using std::cout;
+using std::cerr;
+using std::cin;
+
+using std::endl;
+
+
+using SystemClock      = std::chrono::system_clock;
+using SystemTimePeriod = SystemClock::period      ;
+using SysTimePoint     = SystemClock::time_point  ;
+
+using SteadyClock      = std::chrono::steady_clock;
+using SteadyTimePeriod = SteadyClock::period      ;
+using SteadyTimePoint  = SteadyClock::time_point  ;
+
+using HighResClock      = std::chrono::high_resolution_clock;
+using HighResTimePeriod = HighResClock::period              ;
+using HighResTimePoint  = HighResClock::time_point          ;
+
+
+template<class RepresentiveType, class Period = std::ratio<1>>
+using Duration = std::chrono::duration<RepresentiveType, Period>;
+
+using Duration64 = Duration<float64>;
+
+using CalendarDate = std::tm;
+
+using Microseconds = std::chrono::microseconds;
+using Milliseconds = std::chrono::milliseconds;
+using Miliseconds  = std::chrono::nanoseconds ;
+
 ////////////////////////////////////////////////////////////////////////////////////////////////////
+
+
+// Memory
+
+using std::fill_n;
+
+using std::copy_n;
 
 
 
@@ -156,15 +205,6 @@ ptr<Derived> SCast(ptr<Base> _ref)
 {
 	return static_cast< ptr<Derived>>(_ref);
 }
-
-
-
-//template<typename Type>
-//CompileTime auto move(Type _arg)
-//{
-//	return std::move(_arg);
-//}
-
 
 
 ptr<ro WideChar> operator""_wc(ptr<ro wchar_t> _um, uIntDM _umSize);

@@ -4,7 +4,6 @@
 
 // Includes
 
-#include "C_STL.hpp"
 #include "OSPlatform.hpp"
 #include "LAL.hpp"
 

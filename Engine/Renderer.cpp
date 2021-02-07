@@ -40,12 +40,7 @@ DynamicArray<Line> DebugLogSection_Dynamic;
 
 uInt DebugLogSection_RelativeLastLine = 1;
 
-
-#ifdef BuildDebug 
-
-	StaticArray<Line, Renderer::PersistentSize> PersistentSection;
-
-#endif
+StaticArray<Line, Renderer::PersistentSize> PersistentSection;
 
 ro WString Renderer_ConsoleTitle = L"TBF C++ Engine";
 
@@ -153,7 +148,7 @@ void Renderer::Update(void)
 
 		State::GetEngineState()->Render();
 
-		if CompileTime (DebugEnabled)
+		if CompileTime (DebugEnabled == true)
 		{
 			COORD 
 				startingCell = { 0          , BorderLineRow }, 
@@ -237,7 +232,7 @@ void Renderer::WriteToBufferCells(ro ptr<Cell> _cell, COORD _initalCell, COORD _
 
 void Renderer::WriteToLog(WString _logString)
 {
-	if CompileTime (DebugEnabled)
+	if CompileTime (DebugEnabled == true)
 	{
 		unbound uInt nextLine = 0;
 
@@ -282,7 +277,7 @@ void Renderer::WriteToLog(WString _logString)
 // Note: Row starts at 1.
 void Renderer::WriteToPersistentSection(sInt _row, WString _lineformat, ...)
 {
-	if CompileTime (DebugEnabled)
+	if CompileTime (DebugEnabled == true)
 	{
 		ptr<Cell> PersistentSubSection = PersistentSection[_row - 1].data();
 
@@ -424,7 +419,7 @@ void Renderer::UpdateSizeAndPosition(void)
 
 void Renderer::Logs_ScrollUp(void)
 {
-	if CompileTime (DebugEnabled)
+	if CompileTime (DebugEnabled == true)
 	{
 		if (DebugLogSection_RelativeLastLine < (DebugLogSection_Dynamic.size() - LogSize))
 		{
@@ -435,7 +430,7 @@ void Renderer::Logs_ScrollUp(void)
 
 void Renderer::Logs_ScrollDown(void)
 {
-	if CompileTime (DebugEnabled)
+	if CompileTime (DebugEnabled == true)
 	{
 		if (DebugLogSection_RelativeLastLine > 1)
 		{

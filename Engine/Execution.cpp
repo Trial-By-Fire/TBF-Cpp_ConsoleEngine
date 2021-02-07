@@ -24,10 +24,6 @@ void PrepareModules(void)
 void PrintStartMessage(void)
 {
 	Renderer::WriteToLog(L"TBF C++ Engine");
-
-	Renderer::WriteToLog(L"" );
-
-	Renderer::WriteToLog(L"Version: Phase 18");
 }
 
 void UnloadModules(void)

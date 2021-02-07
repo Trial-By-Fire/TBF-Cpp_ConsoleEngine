@@ -7,7 +7,7 @@
 
 
 // Remove this definition if debug build is undesired.
-#define BuildDebug
+//#define BuildDebug
 
 
 #ifdef BuildDebug

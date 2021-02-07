@@ -4,7 +4,6 @@
 
 // Includes
 
-#include "vld.h"
 #include "LAL.hpp"
 
 

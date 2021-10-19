@@ -22,12 +22,12 @@ namespace OSPlatform
 
 	// Static Data
 
-	CompileTime char SConsole_In  [] = "CONIN$";
-	CompileTime char SConsole_Out [] = "CONOUT$";
-	CompileTime char SConsole_Null[] = "NUL:";
+	constexpr char SConsole_In  [] = "CONIN$";
+	constexpr char SConsole_Out [] = "CONOUT$";
+	constexpr char SConsole_Null[] = "NUL:";
 
-	CompileTime char SReadCode [] = "r";
-	CompileTime char SWriteCode[] = "w";
+	constexpr char SReadCode [] = "r";
+	constexpr char SWriteCode[] = "w";
 
 
 
@@ -53,7 +53,7 @@ namespace OSPlatform
 
 	bool Bind_IOBufferTo_Console(void)
 	{
-		unbound CompileTime int IO_NoBuffer = _IONBF;
+		static constexpr int IO_NoBuffer = _IONBF;
 
 
 		ptr<FILE> dummyFile = nullptr;
@@ -123,7 +123,7 @@ namespace OSPlatform
 
 	bool Unbind_IOBufferTo_Console(void)
 	{
-		unbound CompileTime int IO_NoBuffer = _IONBF;
+		static constexpr int IO_NoBuffer = _IONBF;
 
 
 		ptr<FILE> dummyFile;

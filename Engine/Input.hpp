@@ -39,7 +39,7 @@ public:
 
 	// Constants
 
-	unbound CompileTime uIntDM Keys_NumTracked = 6;;
+	static constexpr uIntDM Keys_NumTracked = 6;;
 
 
 	// Structures
@@ -86,17 +86,17 @@ public:
 
 	// Functions
 
-	unbound ro Data& GetContext(void);
+	static const Data& GetContext(void);
 
-	unbound void Update(void);
+	static void Update(void);
 
-	unbound void SubscribeTo(EKeyCode _key, EventFunction& _callbackFunction);
+	static void SubscribeTo(EKeyCode _key, EventFunction& _callbackFunction);
 
-	unbound void Unsubscribe(EKeyCode _key, EventFunction& _callbackFunction);
+	static void Unsubscribe(EKeyCode _key, EventFunction& _callbackFunction);
 
 
 private:
 
-	unbound Data Context;
+	static Data Context;
 };
 

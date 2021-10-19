@@ -15,9 +15,9 @@ class AState
 public:
 	~AState() = default;
 	
-	unbound ptr<AState> GetEngineState();
+	static ptr<AState> GetEngineState();
 
-	unbound void SetEngineState(ptr<AState> _state);
+	static void SetEngineState(ptr<AState> _state);
 
 	virtual void Load  (void) = NULL;
 	virtual void Unload(void) = NULL;
@@ -44,7 +44,7 @@ private:
 
 	// Functions
 
-	unbound void LoadModule(void);
+	static void LoadModule(void);
 
 
 	ptr<AState> CurrentState = nullptr;

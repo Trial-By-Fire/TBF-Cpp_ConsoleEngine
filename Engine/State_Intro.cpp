@@ -113,11 +113,11 @@ namespace Intro
 
 	void IntroState::Update(void)
 	{
-		unbound CompileTime auto WriteToLog               =  Renderer::WriteToLog;
-		unbound CompileTime auto WriteToPersistentSection =  Renderer::WriteToPersistentSection;
+		static constexpr auto WriteToLog               =  Renderer::WriteToLog;
+		static constexpr auto WriteToPersistentSection =  Renderer::WriteToPersistentSection;
 
 
-		unbound bool 
+		static bool 
 			LogTitle   = true, 
 			LogVersion = true, 
 			LogFade    = true, 
@@ -221,10 +221,10 @@ namespace Intro
 
 	void IntroState::Render(void)
 	{
-		unbound CompileTime auto WriteToBufferCells = Renderer::WriteToBufferCells;
+		static constexpr auto WriteToBufferCells = Renderer::WriteToBufferCells;
 
 
-		unbound COORD
+		static COORD
 			startingCell = { 0, 9 },
 			endingCell   = { 0, 9 };
 

@@ -6,7 +6,7 @@
 // C-API
 
 template<typename Type>
-unbound ptr<Type> Memory::HeapAllocate(uIntDM _numberToAllocate)
+static ptr<Type> Memory::HeapAllocate(uIntDM _numberToAllocate)
 {
 	return new Type[_numberToAllocate];
 };
@@ -16,7 +16,8 @@ ptr<Type> Memory::HeapReallocate(ptr<Type> _memoryToReallocate, uIntDM _original
 {
 	ptr<Type> resizeIntermediary = new Type[_numberDesired];
 
-	if (resizeIntermediary == nullptr) return nullptr;
+	if (resizeIntermediary == nullptr) 
+		return nullptr;
 
 	FormatWithData(resizeIntermediary, _memoryToReallocate, _originalNum);
 
@@ -33,7 +34,7 @@ ptr<void> Memory::FormatByFill(ptr<Type> _memoryAddress, Type& _fillValue, uIntD
 }
 
 template<typename Type>
-ptr<void> Memory::FormatWithData(ptr<Type> _memoryAddress, ptr<ro Type> _dataSource, uIntDM _sizeOfData)
+ptr<void> Memory::FormatWithData(ptr<Type> _memoryAddress, ptr<const Type> _dataSource, uIntDM _sizeOfData)
 {
 	//return memcpy(_memoryAddress, _dataSource, _sizeOfData * sizeof(Type));
 	return copy_n(_dataSource, _sizeOfData, _memoryAddress);

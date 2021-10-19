@@ -10,8 +10,8 @@
 
 
 
-CompileTime auto Logs_ScrollUp   = Renderer::Logs_ScrollUp;
-CompileTime auto Logs_ScrollDown = Renderer::Logs_ScrollDown;
+constexpr auto Logs_ScrollUp   = Renderer::Logs_ScrollUp;
+constexpr auto Logs_ScrollDown = Renderer::Logs_ScrollDown;
 
 
 
@@ -20,7 +20,6 @@ enum class EFocusState
 	Game,
 	Logs
 };
-
 
 
 

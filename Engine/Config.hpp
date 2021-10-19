@@ -12,10 +12,10 @@
 
 #ifdef BuildDebug
 
-	CompileTime bool DebugEnabled = true;
+	constexpr bool DebugEnabled = true;
 
 #else
 
-	CompileTime bool DebugEnabled = false;
+	constexpr bool DebugEnabled = false;
 
 #endif

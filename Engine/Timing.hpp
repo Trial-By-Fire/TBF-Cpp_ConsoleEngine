@@ -25,19 +25,19 @@ public:
 
 	// Functions
 
-	unbound ro Data& GetContext(void);
+	static const Data& GetContext(void);
 
-	unbound void TakeInitialSnapshot(void);
+	static void TakeInitialSnapshot(void);
 
-	unbound void TakeEndingSnapshot(void);
+	static void TakeEndingSnapshot(void);
 
-	unbound void Update(void);
+	static void Update(void);
 
 private:
 
 	// Static Data
 
-	unbound Data Context;
+	static Data Context;
 };
 
 	

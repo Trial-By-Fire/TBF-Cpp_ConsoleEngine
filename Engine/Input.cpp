@@ -35,7 +35,7 @@ uIntDM   GetKeyIndexFromCode(EKeyCode _key);
 
 // Public
 
-ro Input::Data& Input::GetContext(void)
+const Input::Data& Input::GetContext(void)
 {
 	return Context;
 }
@@ -44,42 +44,60 @@ void Input::Update(void)
 {
 	for (uIntDM index = 0; index < Keys_NumTracked; index++)
 	{
-		bool current, previous;
+		bool Current, Previous;
 
 		// Get current signal state
 
 		Context.PreviousSignalState.Array[index] = Context.CurrentSignalState.Array[index];
 
-		previous = Context.CurrentSignalState.Array[index];
+		Previous = Context.CurrentSignalState.Array[index];
 
 		Context.CurrentSignalState.Array[index] = GetKeySignal(GetKeyCodeAtIndex(index));
 
-		current = Context.CurrentSignalState.Array[index];
+		Current = Context.CurrentSignalState.Array[index];
 
 		// Determine latest key state.
 
-		EState& currentState = Context.KeyStates[index];
+		EState& CurrentState = Context.KeyStates[index];
 				
 		EState latestState = EState::None;
 
-		if (current == previous)
+		if (Current == Previous)
 		{
-			if      (current      == true             ) latestState = EState::PressHeld;
-			else if (currentState != EState::PressHeld) latestState = EState::None;
+			if (Current == true)
+			{
+				latestState = EState::PressHeld;
+			}
+			else
+			{
+				if (CurrentState != EState::PressHeld)
+				{
+					latestState = EState::None;
+				}
+			}
 		}
 		else
 		{
-			if   (current == false) latestState = EState::Released;
-			else                    latestState = EState::Pressed;
+			if (Current == false)
+			{
+				latestState = EState::Released;
+			}
+			else
+			{
+				latestState = EState::Pressed;
+			}
 		}
 
-		if (latestState != currentState)
+		if (latestState != CurrentState)
 		{
-			currentState = latestState;
+			CurrentState = latestState;
 
 			for (auto& sub : Context.KeyEventSubs[index])
 			{
-				if (sub != nullptr) dref(sub)(currentState);
+				if (sub != nullptr)
+				{
+					dref(sub)(CurrentState);
+				}
 			}
 		}
 	}

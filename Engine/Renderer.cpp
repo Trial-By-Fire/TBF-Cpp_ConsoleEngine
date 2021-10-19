@@ -42,9 +42,9 @@ uInt DebugLogSection_RelativeLastLine = 1;
 
 StaticArray<Line, Renderer::PersistentSize> PersistentSection;
 
-ro WString Renderer_ConsoleTitle = L"TBF C++ Engine";
+const WString Renderer_ConsoleTitle = L"TBF C++ Engine";
 
-ro COORD Console_ScreenPos_00 = 
+const COORD Console_ScreenPos_00 = 
 {
 	0,  // X
 	0   // Y
@@ -60,7 +60,7 @@ void Renderer::Clear(void)
 {
 	if (UpdateConsoleInfo())
 	{
-		unbound Cell value = { 0, 0 };
+		static Cell value = { 0, 0 };
 
 		Memory::FormatByFill<Cell>(Buffer.data(), value, BufferWidth * BufferHeight);
 	}
@@ -91,7 +91,7 @@ bool Renderer::FormatCells(void)
 	);
 }
 
-ro Data& Renderer::GetContext(void)
+const Data& Renderer::GetContext(void)
 {
 	return Context;
 }
@@ -148,7 +148,7 @@ void Renderer::Update(void)
 
 		State::GetEngineState()->Render();
 
-		if CompileTime (DebugEnabled == true)
+		if constexpr (DebugEnabled == true)
 		{
 			COORD 
 				startingCell = { 0          , BorderLineRow }, 
@@ -205,7 +205,7 @@ void Renderer::Update(void)
 	}
 }
 
-void Renderer::WriteToBufferCells(ro ptr<Cell> _cell, COORD _initalCell, COORD _finalCell)
+void Renderer::WriteToBufferCells(const ptr<Cell> _cell, COORD _initalCell, COORD _finalCell)
 {
 	uIntDM lineOffset = _initalCell.Y * BufferWidth;
 	uIntDM colOffset  = _initalCell.X;
@@ -223,7 +223,8 @@ void Renderer::WriteToBufferCells(ro ptr<Cell> _cell, COORD _initalCell, COORD _
 
 	dataSize = totalOffset - dataSize;
 
-	if (dataSize == 0) dataSize = 1;
+	if (dataSize == 0) 
+		dataSize = 1;
 
 	Memory::FormatWithData(bufferOffset, _cell, dataSize);
 
@@ -232,9 +233,9 @@ void Renderer::WriteToBufferCells(ro ptr<Cell> _cell, COORD _initalCell, COORD _
 
 void Renderer::WriteToLog(WString _logString)
 {
-	if CompileTime (DebugEnabled == true)
+	if constexpr (DebugEnabled == true)
 	{
-		unbound uInt nextLine = 0;
+		static uInt nextLine = 0;
 
 		uIntDM linePos = 0;
 
@@ -277,7 +278,7 @@ void Renderer::WriteToLog(WString _logString)
 // Note: Row starts at 1.
 void Renderer::WriteToPersistentSection(sInt _row, WString _lineformat, ...)
 {
-	if CompileTime (DebugEnabled == true)
+	if constexpr (DebugEnabled == true)
 	{
 		ptr<Cell> PersistentSubSection = PersistentSection[_row - 1].data();
 
@@ -301,7 +302,7 @@ void Renderer::WriteToPersistentSection(sInt _row, WString _lineformat, ...)
 
 void Renderer::DrawGameScanlines(void)
 {
-	unbound COORD cellIndex = { 0, 0 };
+	static COORD cellIndex = { 0, 0 };
 
 	StaticArray<Cell, BufferWidth> cellLine;
 
@@ -356,7 +357,7 @@ void Renderer::InitalizeData(void)
 
 	Cell borderCell = { '=', Console_WhiteCell }; 
 	
-	if CompileTime (DebugEnabled)
+	if constexpr (DebugEnabled)
 	{
 		for (size_t index = 0; index < BufferWidth; index++)
 		{
@@ -419,7 +420,7 @@ void Renderer::UpdateSizeAndPosition(void)
 
 void Renderer::Logs_ScrollUp(void)
 {
-	if CompileTime (DebugEnabled == true)
+	if constexpr (DebugEnabled == true)
 	{
 		if (DebugLogSection_RelativeLastLine < (DebugLogSection_Dynamic.size() - LogSize))
 		{
@@ -430,7 +431,7 @@ void Renderer::Logs_ScrollUp(void)
 
 void Renderer::Logs_ScrollDown(void)
 {
-	if CompileTime (DebugEnabled == true)
+	if constexpr (DebugEnabled == true)
 	{
 		if (DebugLogSection_RelativeLastLine > 1)
 		{

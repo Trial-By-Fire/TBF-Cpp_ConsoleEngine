@@ -21,7 +21,7 @@ Timing::Data Timing::Context;
 
 // Public
 
-ro Timing::Data& Timing::GetContext(void)
+const Timing::Data& Timing::GetContext(void)
 {
 	return Context;
 }

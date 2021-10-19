@@ -51,12 +51,13 @@ namespace Game
 
 	void Character::Update(Level& _level)
 	{
-		if (Fell == true) return;
+		if (Fell == true) 
+			return;
 
-		float32 deltaTime = SCast<ro float32>(Timing::GetContext().DeltaTime.count());
+		float32 deltaTime = SCast<const float32>(Timing::GetContext().DeltaTime.count());
 
-		unbound float32 velocity = 1.0f;
-		unbound float32 gravity  = 0.00004f;
+		static float32 velocity = 1.0f;
+		static float32 gravity  = 0.00004f;
 
 		Vector2D collisionPostion = Position;
 
@@ -87,7 +88,8 @@ namespace Game
 			Position.Y += VerticalVelocity;
 		}
 
-		if (cellTypeCollided == ELevelCell::Finish) return;
+		if (cellTypeCollided == ELevelCell::Finish) 
+			return;
 
 		if (ShouldJump && cellTypeCollided == ELevelCell::Ground)
 		{
@@ -125,7 +127,8 @@ namespace Game
 
 	void Character::Render()
 	{
-		if (Fell) return;
+		if (Fell)
+			return;
 
 		COORD renderCoord = Convert_Vector2D_ToRenderCoord(Position);
 
@@ -135,14 +138,16 @@ namespace Game
 		WriteToPersistentSection(2, WString(L"RC  X: ") + ToWString(renderCoord.X));
 		WriteToPersistentSection(4, WString(L"RC  Y: ") + ToWString(renderCoord.Y));
 
-		if (renderCoord.Y < 0                ) renderCoord.Y = 0;
-		if (renderCoord.Y > Renderer::GameEnd) renderCoord.Y = Renderer::GameEnd;
+		if (renderCoord.Y < 0) 
+			renderCoord.Y = 0;
+		if (renderCoord.Y > Renderer::GameEnd)
+			renderCoord.Y = Renderer::GameEnd;
 
 		WriteToBufferCells(getPtr(Sprite), renderCoord, renderCoord);
 
-		if CompileTime (DebugEnabled)
+		if constexpr(DebugEnabled)
 		{
-			unbound Cell colliderView(0, CAttributeField(CAttribute::BG_Intensity, CAttribute::BG_Red, CAttribute::BG_Green));
+			static Cell colliderView(0, CAttributeField(CAttribute::BG_Intensity, CAttribute::BG_Red, CAttribute::BG_Green));
 
 			COORD colliderViewCoord;
 
@@ -152,8 +157,10 @@ namespace Game
 
 			colliderViewCoord = Convert_Vector2D_ToRenderCoord(collisionPostion);
 
-			if (colliderViewCoord.Y < 0                ) colliderViewCoord.Y = 0;
-			if (colliderViewCoord.Y > Renderer::GameEnd) colliderViewCoord.Y = Renderer::GameEnd;
+			if (colliderViewCoord.Y < 0) 
+				colliderViewCoord.Y = 0;
+			if (colliderViewCoord.Y > Renderer::GameEnd) 
+				colliderViewCoord.Y = Renderer::GameEnd;
 
 			WriteToBufferCells(getPtr(colliderView), colliderViewCoord, colliderViewCoord);
 		}
@@ -184,7 +191,8 @@ namespace Game
 
 		uIntDM dataSize = totalOffset - cellsSkipped;
 
-		if (dataSize == 0) dataSize = 1;
+		if (dataSize == 0) 
+			dataSize = 1;
 
 		Cell cellFormat(0, CAttributeField(WORD(_cellType)));
 
@@ -204,7 +212,7 @@ namespace Game
 
 	COORD Convert_Vector2D_ToRenderCoord(Vector2D _vector)
 	{
-		unbound float32 
+		static float32 
 			offsetX = SCast<float32>(Renderer::BufferWidth) / 2.0f, 
 			offsetY = SCast<float32>(Renderer::GameEnd    ) / 2.0f;
 
@@ -217,8 +225,10 @@ namespace Game
 		renderingCoord.X = SCast<sInt16>(convertedX + offsetX   );	
 		renderingCoord.Y = SCast<sInt16>(offsetY    - convertedY);
 
-		if (renderingCoord.Y <  0                     ) renderingCoord.Y = 0;
-		if (renderingCoord.X >= Renderer::BufferWidth ) renderingCoord.X = Renderer::BufferWidth  - 1;
+		if (renderingCoord.Y < 0) 
+			renderingCoord.Y = 0;
+		if (renderingCoord.X >= Renderer::BufferWidth)
+			renderingCoord.X = Renderer::BufferWidth - 1;
 
 		return renderingCoord;
 	}

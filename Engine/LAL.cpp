@@ -3,7 +3,7 @@
 
 
 
-ptr<ro WChar> operator""_wc(ptr<ro wchar_t> _um, uIntDM /*_umSize*/)
+ptr<const WChar> operator""_wc(ptr<const wchar_t> _um, uIntDM /*_umSize*/)
 {
-	return RCast<ro WChar>(_um);
+	return RCast<const WChar>(_um);
 }

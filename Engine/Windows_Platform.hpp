@@ -18,17 +18,16 @@
 
 namespace OSPlatform
 {
-	CompileTime DWORD Console_Cursor_MinSize = 1;
-
-	CompileTime bool Console_Cursor_NotVisible = 0;
+	constexpr DWORD Console_Cursor_MinSize    = 1;
+	constexpr bool  Console_Cursor_NotVisible = 0;
 
 	
 
 	namespace StdHandle
 	{
-		CompileTime DWORD Input  = STD_INPUT_HANDLE;
-		CompileTime DWORD Output = STD_OUTPUT_HANDLE;
-		CompileTime DWORD Error  = STD_ERROR_HANDLE;
+		constexpr DWORD Input  = STD_INPUT_HANDLE;
+		constexpr DWORD Output = STD_OUTPUT_HANDLE;
+		constexpr DWORD Error  = STD_ERROR_HANDLE;
 
 		HANDLE Invalid();
 	}
@@ -64,7 +63,8 @@ namespace OSPlatform
 
 	using CAttributeField = Bitfield<CAttribute, WORD>;
 
-	CompileTime CAttributeField Console_WhiteCell(CAttribute::FG_Red, CAttribute::FG_Green, CAttribute::FG_Blue, CAttribute::FG_Intensity);
+	constexpr 
+	CAttributeField Console_WhiteCell(CAttribute::FG_Red, CAttribute::FG_Green, CAttribute::FG_Blue, CAttribute::FG_Intensity);
 
 	struct ConsoleCell
 	{

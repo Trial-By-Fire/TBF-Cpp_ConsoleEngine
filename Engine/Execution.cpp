@@ -35,7 +35,7 @@ void UnloadModules(void)
 
 ExitCode EntryPoint(void)
 {
-	if CompileTime(DebugEnabled)
+	if constexpr(DebugEnabled)
 	{
 		try
 		{
@@ -55,7 +55,7 @@ ExitCode EntryPoint(void)
 
 			return ExitCode::Success;
 		}
-		catch (ro Exception& _exception)
+		catch (const Exception& _exception)
 		{
 			cerr << _exception.what() << endl;
 

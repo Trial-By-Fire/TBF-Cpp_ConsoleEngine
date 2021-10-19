@@ -16,9 +16,9 @@ namespace Game
 	using Cell = Renderer::Cell;
 	using Line = Renderer::Line;
 
-	CompileTime auto WriteToBufferCells       = Renderer::WriteToBufferCells;
-	CompileTime auto WriteToLog               = Renderer::WriteToLog;
-	CompileTime auto WriteToPersistentSection = Renderer::WriteToPersistentSection;
+	constexpr auto WriteToBufferCells       = Renderer::WriteToBufferCells;
+	constexpr auto WriteToLog               = Renderer::WriteToLog;
+	constexpr auto WriteToPersistentSection = Renderer::WriteToPersistentSection;
 
 
 

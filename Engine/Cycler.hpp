@@ -15,8 +15,8 @@ public:
 
 	// Functions
 
-	unbound void Initialize(void);
+	static void Initialize(void);
 
-	unbound void Lapse(void);
+	static void Lapse(void);
 };
 

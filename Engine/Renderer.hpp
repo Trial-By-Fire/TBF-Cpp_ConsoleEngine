@@ -20,14 +20,14 @@ public:
 
 	// Constants
 
-	unbound CompileTime uInt16 BufferWidth     = 80;
-	unbound CompileTime uInt16 BufferHeight    = DebugEnabled ? 48 : 24;
-	unbound CompileTime uInt16 BorderLineRow   = 24;
-	unbound CompileTime uInt16 DebugStart      = 25;
-	unbound CompileTime uInt16 LogSize         = 18;
-	unbound CompileTime uInt16 PersistentStart = 44;
-	unbound CompileTime uInt16 PersistentSize  = 4 ;
-	unbound CompileTime uInt16 GameEnd         = 23;
+	static constexpr uInt16 BufferWidth     = 80;
+	static constexpr uInt16 BufferHeight    = DebugEnabled ? 48 : 24;
+	static constexpr uInt16 BorderLineRow   = 24;
+	static constexpr uInt16 DebugStart      = 25;
+	static constexpr uInt16 LogSize         = 18;
+	static constexpr uInt16 PersistentStart = 44;
+	static constexpr uInt16 PersistentSize  = 4 ;
+	static constexpr uInt16 GameEnd         = 23;
 
 
 
@@ -79,46 +79,46 @@ public:
 
 	// Functions
 
-	unbound ro Data& GetContext(void);
+	static const Data& GetContext(void);
 
-	unbound void LoadModule(void);
+	static void LoadModule(void);
 
-	unbound void UnloadModule(void);
+	static void UnloadModule(void);
 
-	unbound void Update(void);
+	static void Update(void);
 
-	unbound void WriteToBufferCells(ptr<Cell> _cells, COORD _initalCell, COORD _finalCell);
+	static void WriteToBufferCells(ptr<Cell> _cells, COORD _initalCell, COORD _finalCell);
 
-	unbound void WriteToLog(WString _logString);
+	static void WriteToLog(WString _logString);
 
-	unbound void WriteToPersistentSection(sInt _row, WString _lineformat, ...);
+	static void WriteToPersistentSection(sInt _row, WString _lineformat, ...);
 
-	unbound void Logs_ScrollUp(void);
+	static void Logs_ScrollUp(void);
 
-	unbound void Logs_ScrollDown(void);
+	static void Logs_ScrollDown(void);
 
 
 private:
 
-	unbound void DrawGameScanlines    (void);
-	unbound void InitalizeData        (void);
-	unbound void SetupConsole         (void);
-	unbound bool UpdateConsoleInfo    (void);
-	unbound void UpdateSizeAndPosition(void);
+	static void DrawGameScanlines    (void);
+	static void InitalizeData        (void);
+	static void SetupConsole         (void);
+	static bool UpdateConsoleInfo    (void);
+	static void UpdateSizeAndPosition(void);
 
-	unbound void Clear(void);
+	static void Clear(void);
 
-	unbound bool FillCellsWithWhitespace(void);
+	static bool FillCellsWithWhitespace(void);
 
-	unbound void ProcessTiming();
+	static void ProcessTiming();
 
-	unbound bool FormatCells(void);
+	static bool FormatCells(void);
 
-	unbound void RenderFrame(void);
+	static void RenderFrame(void);
 
-	unbound void ResetDrawPosition(void);
+	static void ResetDrawPosition(void);
 
 
-	unbound Data Context;
+	static Data Context;
 };
 

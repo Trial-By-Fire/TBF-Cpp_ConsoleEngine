@@ -16,8 +16,8 @@ namespace Game
 	{
 	public:
 
-		unbound void PressResume    (void);
-		unbound void PressQuitToMenu(void);
+		static void PressResume    (void);
+		static void PressQuitToMenu(void);
 
 		void Load  (void) final;
 		void Unload(void) final;

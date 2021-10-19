@@ -21,27 +21,27 @@ public:
 
 	// C-API
 
-	template<typename Type> unbound ptr<Type> HeapAllocate  (uIntDM    _numberToAllocate                                              );
-	template<typename Type>	unbound ptr<Type> HeapReallocate(ptr<Type> _memoryToReallocate, uIntDM _originalNum, uIntDM _numberDesired);
-	                        unbound void      Deallocate    (ptr<void> _memoryToDeallocate                                            );
+	template<typename Type> static ptr<Type> HeapAllocate  (uIntDM    _numberToAllocate                                              );
+	template<typename Type>	static ptr<Type> HeapReallocate(ptr<Type> _memoryToReallocate, uIntDM _originalNum, uIntDM _numberDesired);
+	                        static void      Deallocate    (ptr<void> _memoryToDeallocate                                            );
 
-	template<typename Type>	unbound ptr<void> FormatByFill  (ptr<Type> _memoryAddress, Type&        _fillValue , uIntDM _sizeOfData);
-	template<typename Type> unbound ptr<void> FormatWithData(ptr<Type> _memoryAddress, ptr<ro Type> _dataSource, uIntDM _sizeOfData);
+	template<typename Type>	static ptr<void> FormatByFill  (ptr<Type> _memoryAddress, Type&        _fillValue , uIntDM _sizeOfData);
+	template<typename Type> static ptr<void> FormatWithData(ptr<Type> _memoryAddress, ptr<const Type> _dataSource, uIntDM _sizeOfData);
 
 	// Memory Management
 
 	template<typename Type>
 	ptr<Type> Allocate(uIntDM _numberToAllocate);
 
-	template<typename Type> unbound ptr<Type> GlobalAllocate  (                     uIntDM _sizeOfAllocation   );
-	template<typename Type> unbound ptr<Type> GlobalReallocate(ptr<Type> _location, uIntDM _sizeForReallocation);
+	template<typename Type> static ptr<Type> GlobalAllocate  (                     uIntDM _sizeOfAllocation   );
+	template<typename Type> static ptr<Type> GlobalReallocate(ptr<Type> _location, uIntDM _sizeForReallocation);
 
 
 private:
 
 	BlockArray records;
 
-	unbound Memory GlobalMemory;
+	static Memory GlobalMemory;
 };
 
 

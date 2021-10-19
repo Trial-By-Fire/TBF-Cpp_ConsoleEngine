@@ -27,20 +27,20 @@ Used for defining a non-compile time constant.
 Where something is really just said to not be changeable instead of being a true constant.
 const are put in read only memory.
 */
-#define ro \
-const
+//#define ro
+//const
 
 // Creates a static duration variable accessible to any file or linkage. (Global/File scope Only)
-#define foreign \
+#define ExportLinkage \
 extern
 
 // Define a internal linkage variable accessible to only the file or linkage.
-#define noLinkage \
+#define NoLinkage \
 static
 
 //
-#define unbound \
-static
+//#define unbound
+//static
 
 //////////////////////////////////// End of Macros   ///////////////////////////////////////////////
 
@@ -113,6 +113,16 @@ using Microseconds = std::chrono::microseconds;
 using Milliseconds = std::chrono::milliseconds;
 using Miliseconds  = std::chrono::nanoseconds ;
 
+template<bool Constraint, typename ReturnType>
+using Where = typename std::enable_if<Constraint, ReturnType>::type;
+
+template<typename Type>
+constexpr 
+bool IsWithinDataModelSize()
+{
+	return sizeof(Type) <= sizeof(uIntDM);
+}
+
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
 
@@ -152,34 +162,66 @@ Type& dref(ptr<Type> _ptr)
 
 // Casting
 
-template<typename Derived, typename Base>
-Derived RCast(Base _obj)
+/*
+Reinterpret Cast (Pointer)
+*/
+template<typename Derived, typename Base> 
+constexpr
+Derived& RCast(Base& _ptr)
 {
-	return reinterpret_cast<Derived>(_obj);
+	return reinterpret_cast< Derived& >(_ptr);
 }
 
-template<typename Derived, typename Base>
-ptr<Derived> RCast(ptr<Base> _ref)
+/*
+Reinterpret Cast (Pointer)
+*/
+template<typename Derived, typename Base> 
+constexpr
+Derived* RCast(Base* _ptr)
 {
-	return reinterpret_cast< ptr<Derived>>(_ref);
+	return reinterpret_cast< Derived* >(_ptr);
 }
 
+/*
+Static Cast (Value)
+*/
 template<typename Derived, typename Base>
-Derived SCast(Base _obj)
+constexpr 
+Where<IsWithinDataModelSize<Base>(),
+Derived> SCast(Base _obj)
 {
 	return static_cast<Derived>(_obj);
 }
 
-template<typename Derived, typename Base>
-ptr<Derived> SCast(ptr<Base> _ref)
+/*
+Static Cast (Reference)
+*/
+template<typename Derived, typename Base> 
+constexpr
+Where<! IsWithinDataModelSize<Base>(),
+Derived&>  SCast(Base& _obj)
 {
-	return static_cast< ptr<Derived>>(_ref);
+	return static_cast< Derived& >(_obj);
+}
+
+/*
+Static Cast (Pointer)
+*/
+template<typename Derived, typename Base> 
+constexpr 
+Derived* SCast(Base* _ptr)
+{
+	return static_cast< Derived* >(_ptr);
 }
 
 
-ptr<ro WChar> operator""_wc(ptr<ro wchar_t> _um, uIntDM _umSize);
+ptr<const WChar> operator""_wc(ptr<const wchar_t> _um, uIntDM _umSize);
 
 
+template<uIntDM NumberOfBits>
+using Bitset = std::bitset<NumberOfBits>;
+
+#pragma region BitmaskableTraits
 
 template<typename Enum, typename = void>
 /**
@@ -188,38 +230,47 @@ template<typename Enum, typename = void>
 struct IsBitmaskable : std::false_type
 {};
 
+#define HasMemberSymbol(__MEMBER_SYMBOL)\
+	decltype(static_cast<void>(__MEMBER_SYMBOL))
+
 template<typename Enum>
 /**
 @brief Will be defined with a true_type when enum has the SpecifyBitmaskable enum value.
 */
-struct IsBitmaskable<Enum, decltype(static_cast<void>(Enum::SpecifyBitmaskable))> : std::is_enum<Enum>
+struct IsBitmaskable<Enum, HasMemberSymbol(Enum::SpecifyBitmaskable)> : std::is_enum<Enum>
 {};
 
 template <typename Enum>
 /**
 @brief Returns true if IsBitmaskable is false.
 */
-constexpr typename std::enable_if<IsBitmaskable<Enum>::value, bool>::
-type Bitmaskable() noexcept
+constexpr Where<IsBitmaskable<Enum>::value, 
+bool> Bitmaskable() noexcept
 {
-	return static_cast<std::size_t>(Enum::SpecifyBitmaskable) > std::size_t(0) ? true : false;
+	// Make sure enum member is greater than 0 (as it was supposed to be one of the last if not last entry).
+	return SCast<uIntDM>(Enum::SpecifyBitmaskable) > uIntDM(0) ? true : false;
 }
 
 template <typename Enum> 
 /**
 @brief Returns false if bitmaskable is false (Default case).
 */
-constexpr typename std::enable_if<!IsBitmaskable<Enum>::value, bool>::
-type Bitmaskable() noexcept
+constexpr Where<! IsBitmaskable<Enum>::value, 
+bool> Bitmaskable() noexcept
 {
 	return false;
 }
+
+#pragma endregion BitmaskableTraits
 
 template
 <
 	typename EnumType             ,
 	typename BitmaskRepresentation
 >
+/**
+A wrapper object for bitfields that allows for typesafe bitmask operations.
+*/
 class Bitfield
 {
 private:
@@ -232,103 +283,144 @@ public:
 	using Enum           = EnumType             ;
 	using Representation = BitmaskRepresentation;
 
-	Bitfield() : mask(0) {}
+	static constexpr uIntDM NumBits = sizeof(Representation) * 8;
 
-	CompileTime Bitfield(Representation _mask) : mask(_mask)
+	Bitfield() : bitfield(0) {}
+
+	Bitfield(Representation _mask) : bitfield(_mask)
 	{}
 
 	template<typename... BitTypes>
-	CompileTime Bitfield(const BitTypes... _bits) : mask(0)
+	constexpr
+	Bitfield(const BitTypes... _bits) : bitfield(0)
 	{
-		mask = (Representation(_bits) | ...);
+		bitfield = (Representation(_bits) | ...);
 	}
 
 	template<typename... BitType>
+	inline
 	void Add(const BitType... _bits)
 	{
-		mask |= (Representation(_bits) | ...);
+		bitfield |= (Representation(_bits) | ...);
 	}
 
 	template<typename... BitType>
+	inline
 	bool CheckForEither(const BitType... _bits) const
 	{
-		return (mask & (Representation(_bits) | ...)) != 0;
+		return (bitfield & (Representation(_bits) | ...)) != 0;
 	}
 
 	template<typename... BitType>
+	inline
 	void Clear(const BitType... _bits)
 	{
-		if (mask <= 0) return;
+		if (bitfield <= 0) 
+			return;
 
-		mask &= ~(Representation(_bits) | ...);
+		bitfield &= ~(Representation(_bits) | ...);
 	}
 
+	inline
 	bool HasFlag(const Enum _bit) const
 	{
-		return (mask & Representation(_bit)) == Representation(_bit);
+		return (bitfield & Representation(_bit)) == Representation(_bit);
 	}
 
 	template<typename... BitType>
+	inline
 	bool HasExactly(const BitType... _bits) const
 	{
-		return (mask & (Representation(_bits) | ...)) == mask;
+		return (bitfield & (Representation(_bits) | ...)) == bitfield;
 	}
 
-	bool HasAnyFlag() const { return mask != 0 ? true : false; }
-	bool IsZero    () const { return mask == 0 ? true : false; }	
+	inline
+	bool HasAnyFlag() const 
+	{
+		return bitfield != 0 ? true : false; 
+	}
 
-	void Reset() { mask = 0; }
+	inline
+	bool IsZero() const 
+	{
+		return bitfield == 0 ? true : false; 
+	}	
+
+	inline
+	void Reset() 
+	{
+		bitfield = 0; 
+	}
 
 	template<typename... BitType>
+	inline
 	void Set(const BitType... _bits)
 	{
-		mask = (Representation(_bits) | ...);
+		bitfield = (Representation(_bits) | ...);
 	}
 
 	template<typename... BitType>
+	inline
 	void Toggle(const BitType... _bits)
 	{
-		mask ^= (Representation(_bits) | ...);
+		bitfield ^= (Representation(_bits) | ...);
 	}
 
-	operator Representation() const { return mask; }
+	operator Representation() const 
+	{
+		return bitfield; 
+	}
 
-	_ThisType& operator= (const Representation _mask ) { mask = _mask      ; return *this; }
-	_ThisType& operator= (const _ThisType      _other) { mask = _other.mask; return *this; }
+	operator Bitset<NumBits>()
+	{
+		return bitfield;
+	}
 
-	_ThisType& operator&= (const Representation _mask ) { mask &= mask       ; return *this; }
-	_ThisType& operator&= (const _ThisType      _other) { mask &= _other.mask; return *this; }
+	String ToString()
+	{
+		std::stringstream stream;
 
-	_ThisType& operator|= (const Representation _mask ) { mask |= mask       ; return *this; }
-	_ThisType& operator|= (const _ThisType      _other) { mask |= _other.mask; return *this; }	
+		stream << Bitset<NumBits>(bitfield);
 
-	_ThisType& operator^= (const Representation _mask ) { mask ^= mask       ; return *this; }
-	_ThisType& operator^= (const _ThisType      _other) { mask ^= _other.mask; return *this; }	
+		return stream.str();
+	}
 
-	_ThisType& operator<<= (const Representation _mask ) { mask <<= mask       ; return *this; }
-	_ThisType& operator>>= (const _ThisType      _other) { mask >>= _other.mask; return *this; }	
+	_ThisType& operator= (const Representation _mask ) { bitfield = _mask; return *this; }
+	_ThisType& operator= (const _ThisType      _other) { bitfield = _other.bitfield; return *this; }
 
-	_ThisType operator~ () const { return ~mask; }
+	_ThisType& operator&= (const Representation _mask ) { bitfield &= _mask; return *this; }
+	_ThisType& operator&= (const _ThisType      _other) { bitfield &= _other.bitfield; return *this; }
 
-	Representation operator& (const Representation _other) const { return mask & _other     ; }
-	_ThisType      operator& (const _ThisType      _other) const { return mask & _other.mask; }
+	_ThisType& operator|= (const Representation _mask ) { bitfield |= _mask; return *this; }
+	_ThisType& operator|= (const _ThisType      _other) { bitfield |= _other.bitfield; return *this; }	
 
-	Representation operator| (const Representation _other) const { return mask | _other     ; }
-	_ThisType      operator| (const _ThisType      _other) const { return mask | _other.mask; }
+	_ThisType& operator^= (const Representation _mask ) { bitfield ^= _mask; return *this; }
+	_ThisType& operator^= (const _ThisType      _other) { bitfield ^= _other.bitfield; return *this; }	
 
-	Representation operator^ (const Representation _other) const { return mask ^ _other     ; }
-	_ThisType      operator^ (const _ThisType      _other) const { return mask ^ _other.mask; }
+	_ThisType& operator<<= (const Representation _mask ) { bitfield <<= _mask; return *this; }
+	_ThisType& operator>>= (const _ThisType      _other) { bitfield >>= _other.bitfield; return *this; }	
 
-	Representation operator<< (const Representation _other) const { return mask << _other     ; }
-	_ThisType      operator>> (const _ThisType      _other) const { return mask >> _other.mask; }
+	_ThisType operator~ () const { return ~bitfield; }
 
-	bool operator== (const Representation _other) const { return mask == _other     ; }
-	bool operator== (const _ThisType      _other) const { return mask == _other.mask; }
+	Representation operator& (const Representation _other) const { return bitfield & _other; }
+	_ThisType      operator& (const _ThisType      _other) const { return bitfield & _other.bitfield; }
 
-	bool operator!= (const Representation _other) const { return mask != _other     ; }
-	bool operator!= (const _ThisType      _other) const { return mask != _other.mask; }
+	Representation operator| (const Representation _other) const { return bitfield | _other; }
+	_ThisType      operator| (const _ThisType      _other) const { return bitfield | _other.bitfield; }
+
+	Representation operator^ (const Representation _other) const { return bitfield ^ _other; }
+	_ThisType      operator^ (const _ThisType      _other) const { return bitfield ^ _other.bitfield; }
+
+	Representation operator<< (const Representation _other) const { return bitfield << _other; }
+	_ThisType      operator>> (const _ThisType      _other) const { return bitfield >> _other.bitfield; }
+
+	bool operator== (const Representation _other) const { return bitfield == _other; }
+	bool operator== (const _ThisType      _other) const { return bitfield == _other.bitfield; }
+
+	bool operator!= (const Representation _other) const { return bitfield != _other; }
+	bool operator!= (const _ThisType      _other) const { return bitfield != _other.bitfield; }
 
 private:
 
-	Representation mask;
+	Representation bitfield;
 };
